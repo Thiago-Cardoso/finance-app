@@ -74,12 +74,4 @@ Rails.application.configure do
   # Development specific configurations
   config.log_level = :debug
   config.log_tags = [:request_id]
-
-  # CORS for development
-  config.middleware.insert_before 0, Rack::Cors do
-    allow do
-      origins 'http://localhost:3000', 'http://127.0.0.1:3000'
-      resource '*', headers: :any, methods: [:get, :post, :patch, :put, :delete, :options, :head]
-    end
-  end
 end
