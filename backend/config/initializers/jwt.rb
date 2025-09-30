@@ -11,7 +11,7 @@ module JwtAuth
   # Encryption algorithm
   JWT_ALGORITHM = 'HS256'
 
-  # Tempo de expiração do token (24 horas)
+  # Token expiration time (24 hours)
   TOKEN_EXPIRATION = 24.hours
 
   # Codificar payload em token JWT
