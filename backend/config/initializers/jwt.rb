@@ -14,7 +14,7 @@ module JwtAuth
   # Token expiration time (24 hours)
   TOKEN_EXPIRATION = 24.hours
 
-  # Codificar payload em token JWT
+  # Encode payload into JWT token
   def self.encode(payload, expiration = TOKEN_EXPIRATION.from_now)
     payload[:exp] = expiration.to_i
     payload[:iat] = Time.current.to_i
