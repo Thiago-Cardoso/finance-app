@@ -8,7 +8,7 @@ module JwtAuth
   # Secret key for signing JWT tokens
   JWT_SECRET = ENV.fetch('JWT_SECRET_KEY') { Rails.application.credentials.secret_key_base }
 
-  # Algoritmo de criptografia
+  # Encryption algorithm
   JWT_ALGORITHM = 'HS256'
 
   # Tempo de expiração do token (24 horas)
