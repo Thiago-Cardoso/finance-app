@@ -31,7 +31,7 @@ module JwtAuth
     nil
   end
 
-  # Verificar se token é válido
+  # Verify if token is valid
   def self.valid_token?(token)
     decode(token).present?
   end
