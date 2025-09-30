@@ -11,13 +11,15 @@ Rails.application.routes.draw do
       # Health check endpoint
       get '/health', to: 'health#show'
 
-      # Authentication routes (will be implemented in task 6.0)
+      # Authentication routes
       namespace :auth do
-        post 'sign_up', to: 'registrations#create'
-        post 'sign_in', to: 'sessions#create'
-        delete 'sign_out', to: 'sessions#destroy'
-        post 'password/reset', to: 'passwords#create'
-        put 'password/update', to: 'passwords#update'
+        post 'sign_up', to: 'auth#sign_up'
+        post 'sign_in', to: 'auth#sign_in'
+        delete 'sign_out', to: 'auth#sign_out'
+        post 'refresh_token', to: 'auth#refresh_token'
+        post 'reset_password', to: 'auth#reset_password'
+        put 'update_password', to: 'auth#update_password'
+        post 'confirm_email', to: 'auth#confirm_email'
       end
 
       # Dashboard endpoint
