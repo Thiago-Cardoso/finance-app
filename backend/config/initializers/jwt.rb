@@ -5,7 +5,7 @@ require 'jwt'
 # JWT configuration for API authentication
 
 module JwtAuth
-  # Secret key para assinar tokens JWT
+  # Secret key for signing JWT tokens
   JWT_SECRET = ENV.fetch('JWT_SECRET_KEY') { Rails.application.credentials.secret_key_base }
 
   # Algoritmo de criptografia
