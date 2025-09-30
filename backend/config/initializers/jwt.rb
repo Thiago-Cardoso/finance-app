@@ -1,0 +1,38 @@
+# frozen_string_literal: true
+
+require 'jwt'
+
+# Configuração JWT para autenticação de API
+
+module JwtAuth
+  # Secret key para assinar tokens JWT
+  JWT_SECRET = ENV.fetch('JWT_SECRET_KEY') { Rails.application.credentials.secret_key_base }
+
+  # Algoritmo de criptografia
+  JWT_ALGORITHM = 'HS256'
+
+  # Tempo de expiração do token (24 horas)
+  TOKEN_EXPIRATION = 24.hours
+
+  # Codificar payload em token JWT
+  def self.encode(payload, expiration = TOKEN_EXPIRATION.from_now)
+    payload[:exp] = expiration.to_i
+    payload[:iat] = Time.current.to_i
+
+    JWT.encode(payload, JWT_SECRET, JWT_ALGORITHM)
+  end
+
+  # Decodificar token JWT
+  def self.decode(token)
+    decoded = JWT.decode(token, JWT_SECRET, true, { algorithm: JWT_ALGORITHM })
+    decoded[0]
+  rescue JWT::DecodeError, JWT::ExpiredSignature => e
+    Rails.logger.error("JWT decode error: #{e.message}")
+    nil
+  end
+
+  # Verificar se token é válido
+  def self.valid_token?(token)
+    decode(token).present?
+  end
+end
