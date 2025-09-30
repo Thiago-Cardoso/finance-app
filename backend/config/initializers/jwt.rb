@@ -22,7 +22,7 @@ module JwtAuth
     JWT.encode(payload, JWT_SECRET, JWT_ALGORITHM)
   end
 
-  # Decodificar token JWT
+  # Decode JWT token
   def self.decode(token)
     decoded = JWT.decode(token, JWT_SECRET, true, { algorithm: JWT_ALGORITHM })
     decoded[0]
