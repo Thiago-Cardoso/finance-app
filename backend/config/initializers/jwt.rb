@@ -2,7 +2,7 @@
 
 require 'jwt'
 
-# Configuração JWT para autenticação de API
+# JWT configuration for API authentication
 
 module JwtAuth
   # Secret key para assinar tokens JWT
