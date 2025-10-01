@@ -10,14 +10,14 @@ RSpec.shared_examples 'validates numericality of' do |field, options = {}|
   it "validates numericality of #{field}" do
     subject.send("#{field}=", 'not a number')
     expect(subject).not_to be_valid
-    expect(subject.errors[field]).to include('is not a number')
+    expect(subject.errors.added?(field, :not_a_number)).to be true
   end
 
   if options[:greater_than]
     it "validates #{field} is greater than #{options[:greater_than]}" do
       subject.send("#{field}=", options[:greater_than] - 1)
       expect(subject).not_to be_valid
-      expect(subject.errors[field]).to include("must be greater than #{options[:greater_than]}")
+      expect(subject.errors.added?(field, :greater_than, value: options[:greater_than])).to be true
     end
   end
 end
