@@ -16,9 +16,9 @@ RSpec.describe 'Api::V1::Auth', type: :request do
   describe 'POST /api/v1/auth/sign_up' do
     context 'with valid parameters' do
       it 'creates a new user and returns tokens' do
-        expect {
+        expect do
           post '/api/v1/auth/sign_up', params: { user: valid_attributes }
-        }.to change(User, :count).by(1)
+        end.to change(User, :count).by(1)
 
         expect(response).to have_http_status(:created)
         expect(json_response['success']).to be true
@@ -101,7 +101,9 @@ RSpec.describe 'Api::V1::Auth', type: :request do
     end
 
     context 'with unconfirmed email' do
-      let!(:unconfirmed_user) { create(:user, :unconfirmed, email: 'unconfirmed@example.com', password: 'Password123!') }
+      let!(:unconfirmed_user) do
+        create(:user, :unconfirmed, email: 'unconfirmed@example.com', password: 'Password123!')
+      end
 
       it 'returns error for unconfirmed email' do
         post '/api/v1/auth/sign_in', params: {
@@ -202,11 +204,11 @@ RSpec.describe 'Api::V1::Auth', type: :request do
     let!(:user) { create(:user, email: 'test@example.com') }
 
     it 'sends reset password instructions' do
-      expect {
+      expect do
         post '/api/v1/auth/reset_password', params: {
           user: { email: 'test@example.com' }
         }
-      }.to change { ActionMailer::Base.deliveries.count }.by(1)
+      end.to change { ActionMailer::Base.deliveries.count }.by(1)
 
       expect(response).to have_http_status(:ok)
       expect(json_response['success']).to be true
