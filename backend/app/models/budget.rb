@@ -81,7 +81,7 @@ class Budget < ApplicationRecord
   def category_must_be_expense_type
     return if category.blank?
 
-    return unless category.category_type != 'expense'
+    return if category.category_type == 'expense'
 
     errors.add(:category, 'must be of type expense')
   end
