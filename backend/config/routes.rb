@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  # Devise routes - skip controllers but keep routes for URL helpers in mailers
+  devise_for :users, skip: [:sessions, :registrations]
+
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
@@ -13,13 +16,13 @@ Rails.application.routes.draw do
 
       # Authentication routes
       namespace :auth do
-        post 'sign_up', to: 'auth#sign_up'
-        post 'sign_in', to: 'auth#sign_in'
-        delete 'sign_out', to: 'auth#sign_out'
-        post 'refresh_token', to: 'auth#refresh_token'
-        post 'reset_password', to: 'auth#reset_password'
-        put 'update_password', to: 'auth#update_password'
-        post 'confirm_email', to: 'auth#confirm_email'
+        post :sign_up
+        post :sign_in
+        delete :sign_out
+        post :refresh_token
+        post :reset_password
+        put :update_password
+        post :confirm_email
       end
 
       # Dashboard endpoint
