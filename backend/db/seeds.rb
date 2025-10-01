@@ -3,7 +3,7 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
-puts "Seeding database..."
+Rails.logger.debug 'Seeding database...'
 
 # Clear existing default categories
 Category.where(is_default: true).destroy_all
@@ -52,7 +52,7 @@ expense_categories.each do |category_data|
     is_active: true,
     user_id: nil
   )
-  puts "Created default expense category: #{category_data[:name]}"
+  Rails.logger.debug { "Created default expense category: #{category_data[:name]}" }
 end
 
 # Create income categories
@@ -66,9 +66,9 @@ income_categories.each do |category_data|
     is_active: true,
     user_id: nil
   )
-  puts "Created default income category: #{category_data[:name]}"
+  Rails.logger.debug { "Created default income category: #{category_data[:name]}" }
 end
 
-puts "Seed completed! Created #{Category.count} default categories."
-puts "  - #{Category.where(category_type: 'expense').count} expense categories"
-puts "  - #{Category.where(category_type: 'income').count} income categories"
+Rails.logger.debug { "Seed completed! Created #{Category.count} default categories." }
+Rails.logger.debug { "  - #{Category.where(category_type: 'expense').count} expense categories" }
+Rails.logger.debug { "  - #{Category.where(category_type: 'income').count} income categories" }
