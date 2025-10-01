@@ -58,37 +58,37 @@ RSpec.describe Category, type: :model do
 
     describe '.defaults' do
       it 'returns only default categories' do
-        expect(Category.defaults).to include(default_category)
-        expect(Category.defaults).not_to include(custom_category)
+        expect(described_class.defaults).to include(default_category)
+        expect(described_class.defaults).not_to include(custom_category)
       end
     end
 
     describe '.custom' do
       it 'returns only custom categories' do
-        expect(Category.custom).to include(custom_category)
-        expect(Category.custom).not_to include(default_category)
+        expect(described_class.custom).to include(custom_category)
+        expect(described_class.custom).not_to include(default_category)
       end
     end
 
     describe '.active' do
       it 'returns only active categories' do
-        expect(Category.active).to include(default_category, custom_category)
-        expect(Category.active).not_to include(inactive_category)
+        expect(described_class.active).to include(default_category, custom_category)
+        expect(described_class.active).not_to include(inactive_category)
       end
     end
 
     describe '.for_type' do
       it 'returns categories for given type' do
-        expect(Category.for_type('income')).to include(income_category)
-        expect(Category.for_type('income')).not_to include(expense_category)
+        expect(described_class.for_type('income')).to include(income_category)
+        expect(described_class.for_type('income')).not_to include(expense_category)
       end
     end
 
     describe '.for_user' do
       it 'returns categories for given user' do
         user = custom_category.user
-        expect(Category.for_user(user)).to include(custom_category)
-        expect(Category.for_user(user)).not_to include(default_category)
+        expect(described_class.for_user(user)).to include(custom_category)
+        expect(described_class.for_user(user)).not_to include(default_category)
       end
     end
   end
@@ -102,19 +102,19 @@ RSpec.describe Category, type: :model do
       let!(:inactive_category) { create(:category, :default, is_active: false) }
 
       it 'returns default categories' do
-        expect(Category.available_for_user(user)).to include(default_category)
+        expect(described_class.available_for_user(user)).to include(default_category)
       end
 
       it 'returns user custom categories' do
-        expect(Category.available_for_user(user)).to include(user_category)
+        expect(described_class.available_for_user(user)).to include(user_category)
       end
 
       it 'does not return other users categories' do
-        expect(Category.available_for_user(user)).not_to include(other_user_category)
+        expect(described_class.available_for_user(user)).not_to include(other_user_category)
       end
 
       it 'does not return inactive categories' do
-        expect(Category.available_for_user(user)).not_to include(inactive_category)
+        expect(described_class.available_for_user(user)).not_to include(inactive_category)
       end
     end
   end
@@ -126,7 +126,8 @@ RSpec.describe Category, type: :model do
       let(:account) { create(:account, user: user) }
 
       before do
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 100, date: Date.current)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 100,
+                                       date: Date.current)
         create(:transaction, :expense, user: user, category: category, account: account, amount: 50, date: Date.current)
         create(:transaction, :expense, user: user, category: category, account: account, amount: 75, date: 2.months.ago)
       end

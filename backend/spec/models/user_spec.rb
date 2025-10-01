@@ -20,7 +20,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'requires password on create' do
-      user = User.new(
+      user = described_class.new(
         email: 'test@example.com',
         first_name: 'John',
         last_name: 'Doe'
@@ -41,7 +41,7 @@ RSpec.describe User, type: :model do
   describe 'callbacks' do
     describe '#generate_jti' do
       it 'generates JTI before validation on create' do
-        user = User.new(
+        user = described_class.new(
           email: 'test@example.com',
           password: 'password123',
           password_confirmation: 'password123',
@@ -80,9 +80,12 @@ RSpec.describe User, type: :model do
       let(:account) { create(:account, user: user, initial_balance: 5000, current_balance: 5000) }
 
       before do
-        create(:transaction, :income, user: user, account: account, category: income_category, amount: 1000, date: Date.current)
-        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 500, date: Date.current)
-        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300, date: 2.months.ago)
+        create(:transaction, :income, user: user, account: account, category: income_category, amount: 1000,
+                                      date: Date.current)
+        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 500,
+                                       date: Date.current)
+        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300,
+                                       date: 2.months.ago)
       end
 
       it 'returns income, expenses and balance for current month' do
@@ -103,27 +106,27 @@ RSpec.describe User, type: :model do
 
   describe 'Devise modules' do
     it 'includes database_authenticatable' do
-      expect(User.devise_modules).to include(:database_authenticatable)
+      expect(described_class.devise_modules).to include(:database_authenticatable)
     end
 
     it 'includes registerable' do
-      expect(User.devise_modules).to include(:registerable)
+      expect(described_class.devise_modules).to include(:registerable)
     end
 
     it 'includes recoverable' do
-      expect(User.devise_modules).to include(:recoverable)
+      expect(described_class.devise_modules).to include(:recoverable)
     end
 
     it 'includes rememberable' do
-      expect(User.devise_modules).to include(:rememberable)
+      expect(described_class.devise_modules).to include(:rememberable)
     end
 
     it 'includes validatable' do
-      expect(User.devise_modules).to include(:validatable)
+      expect(described_class.devise_modules).to include(:validatable)
     end
 
     it 'includes confirmable' do
-      expect(User.devise_modules).to include(:confirmable)
+      expect(described_class.devise_modules).to include(:confirmable)
     end
   end
 end
