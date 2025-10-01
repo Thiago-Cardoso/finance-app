@@ -34,34 +34,34 @@ RSpec.describe Goal, type: :model do
 
     describe '.for_user' do
       it 'returns goals for given user' do
-        expect(Goal.for_user(user)).to include(achieved_goal, in_progress_goal)
+        expect(described_class.for_user(user)).to include(achieved_goal, in_progress_goal)
       end
     end
 
     describe '.achieved' do
       it 'returns only achieved goals' do
-        expect(Goal.achieved).to include(achieved_goal)
-        expect(Goal.achieved).not_to include(in_progress_goal)
+        expect(described_class.achieved).to include(achieved_goal)
+        expect(described_class.achieved).not_to include(in_progress_goal)
       end
     end
 
     describe '.in_progress' do
       it 'returns only goals not yet achieved' do
-        expect(Goal.in_progress).to include(in_progress_goal, overdue_goal)
-        expect(Goal.in_progress).not_to include(achieved_goal)
+        expect(described_class.in_progress).to include(in_progress_goal, overdue_goal)
+        expect(described_class.in_progress).not_to include(achieved_goal)
       end
     end
 
     describe '.by_deadline' do
       it 'orders goals by target_date ascending' do
-        expect(Goal.by_deadline.first).to eq(overdue_goal)
+        expect(described_class.by_deadline.first).to eq(overdue_goal)
       end
     end
 
     describe '.overdue' do
       it 'returns only overdue goals' do
-        expect(Goal.overdue).to include(overdue_goal)
-        expect(Goal.overdue).not_to include(achieved_goal, in_progress_goal)
+        expect(described_class.overdue).to include(overdue_goal)
+        expect(described_class.overdue).not_to include(achieved_goal, in_progress_goal)
       end
     end
   end
@@ -132,9 +132,9 @@ RSpec.describe Goal, type: :model do
       let(:goal) { create(:goal, target_amount: 1000, current_amount: 500) }
 
       it 'increases current_amount' do
-        expect {
+        expect do
           goal.add_contribution(200)
-        }.to change { goal.current_amount }.from(500).to(700)
+        end.to change(goal, :current_amount).from(500).to(700)
       end
 
       it 'marks goal as achieved when target is reached' do
@@ -145,7 +145,7 @@ RSpec.describe Goal, type: :model do
 
     describe '#suggested_monthly_contribution' do
       it 'calculates monthly amount needed' do
-        goal = build(:goal, target_amount: 12000, current_amount: 0, target_date: 12.months.from_now)
+        goal = build(:goal, target_amount: 12_000, current_amount: 0, target_date: 12.months.from_now)
         expect(goal.suggested_monthly_contribution).to eq(1000.0)
       end
 

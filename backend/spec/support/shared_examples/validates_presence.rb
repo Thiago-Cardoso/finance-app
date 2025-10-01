@@ -1,0 +1,23 @@
+RSpec.shared_examples 'validates presence of' do |field|
+  it "validates presence of #{field}" do
+    subject.send("#{field}=", nil)
+    expect(subject).not_to be_valid
+    expect(subject.errors.added?(field, :blank)).to be true
+  end
+end
+
+RSpec.shared_examples 'validates numericality of' do |field, options = {}|
+  it "validates numericality of #{field}" do
+    subject.send("#{field}=", 'not a number')
+    expect(subject).not_to be_valid
+    expect(subject.errors.added?(field, :not_a_number)).to be true
+  end
+
+  if options[:greater_than]
+    it "validates #{field} is greater than #{options[:greater_than]}" do
+      subject.send("#{field}=", options[:greater_than] - 1)
+      expect(subject).not_to be_valid
+      expect(subject.errors.added?(field, :greater_than, value: options[:greater_than])).to be true
+    end
+  end
+end

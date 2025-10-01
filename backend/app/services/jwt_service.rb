@@ -16,14 +16,14 @@ class JwtService
     # Decode JWT token and return payload
     def decode(token)
       decoded = JWT.decode(token, JWT_SECRET, true, {
-        algorithm: JWT_ALGORITHM,
-        verify_expiration: true,
-        verify_iat: true
-      })
-      HashWithIndifferentAccess.new(decoded[0])
-    rescue JWT::ExpiredSignature => e
+                             algorithm: JWT_ALGORITHM,
+                             verify_expiration: true,
+                             verify_iat: true
+                           })
+      ActiveSupport::HashWithIndifferentAccess.new(decoded[0])
+    rescue JWT::ExpiredSignature
       raise TokenExpiredError, 'Token has expired'
-    rescue JWT::DecodeError => e
+    rescue JWT::DecodeError
       raise TokenInvalidError, 'Invalid token'
     end
 
@@ -52,9 +52,7 @@ class JwtService
     def refresh_access_token(refresh_token)
       payload = decode(refresh_token)
 
-      unless payload[:type] == 'refresh'
-        raise TokenInvalidError, 'Invalid refresh token type'
-      end
+      raise TokenInvalidError, 'Invalid refresh token type' unless payload[:type] == 'refresh'
 
       user = User.find_by(id: payload[:user_id], jti: payload[:jti])
       raise TokenInvalidError, 'User not found or token revoked' unless user

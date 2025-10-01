@@ -50,10 +50,10 @@ class Budget < ApplicationRecord
 
   def calculate_spent_amount
     spent_value = user.transactions
-      .where(category: category)
-      .where(transaction_type: 'expense')
-      .where(date: start_date..end_date)
-      .sum(:amount)
+                      .where(category: category)
+                      .where(transaction_type: 'expense')
+                      .where(date: start_date..end_date)
+                      .sum(:amount)
 
     update_column(:spent, spent_value)
   end
@@ -62,10 +62,10 @@ class Budget < ApplicationRecord
     return unless transaction.category_id == category_id
     return unless transaction.date.between?(start_date, end_date)
 
-    if transaction.transaction_type == 'expense'
-      increment(:spent, transaction.amount)
-      save!
-    end
+    return unless transaction.transaction_type == 'expense'
+
+    increment(:spent, transaction.amount)
+    save!
   end
 
   private
@@ -73,16 +73,16 @@ class Budget < ApplicationRecord
   def end_date_after_start_date
     return if end_date.blank? || start_date.blank?
 
-    if end_date <= start_date
-      errors.add(:end_date, "must be after start date")
-    end
+    return if end_date > start_date
+
+    errors.add(:end_date, 'must be after start date')
   end
 
   def category_must_be_expense_type
     return if category.blank?
 
-    if category.category_type != 'expense'
-      errors.add(:category, "must be of type expense")
-    end
+    return if category.category_type == 'expense'
+
+    errors.add(:category, 'must be of type expense')
   end
 end
