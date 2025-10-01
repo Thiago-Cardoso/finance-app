@@ -70,7 +70,7 @@ class Transaction < ApplicationRecord
   def category_type_matches_transaction_type
     return if category.blank? || transfer?
 
-    return unless category.category_type != transaction_type
+    return if category.category_type == transaction_type
 
     errors.add(:category, 'type must match transaction type')
   end
