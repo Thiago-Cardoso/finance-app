@@ -121,22 +121,22 @@ module Api
 
       # Strong parameters for sign up
       def sign_up_params
-        params.expect(user: %i[email password password_confirmation first_name last_name])
+        params.require(:user).permit(:email, :password, :password_confirmation, :first_name, :last_name)
       end
 
       # Strong parameters for sign in
       def sign_in_params
-        params.expect(user: %i[email password])
+        params.require(:user).permit(:email, :password)
       end
 
       # Strong parameters for reset password
       def reset_password_params
-        params.expect(user: [:email])
+        params.require(:user).permit(:email)
       end
 
       # Strong parameters for update password
       def update_password_params
-        params.expect(user: %i[reset_password_token password password_confirmation])
+        params.require(:user).permit(:reset_password_token, :password, :password_confirmation)
       end
 
       # Format user data for API response
