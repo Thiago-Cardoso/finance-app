@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       # Main application resources (will be implemented in upcoming tasks)
       resources :transactions do
         collection do
+          get :summary
           get :search
           get :export
         end
