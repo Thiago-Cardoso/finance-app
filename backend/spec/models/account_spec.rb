@@ -9,9 +9,7 @@ RSpec.describe Account, type: :model do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_length_of(:name).is_at_most(100) }
 
-    it {
-      expect(subject).to validate_inclusion_of(:account_type).in_array(%w[checking savings credit_card investment cash])
-    }
+    it { is_expected.to validate_inclusion_of(:account_type).in_array(%w[checking savings credit_card investment cash]) }
 
     it { is_expected.to validate_presence_of(:initial_balance) }
     it { is_expected.to validate_presence_of(:current_balance) }
