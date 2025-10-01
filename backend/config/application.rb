@@ -60,6 +60,7 @@ module FinanceApi
     config.middleware.use Rack::Attack
     config.force_ssl = Rails.env.production?
     config.middleware.use SecureHeaders::Middleware
+    # SecurityHeadersMiddleware will be loaded via initializer
 
     # JSON responses by default
     config.middleware.use ActionDispatch::ContentSecurityPolicy::Middleware
