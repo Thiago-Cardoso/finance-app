@@ -25,8 +25,8 @@ class Transaction < ApplicationRecord
   scope :by_category, ->(category) { where(category: category) }
   scope :by_account, ->(account) { where(account: account) }
   scope :recent, -> { order(date: :desc, created_at: :desc) }
-  scope :this_month, -> { where(date: Date.current.beginning_of_month..Date.current.end_of_month) }
-  scope :this_year, -> { where(date: Date.current.beginning_of_year..Date.current.end_of_year) }
+  scope :this_month, -> { where(date: Date.current.all_month) }
+  scope :this_year, -> { where(date: Date.current.all_year) }
 
   # Callbacks
   after_create :update_account_balance
@@ -35,7 +35,7 @@ class Transaction < ApplicationRecord
 
   # Class methods
   def self.monthly_summary(user, date = Date.current)
-    month_range = date.beginning_of_month..date.end_of_month
+    month_range = date.all_month
     transactions = for_user(user).by_date_range(month_range.first, month_range.last)
 
     {
@@ -62,17 +62,17 @@ class Transaction < ApplicationRecord
   private
 
   def transfer_must_have_transfer_account
-    if transfer? && transfer_account_id.blank?
-      errors.add(:transfer_account, "must be present for transfer transactions")
-    end
+    return unless transfer? && transfer_account_id.blank?
+
+    errors.add(:transfer_account, 'must be present for transfer transactions')
   end
 
   def category_type_matches_transaction_type
     return if category.blank? || transfer?
 
-    if category.category_type != transaction_type
-      errors.add(:category, "type must match transaction type")
-    end
+    return unless category.category_type != transaction_type
+
+    errors.add(:category, 'type must match transaction type')
   end
 
   def update_account_balance
@@ -81,10 +81,10 @@ class Transaction < ApplicationRecord
   end
 
   def update_account_balance_on_change
-    if saved_change_to_amount? || saved_change_to_transaction_type?
-      account&.update_balance_from_transaction(self)
-      transfer_account&.update_balance_from_transaction(self) if transfer?
-    end
+    return unless saved_change_to_amount? || saved_change_to_transaction_type?
+
+    account&.update_balance_from_transaction(self)
+    transfer_account&.update_balance_from_transaction(self) if transfer?
   end
 
   def revert_account_balance

@@ -28,7 +28,7 @@ class User < ApplicationRecord
   end
 
   def current_month_summary
-    current_month = Date.current.beginning_of_month..Date.current.end_of_month
+    current_month = Date.current.all_month
     {
       income: transactions.where(transaction_type: 'income', date: current_month).sum(:amount),
       expenses: transactions.where(transaction_type: 'expense', date: current_month).sum(:amount),
