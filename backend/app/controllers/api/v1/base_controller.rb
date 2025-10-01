@@ -6,7 +6,7 @@ module Api
     class BaseController < ApplicationController
       include Authenticable
 
-      protect_from_forgery with: :null_session
+      # protect_from_forgery not needed in API-only mode
       respond_to :json
 
       rescue_from ActiveRecord::RecordNotFound, with: :render_not_found

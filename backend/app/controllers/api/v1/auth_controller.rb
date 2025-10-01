@@ -4,7 +4,7 @@
 module Api
   module V1
     class AuthController < BaseController
-      skip_before_action :authenticate_user!, only: [:sign_up, :sign_in, :reset_password, :update_password, :confirm_email]
+      skip_before_action :authenticate_user!, only: [:sign_up, :sign_in, :refresh_token, :reset_password, :update_password, :confirm_email]
 
       # POST /api/v1/auth/sign_up
       def sign_up

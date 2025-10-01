@@ -36,6 +36,11 @@ RSpec.configure do |config|
       example.run
     end
   end
+
+  # Clear ActionMailer deliveries before each test
+  config.before(:each) do
+    ActionMailer::Base.deliveries.clear
+  end
 end
 
 Shoulda::Matchers.configure do |config|
