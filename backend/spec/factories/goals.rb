@@ -6,13 +6,13 @@ FactoryBot.define do
 
     title { Faker::Lorem.sentence(word_count: 4) }
     description { Faker::Lorem.paragraph }
-    target_amount { 10000.00 }
+    target_amount { 10_000.00 }
     current_amount { 0.00 }
     target_date { 6.months.from_now }
     is_achieved { false }
 
     trait :achieved do
-      current_amount { 10000.00 }
+      current_amount { 10_000.00 }
       is_achieved { true }
     end
 
