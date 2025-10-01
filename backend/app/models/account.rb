@@ -8,13 +8,13 @@ class Account < ApplicationRecord
   belongs_to :user
   has_many :transactions, dependent: :nullify
   has_many :transfer_transactions, class_name: 'Transaction',
-           foreign_key: 'transfer_account_id', dependent: :nullify
+                                   foreign_key: 'transfer_account_id', dependent: :nullify
 
   # Validations
   validates :name, presence: true, length: { maximum: 100 }
   validates :account_type, inclusion: { in: ACCOUNT_TYPES }
   validates :initial_balance, :current_balance, presence: true,
-            numericality: true
+                                                numericality: true
 
   # Scopes
   scope :active, -> { where(is_active: true) }

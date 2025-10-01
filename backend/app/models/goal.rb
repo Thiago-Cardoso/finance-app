@@ -48,9 +48,7 @@ class Goal < ApplicationRecord
   def add_contribution(amount)
     increment(:current_amount, amount)
 
-    if current_amount >= target_amount
-      self.is_achieved = true
-    end
+    self.is_achieved = true if current_amount >= target_amount
 
     save!
   end
@@ -58,8 +56,8 @@ class Goal < ApplicationRecord
   def suggested_monthly_contribution
     return 0 if target_date.blank? || target_date < Date.current
 
-    months_remaining = ((target_date.year * 12 + target_date.month) -
-                       (Date.current.year * 12 + Date.current.month))
+    months_remaining = (((target_date.year * 12) + target_date.month) -
+                       ((Date.current.year * 12) + Date.current.month))
 
     return remaining_amount if months_remaining <= 0
 
@@ -71,8 +69,8 @@ class Goal < ApplicationRecord
   def current_amount_not_greater_than_target
     return if current_amount.blank? || target_amount.blank?
 
-    if current_amount > target_amount
-      errors.add(:current_amount, "cannot be greater than target amount")
-    end
+    return unless current_amount > target_amount
+
+    errors.add(:current_amount, 'cannot be greater than target amount')
   end
 end

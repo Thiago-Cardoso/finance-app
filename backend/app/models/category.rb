@@ -25,14 +25,14 @@ class Category < ApplicationRecord
 
   # Class methods
   def self.available_for_user(user)
-    where("user_id = ? OR is_default = true", user.id).active
+    where('user_id = ? OR is_default = true', user.id).active
   end
 
   # Instance methods
   def total_spent_this_month(user)
     return 0 unless user
 
-    current_month = Date.current.beginning_of_month..Date.current.end_of_month
+    current_month = Date.current.all_month
     transactions
       .where(user: user, date: current_month, transaction_type: category_type)
       .sum(:amount)
