@@ -2,7 +2,7 @@ RSpec.shared_examples 'validates presence of' do |field|
   it "validates presence of #{field}" do
     subject.send("#{field}=", nil)
     expect(subject).not_to be_valid
-    expect(subject.errors[field]).to include("can't be blank")
+    expect(subject.errors.added?(field, :blank)).to be true
   end
 end
 
