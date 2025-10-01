@@ -2,9 +2,9 @@
 
 FactoryBot.define do
   factory :transaction do
-    association :user
-    association :category, :expense
-    association :account
+    user
+    category { association :category, :expense, user: user }
+    account { association :account, user: user }
 
     description { Faker::Lorem.sentence(word_count: 3) }
     amount { Faker::Number.decimal(l_digits: 2, r_digits: 2) }
@@ -13,17 +13,17 @@ FactoryBot.define do
 
     trait :income do
       transaction_type { 'income' }
-      association :category, :income
+      category { association :category, :income, user: user }
     end
 
     trait :expense do
       transaction_type { 'expense' }
-      association :category, :expense
+      category { association :category, :expense, user: user }
     end
 
     trait :transfer do
       transaction_type { 'transfer' }
-      association :transfer_account, factory: :account
+      transfer_account { association :account, user: user }
       category { nil }
     end
 
