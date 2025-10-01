@@ -35,7 +35,7 @@ module Authenticable
     header = request.headers['Authorization']
     return nil unless header
 
-    header.split(' ').last if header.start_with?('Bearer ')
+    header.split.last if header.start_with?('Bearer ')
   end
 
   # Render unauthorized error
