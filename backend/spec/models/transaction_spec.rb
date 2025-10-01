@@ -48,14 +48,14 @@ RSpec.describe Transaction, type: :model do
 
     describe '.for_user' do
       it 'returns transactions for given user' do
-        expect(Transaction.for_user(user)).to include(income, expense)
+        expect(described_class.for_user(user)).to include(income, expense)
       end
     end
 
     describe '.by_type' do
       it 'returns transactions of given type' do
-        expect(Transaction.by_type('income')).to include(income)
-        expect(Transaction.by_type('income')).not_to include(expense)
+        expect(described_class.by_type('income')).to include(income)
+        expect(described_class.by_type('income')).not_to include(expense)
       end
     end
 
@@ -64,7 +64,7 @@ RSpec.describe Transaction, type: :model do
         start_date = Date.current.beginning_of_month
         end_date = Date.current.end_of_month
 
-        result = Transaction.by_date_range(start_date, end_date)
+        result = described_class.by_date_range(start_date, end_date)
         expect(result).to include(income, expense)
         expect(result).not_to include(last_month_transaction)
       end
@@ -72,20 +72,20 @@ RSpec.describe Transaction, type: :model do
 
     describe '.recent' do
       it 'returns transactions ordered by date descending' do
-        expect(Transaction.recent.first).to eq(income.id > expense.id ? income : expense)
+        expect(described_class.recent.first).to eq(income.id > expense.id ? income : expense)
       end
     end
 
     describe '.this_month' do
       it 'returns only current month transactions' do
-        expect(Transaction.this_month).to include(income, expense)
-        expect(Transaction.this_month).not_to include(last_month_transaction)
+        expect(described_class.this_month).to include(income, expense)
+        expect(described_class.this_month).not_to include(last_month_transaction)
       end
     end
 
     describe '.this_year' do
       it 'returns only current year transactions' do
-        expect(Transaction.this_year).to include(income, expense, last_month_transaction)
+        expect(described_class.this_year).to include(income, expense, last_month_transaction)
       end
     end
   end
@@ -98,14 +98,18 @@ RSpec.describe Transaction, type: :model do
       let(:expense_category) { create(:category, :expense) }
 
       before do
-        create(:transaction, :income, user: user, account: account, category: income_category, amount: 1000, date: Date.current)
-        create(:transaction, :income, user: user, account: account, category: income_category, amount: 500, date: Date.current)
-        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300, date: Date.current)
-        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 200, date: 2.months.ago)
+        create(:transaction, :income, user: user, account: account, category: income_category, amount: 1000,
+                                      date: Date.current)
+        create(:transaction, :income, user: user, account: account, category: income_category, amount: 500,
+                                      date: Date.current)
+        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300,
+                                       date: Date.current)
+        create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 200,
+                                       date: 2.months.ago)
       end
 
       it 'returns summary for current month' do
-        summary = Transaction.monthly_summary(user)
+        summary = described_class.monthly_summary(user)
 
         expect(summary[:income]).to eq(1500)
         expect(summary[:expenses]).to eq(300)
@@ -114,7 +118,7 @@ RSpec.describe Transaction, type: :model do
       end
 
       it 'does not include transactions from other months' do
-        summary = Transaction.monthly_summary(user)
+        summary = described_class.monthly_summary(user)
 
         expect(summary[:expenses]).not_to eq(500)
       end
@@ -167,33 +171,35 @@ RSpec.describe Transaction, type: :model do
 
     describe 'after_create' do
       it 'updates account balance for income' do
-        expect {
+        expect do
           create(:transaction, :income, user: user, account: account, category: income_category, amount: 500)
-        }.to change { account.reload.current_balance }.from(1000).to(1500)
+        end.to change { account.reload.current_balance }.from(1000).to(1500)
       end
 
       it 'updates account balance for expense' do
-        expect {
+        expect do
           create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300)
-        }.to change { account.reload.current_balance }.from(1000).to(700)
+        end.to change { account.reload.current_balance }.from(1000).to(700)
       end
     end
 
     describe 'after_destroy' do
       it 'reverts account balance for income' do
-        transaction = create(:transaction, :income, user: user, account: account, category: income_category, amount: 500)
+        transaction = create(:transaction, :income, user: user, account: account, category: income_category,
+                                                    amount: 500)
 
-        expect {
+        expect do
           transaction.destroy
-        }.to change { account.reload.current_balance }.from(1500).to(1000)
+        end.to change { account.reload.current_balance }.from(1500).to(1000)
       end
 
       it 'reverts account balance for expense' do
-        transaction = create(:transaction, :expense, user: user, account: account, category: expense_category, amount: 300)
+        transaction = create(:transaction, :expense, user: user, account: account, category: expense_category,
+                                                     amount: 300)
 
-        expect {
+        expect do
           transaction.destroy
-        }.to change { account.reload.current_balance }.from(700).to(1000)
+        end.to change { account.reload.current_balance }.from(700).to(1000)
       end
     end
   end

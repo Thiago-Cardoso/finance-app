@@ -50,33 +50,33 @@ RSpec.describe Budget, type: :model do
 
     describe '.active' do
       it 'returns only active budgets' do
-        expect(Budget.active).to include(active_budget)
-        expect(Budget.active).not_to include(inactive_budget)
+        expect(described_class.active).to include(active_budget)
+        expect(described_class.active).not_to include(inactive_budget)
       end
     end
 
     describe '.for_user' do
       it 'returns budgets for given user' do
-        expect(Budget.for_user(user)).to include(active_budget, inactive_budget)
+        expect(described_class.for_user(user)).to include(active_budget, inactive_budget)
       end
     end
 
     describe '.by_period' do
       it 'returns budgets for given period' do
-        expect(Budget.by_period('weekly')).to include(weekly_budget)
-        expect(Budget.by_period('weekly')).not_to include(monthly_budget)
+        expect(described_class.by_period('weekly')).to include(weekly_budget)
+        expect(described_class.by_period('weekly')).not_to include(monthly_budget)
       end
     end
 
     describe '.current' do
       it 'returns budgets that include current date' do
-        expect(Budget.current).to include(active_budget)
+        expect(described_class.current).to include(active_budget)
       end
     end
 
     describe '.over_budget' do
       it 'returns budgets where spent exceeds amount' do
-        expect(Budget.over_budget).to include(over_budget)
+        expect(described_class.over_budget).to include(over_budget)
       end
     end
   end
@@ -88,7 +88,8 @@ RSpec.describe Budget, type: :model do
       let(:account) { create(:account, user: user) }
 
       before do
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 100, date: Date.current)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 100,
+                                       date: Date.current)
         create(:transaction, :expense, user: user, category: category, account: account, amount: 50, date: Date.current)
       end
 
@@ -157,9 +158,12 @@ RSpec.describe Budget, type: :model do
       let(:budget) { create(:budget, user: user, category: category, spent: 0) }
 
       before do
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 100, date: budget.start_date)
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 50, date: budget.start_date + 1.day)
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 75, date: budget.end_date + 1.day)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 100,
+                                       date: budget.start_date)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 50,
+                                       date: budget.start_date + 1.day)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 75,
+                                       date: budget.end_date + 1.day)
       end
 
       it 'calculates spent amount within date range' do
