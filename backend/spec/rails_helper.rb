@@ -10,7 +10,7 @@ require 'rspec/rails'
 require 'factory_bot_rails'
 require 'faker'
 
-Rails.root.glob('spec/support/**/*.rb').each { |f| require f }
+Rails.root.glob('spec/support/**/*.rb').map(&:to_s).sort.each { |f| require f }
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
