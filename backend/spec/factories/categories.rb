@@ -2,7 +2,8 @@
 
 FactoryBot.define do
   factory :category do
-    name { Faker::Commerce.department }
+    user
+    name { "#{Faker::Commerce.department} #{Faker::Number.unique.number(digits: 4)}" }
     color { '#6366f1' }
     category_type { 'expense' }
     is_active { true }
