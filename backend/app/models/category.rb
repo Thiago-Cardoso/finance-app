@@ -8,7 +8,7 @@ class Category < ApplicationRecord
   # Associations
   belongs_to :user, optional: true
   has_many :transactions, dependent: :nullify
-  has_many :budgets, dependent: :destroy
+  has_many :budgets, dependent: :restrict_with_error
 
   # Validations
   validates :name, presence: true, length: { maximum: 100 }
@@ -36,5 +36,24 @@ class Category < ApplicationRecord
     transactions
       .where(user: user, date: current_month, transaction_type: category_type)
       .sum(:amount)
+  end
+
+  def usage_stats
+    {
+      transactions_count: transactions.count,
+      total_amount_current_month: total_amount_this_month,
+      can_be_deleted: can_be_deleted?
+    }
+  end
+
+  def total_amount_this_month
+    start_date = Date.current.beginning_of_month
+    end_date = Date.current.end_of_month
+
+    transactions.where(date: start_date..end_date).sum(:amount).abs
+  end
+
+  def can_be_deleted?
+    !is_default? && transactions.empty?
   end
 end
