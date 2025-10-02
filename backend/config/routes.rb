@@ -38,6 +38,9 @@ Rails.application.routes.draw do
       end
 
       resources :categories do
+        collection do
+          get :statistics
+        end
         member do
           get :transactions
         end
