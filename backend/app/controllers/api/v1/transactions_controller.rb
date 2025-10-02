@@ -64,8 +64,8 @@ module Api
       end
 
       def summary
-        start_date = params[:start_date]&.to_date || Date.current.beginning_of_month
-        end_date = params[:end_date]&.to_date || Date.current.end_of_month
+        start_date = parse_date(params[:start_date]) || Date.current.beginning_of_month
+        end_date = parse_date(params[:end_date]) || Date.current.end_of_month
 
         summary_data = Transaction.summary_for_period(current_user, start_date, end_date)
 
@@ -112,6 +112,14 @@ module Api
 
       def format_errors(errors)
         errors.map { |error| { field: error.attribute, message: error.message } }
+      end
+
+      def parse_date(date_string)
+        return nil unless date_string.present?
+
+        Date.parse(date_string)
+      rescue ArgumentError
+        nil
       end
     end
   end

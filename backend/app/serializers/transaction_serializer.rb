@@ -56,7 +56,15 @@ class TransactionSerializer
   end
 
   def formatted_amount(amount, type)
-    prefix = type == 'expense' ? '-' : '+'
-    format('%<prefix>s%<amount>.2f', prefix: prefix, amount: amount)
+    case type
+    when 'expense'
+      prefix = '-'
+      format('%<prefix>s%<amount>.2f', prefix: prefix, amount: amount)
+    when 'transfer'
+      format('%.2f', amount)
+    else
+      prefix = '+'
+      format('%<prefix>s%<amount>.2f', prefix: prefix, amount: amount)
+    end
   end
 end

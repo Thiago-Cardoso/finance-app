@@ -128,7 +128,7 @@ class Transaction < ApplicationRecord
   end
 
   def update_account_balance_on_change
-    return unless saved_change_to_amount? || saved_change_to_transaction_type? || saved_change_to_account_id?
+    return unless saved_change_to_amount? || saved_change_to_transaction_type? || saved_change_to_account_id? || saved_change_to_transfer_account_id?
 
     # Revert the old transaction's effect
     if saved_change_to_amount?
@@ -164,7 +164,8 @@ class Transaction < ApplicationRecord
   def revert_balance_with_amount(old_amount)
     return unless account
 
-    case transaction_type
+    old_type = transaction_type_before_last_save || transaction_type
+    case old_type
     when 'income'
       account.decrement(:current_balance, old_amount)
     when 'expense'
@@ -175,7 +176,7 @@ class Transaction < ApplicationRecord
     end
 
     account.save!
-    transfer_account&.save! if transfer?
+    transfer_account&.save! if old_type == 'transfer'
   end
 
   def revert_balance_with_type(old_type)
