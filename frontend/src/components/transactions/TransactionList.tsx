@@ -31,7 +31,7 @@ export function TransactionList({
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <span className="ml-2 text-gray-600">Carregando transações...</span>
+        <span className="ml-2 text-gray-600">Loading transactions...</span>
       </div>
     )
   }
@@ -44,7 +44,7 @@ export function TransactionList({
             <AlertCircle className="w-6 h-6 text-red-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Erro ao carregar transações
+            Error loading transactions
           </h3>
           <p className="text-sm text-gray-600 max-w-md">
             {error.message}
@@ -62,10 +62,10 @@ export function TransactionList({
             <FileX className="w-8 h-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Nenhuma transação encontrada
+            No transactions found
           </h3>
           <p className="text-sm text-gray-600 max-w-md">
-            Tente ajustar os filtros ou crie uma nova transação para começar
+            Try adjusting the filters or create a new transaction to get started
           </p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export function TransactionList({
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            Todas as Transações ({transactions.length})
+            All Transactions ({transactions.length})
           </h2>
         </div>
 
@@ -102,10 +102,10 @@ export function TransactionList({
               {isFetchingNextPage ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Carregando...
+                  Loading...
                 </>
               ) : (
-                'Carregar mais transações'
+                'Load more transactions'
               )}
             </Button>
           </div>
@@ -115,7 +115,7 @@ export function TransactionList({
       <Modal
         isOpen={!!editingTransaction}
         onClose={() => setEditingTransaction(null)}
-        title="Editar Transação"
+        title="Edit Transaction"
         size="lg"
       >
         {editingTransaction && (

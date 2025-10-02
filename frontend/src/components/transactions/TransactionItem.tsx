@@ -17,7 +17,7 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
   const deleteTransaction = useDeleteTransaction()
 
   const handleDelete = async () => {
-    if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
         await deleteTransaction.mutateAsync(transaction.id)
       } catch (error) {
@@ -49,7 +49,7 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
                 {transaction.description}
               </h3>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 flex-shrink-0">
-                {transaction.category?.name || 'Sem categoria'}
+                {transaction.category?.name || 'No category'}
               </span>
             </div>
 
@@ -81,9 +81,9 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
               {formatCurrency(Math.abs(transaction.raw_amount))}
             </div>
             <div className="text-xs text-gray-500 capitalize">
-              {transaction.transaction_type === 'income' && 'Receita'}
-              {transaction.transaction_type === 'expense' && 'Despesa'}
-              {transaction.transaction_type === 'transfer' && 'Transferência'}
+              {transaction.transaction_type === 'income' && 'Income'}
+              {transaction.transaction_type === 'expense' && 'Expense'}
+              {transaction.transaction_type === 'transfer' && 'Transfer'}
             </div>
           </div>
 
