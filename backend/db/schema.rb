@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_03_013843) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -119,7 +119,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_013843) do
     t.index ["user_id", "category_id"], name: "index_transactions_on_user_and_category"
     t.index ["user_id", "date", "amount"], name: "index_transactions_on_user_date_amount"
     t.index ["user_id", "date"], name: "index_transactions_on_user_and_date"
-    t.index ["user_id", "date"], name: "index_transactions_on_user_id_and_date"
     t.index ["user_id", "transaction_type"], name: "index_transactions_on_user_and_type"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
