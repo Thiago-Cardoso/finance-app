@@ -29,10 +29,11 @@ class Transaction < ApplicationRecord
   scope :by_categories, ->(category_ids) { where(category_id: category_ids) }
   scope :by_account, ->(account) { where(account: account) }
 
-  # Text search scope
+  # Text search scope using pg_trgm similarity operator for better performance
   scope :search_description, lambda { |query|
     return all if query.blank?
-    where('description ILIKE ?', "%#{sanitize_sql_like(query)}%")
+    # Use pg_trgm similarity operator for fuzzy matching with trigram index
+    where('description % ?', query)
   }
 
   # Date period scopes
@@ -55,6 +56,9 @@ class Transaction < ApplicationRecord
   scope :order_by_amount, ->(direction = :desc) { order(amount: direction, date: :desc) }
   scope :order_by_description, ->(direction = :asc) { order(description: direction, date: :desc) }
 
+  # DEPRECATED: This scope is deprecated in favor of filtered_search and TransactionFilterService
+  # It will be removed in a future version to avoid code duplication
+  # Use TransactionFilterService.call for consistent filtering across the application
   scope :apply_filters, lambda { |params|
     scope = all
     scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?

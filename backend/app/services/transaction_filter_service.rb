@@ -15,10 +15,20 @@ class TransactionFilterService
     transactions = Transaction.for_user(@user)
     transactions = apply_filters(transactions)
     transactions = apply_sorting(transactions)
+    
+    # Build metadata before pagination for accurate totals
+    meta = build_metadata(transactions)
+    
+    # Apply pagination if requested
+    if @params[:page].present? || @params[:per_page].present?
+      transactions = transactions.includes(:category, :account, :transfer_account)
+                                 .page(@params[:page])
+                                 .per(@params[:per_page] || 25)
+    end
 
     {
       transactions: transactions,
-      metadata: build_metadata(transactions)
+      meta: meta
     }
   end
 
