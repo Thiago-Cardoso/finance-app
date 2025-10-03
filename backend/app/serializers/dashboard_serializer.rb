@@ -22,10 +22,7 @@ class DashboardSerializer
   private
 
   def format_currency(amount)
-    {
-      raw: amount,
-      formatted: format_brazilian_currency(amount)
-    }
+    CurrencyFormatter.format_with_raw(amount)
   end
 
   def format_categories(categories)
@@ -33,7 +30,7 @@ class DashboardSerializer
 
     categories.map do |category|
       category.merge(
-        formatted_amount: format_brazilian_currency(category[:amount])
+        formatted_amount: CurrencyFormatter.format(category[:amount])
       )
     end
   end
@@ -43,9 +40,9 @@ class DashboardSerializer
 
     evolution.map do |month|
       month.merge(
-        formatted_income: format_brazilian_currency(month[:income]),
-        formatted_expenses: format_brazilian_currency(month[:expenses]),
-        formatted_balance: format_brazilian_currency(month[:balance])
+        formatted_income: CurrencyFormatter.format(month[:income]),
+        formatted_expenses: CurrencyFormatter.format(month[:expenses]),
+        formatted_balance: CurrencyFormatter.format(month[:balance])
       )
     end
   end
@@ -55,18 +52,10 @@ class DashboardSerializer
 
     budgets.map do |budget|
       budget.merge(
-        formatted_limit: format_brazilian_currency(budget[:limit]),
-        formatted_spent: format_brazilian_currency(budget[:spent]),
-        formatted_remaining: format_brazilian_currency(budget[:remaining])
+        formatted_limit: CurrencyFormatter.format(budget[:limit]),
+        formatted_spent: CurrencyFormatter.format(budget[:spent]),
+        formatted_remaining: CurrencyFormatter.format(budget[:remaining])
       )
     end
-  end
-
-  def format_brazilian_currency(amount)
-    # Format as Brazilian currency (R$ 1.234,56)
-    integer_part = amount.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse
-    decimal_part = format('%.2f', amount).split('.').last
-
-    "R$ #{integer_part},#{decimal_part}"
   end
 end
