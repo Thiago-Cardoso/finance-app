@@ -60,17 +60,17 @@ RSpec.describe TransactionFilterService, type: :service do
         result = service.call
 
         expect(result[:transactions].count).to eq(4)
-        expect(result[:metadata][:total_count]).to eq(4)
+        expect(result[:meta][:total_count]).to eq(4)
       end
 
-      it 'calculates correct metadata' do
+      it 'calculates correct meta' do
         service = described_class.new(user, {})
         result = service.call
-        metadata = result[:metadata]
+        meta = result[:meta]
 
-        expect(metadata[:total_income]).to eq(5000.0)
-        expect(metadata[:total_expenses]).to eq(425.0)
-        expect(metadata[:net_amount]).to eq(4575.0)
+        expect(meta[:total_income]).to eq(5000.0)
+        expect(meta[:total_expenses]).to eq(425.0)
+        expect(meta[:net_amount]).to eq(4575.0)
       end
     end
 
@@ -223,19 +223,19 @@ RSpec.describe TransactionFilterService, type: :service do
       end
     end
 
-    context 'with metadata' do
-      it 'includes active filters in metadata' do
+    context 'with meta' do
+      it 'includes active filters in meta' do
         service = described_class.new(user, {
                                         search: 'test',
                                         transaction_type: 'expense',
                                         period: 'this_month'
                                       })
         result = service.call
-        metadata = result[:metadata]
+        meta = result[:meta]
 
-        expect(metadata[:filters_applied][:search]).to eq('test')
-        expect(metadata[:filters_applied][:transaction_type]).to eq('expense')
-        expect(metadata[:filters_applied][:period]).to eq('this_month')
+        expect(meta[:filters_applied][:search]).to eq('test')
+        expect(meta[:filters_applied][:transaction_type]).to eq('expense')
+        expect(meta[:filters_applied][:period]).to eq('this_month')
       end
     end
   end

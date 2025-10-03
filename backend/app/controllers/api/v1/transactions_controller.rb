@@ -7,16 +7,21 @@ module Api
       before_action :set_transaction, only: %i[show update destroy]
 
       def index
-        @transactions = Transaction.for_user(current_user)
-                                    .filtered_search(filter_params)
-                                    .includes(:category, :account, :transfer_account)
-                                    .page(params[:page])
-                                    .per(per_page)
+        # Use TransactionFilterService for consistent filtering across all endpoints
+        result = TransactionFilterService.call(
+          user: current_user,
+          filters: filter_params.merge(
+            page: params[:page],
+            per_page: per_page
+          )
+        )
+
+        @transactions = result[:transactions]
 
         render json: {
           success: true,
           data: TransactionSerializer.new(@transactions).as_json,
-          meta: pagination_meta(@transactions)
+          meta: pagination_meta(@transactions).merge(result[:meta])
         }
       end
 
