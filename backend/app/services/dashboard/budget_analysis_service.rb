@@ -3,6 +3,10 @@
 module Dashboard
   # Service to analyze budget status and spending patterns
   class BudgetAnalysisService
+    SAFE_THRESHOLD = 60
+    WARNING_THRESHOLD = 80
+    DANGER_THRESHOLD = 100
+
     def initialize(user)
       @user = user
     end
@@ -60,9 +64,9 @@ module Dashboard
 
     def determine_status(percentage)
       case percentage
-      when 0..60 then 'safe'
-      when 61..80 then 'warning'
-      when 81..100 then 'danger'
+      when 0..SAFE_THRESHOLD then 'safe'
+      when (SAFE_THRESHOLD + 1)..WARNING_THRESHOLD then 'warning'
+      when (WARNING_THRESHOLD + 1)..DANGER_THRESHOLD then 'danger'
       else 'exceeded'
       end
     end

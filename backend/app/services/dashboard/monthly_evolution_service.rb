@@ -3,12 +3,14 @@
 module Dashboard
   # Service to calculate monthly financial evolution over time
   class MonthlyEvolutionService
+    MONTHS_TO_ANALYZE = 6
+
     def initialize(user)
       @user = user
     end
 
     def call
-      5.downto(0).map { |months_ago| month_data(months_ago) }
+      (MONTHS_TO_ANALYZE - 1).downto(0).map { |months_ago| month_data(months_ago) }
     end
 
     private
