@@ -16,11 +16,24 @@ import { CategoryStatistics } from '@/components/categories/CategoryStatistics'
 export default function CategoriesPage() {
   const router = useRouter()
   const { token, loading: authLoading } = useAuth()
+  
+  // All state declarations at the top
   const [filters, setFilters] = useState<CategoryFiltersType>({
     category_type: 'all',
   })
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isStatsOpen, setIsStatsOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | undefined>()
 
-  // Check authentication
+  // All hooks before any conditional returns
+  const { data: categories, isLoading } = useCategories(filters)
+  const { data: statistics } = useCategoryStatistics()
+  const createMutation = useCreateCategory()
+  const updateMutation = useUpdateCategory()
+  const deleteMutation = useDeleteCategory()
+
+  // Check authentication after all hooks
   if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -56,16 +69,6 @@ export default function CategoriesPage() {
       </div>
     )
   }
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [isStatsOpen, setIsStatsOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<Category | undefined>()
-  const [categoryToDelete, setCategoryToDelete] = useState<Category | undefined>()
-
-  const { data: categories, isLoading } = useCategories(filters)
-  const { data: statistics } = useCategoryStatistics()
-  const createMutation = useCreateCategory()
-  const updateMutation = useUpdateCategory()
-  const deleteMutation = useDeleteCategory()
 
   const handleCreateCategory = () => {
     setSelectedCategory(undefined)
@@ -218,8 +221,8 @@ export default function CategoriesPage() {
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete the category "
-            <span className="font-semibold">{categoryToDelete?.name}</span>"?
+            Are you sure you want to delete the category &ldquo;
+            <span className="font-semibold">{categoryToDelete?.name}</span>&rdquo;?
           </p>
           <div className="flex justify-end gap-3">
             <Button

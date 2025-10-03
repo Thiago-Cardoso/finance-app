@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Category, CategoryFormData } from '@/types/category'
+import { hexColorRegex } from '@/lib/validations'
 import { Input } from '@/components/ui/Input/Input'
 import { Button } from '@/components/ui/Button/Button'
 import { RadioGroup } from '@/components/ui/RadioGroup/RadioGroup'
@@ -18,7 +19,7 @@ const categorySchema = z.object({
     .max(50, 'Name must be at most 50 characters'),
   color: z
     .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color (e.g., #ff0000)'),
+    .regex(hexColorRegex, 'Must be a valid hex color (e.g., #ff0000)'),
   icon: z
     .string()
     .min(1, 'Icon is required')

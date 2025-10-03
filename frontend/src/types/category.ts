@@ -87,3 +87,17 @@ export interface CategoryStatisticsResponse {
   data: CategoryStatistics;
   message?: string;
 }
+
+export interface TransactionResponse {
+  success: boolean;
+  data: Record<string, unknown>[]; // Generic transaction data structure
+  message?: string;
+  meta?: {
+    pagination?: {
+      current_page: number;
+      total_pages: number;
+      total_count: number;
+      per_page: number;
+    };
+  };
+}
