@@ -5,6 +5,7 @@ import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { queryClient } from '@/lib/queryClient'
+import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -20,7 +21,10 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={inter.variable}>
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+            <Toaster position="top-right" />
+          </AuthProvider>
         </QueryClientProvider>
       </body>
     </html>
