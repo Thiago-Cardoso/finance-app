@@ -7,17 +7,21 @@ module Api
       before_action :set_transaction, only: %i[show update destroy]
 
       def index
-        @transactions = current_user.transactions
-                                    .includes(:category, :account, :transfer_account)
-                                    .apply_filters(filter_params)
-                                    .page(params[:page])
-                                    .per(per_page)
-                                    .order(date: :desc, created_at: :desc)
+        # Use TransactionFilterService for consistent filtering across all endpoints
+        result = TransactionFilterService.call(
+          user: current_user,
+          filters: filter_params.merge(
+            page: params[:page],
+            per_page: per_page
+          )
+        )
+
+        @transactions = result[:transactions]
 
         render json: {
           success: true,
           data: TransactionSerializer.new(@transactions).as_json,
-          meta: pagination_meta(@transactions)
+          meta: pagination_meta(@transactions).merge(result[:meta])
         }
       end
 
@@ -75,6 +79,64 @@ module Api
         }
       end
 
+      def search
+        filter_service = TransactionFilterService.new(current_user, filter_params)
+        result = filter_service.call
+
+        transactions = result[:transactions]
+                        .includes(:category, :account, :transfer_account)
+                        .page(params[:page])
+                        .per(per_page)
+
+        render json: {
+          success: true,
+          data: TransactionSerializer.new(transactions).as_json,
+          meta: pagination_meta(transactions).merge(
+            filters: result[:metadata]
+          )
+        }
+      end
+
+      def filter_options
+        cache_key = [
+          'filter_options',
+          "user:#{current_user.id}",
+          "categories:#{current_user.categories.maximum(:updated_at)&.to_i || 0}",
+          "accounts:#{current_user.accounts.maximum(:updated_at)&.to_i || 0}"
+        ].join('/')
+
+        result = Rails.cache.fetch(cache_key, expires_in: 1.hour) do
+          filter_service = TransactionFilterService.new(current_user)
+          options = filter_service.filter_options
+
+          {
+            success: true,
+            data: options
+          }
+        end
+
+        render json: result
+      end
+
+      def search_suggestions
+        query = params[:query]
+
+        if query.blank? || query.length < 2
+          return render json: {
+            success: true,
+            data: []
+          }
+        end
+
+        filter_service = TransactionFilterService.new(current_user)
+        suggestions = filter_service.search_suggestions(query)
+
+        render json: {
+          success: true,
+          data: suggestions
+        }
+      end
+
       private
 
       def set_transaction
@@ -91,7 +153,9 @@ module Api
       def filter_params
         params.permit(
           :category_id, :transaction_type, :account_id,
-          :date_from, :date_to, :search, :min_amount, :max_amount
+          :date_from, :date_to, :search, :min_amount, :max_amount,
+          :period, :start_date, :end_date, :sort_by, :sort_direction,
+          category_ids: []
         )
       end
 

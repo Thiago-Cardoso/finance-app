@@ -26,11 +26,39 @@ class Transaction < ApplicationRecord
   scope :by_type, ->(type) { where(transaction_type: type) }
   scope :by_date_range, ->(start_date, end_date) { where(date: start_date..end_date) }
   scope :by_category, ->(category) { where(category: category) }
+  scope :by_categories, ->(category_ids) { where(category_id: category_ids) }
   scope :by_account, ->(account) { where(account: account) }
+
+  # Text search scope using pg_trgm similarity operator for better performance
+  scope :search_description, lambda { |query|
+    return all if query.blank?
+    # Use pg_trgm similarity operator for fuzzy matching with trigram index
+    where('description % ?', query)
+  }
+
+  # Date period scopes
   scope :recent, -> { order(date: :desc, created_at: :desc) }
   scope :this_month, -> { where(date: Date.current.all_month) }
+  scope :last_month, -> { where(date: Date.current.last_month.all_month) }
   scope :this_year, -> { where(date: Date.current.all_year) }
+  scope :last_year, -> { where(date: Date.current.last_year.all_year) }
 
+  # Amount range scope
+  scope :by_amount_range, lambda { |min_amount, max_amount|
+    scope = all
+    scope = scope.where('amount >= ?', min_amount) if min_amount.present?
+    scope = scope.where('amount <= ?', max_amount) if max_amount.present?
+    scope
+  }
+
+  # Sorting scopes
+  scope :order_by_date, ->(direction = :desc) { order(date: direction, created_at: direction) }
+  scope :order_by_amount, ->(direction = :desc) { order(amount: direction, date: :desc) }
+  scope :order_by_description, ->(direction = :asc) { order(description: direction, date: :desc) }
+
+  # DEPRECATED: This scope is deprecated in favor of filtered_search and TransactionFilterService
+  # It will be removed in a future version to avoid code duplication
+  # Use TransactionFilterService.call for consistent filtering across the application
   scope :apply_filters, lambda { |params|
     scope = all
     scope = scope.where(category_id: params[:category_id]) if params[:category_id].present?
@@ -39,7 +67,7 @@ class Transaction < ApplicationRecord
     scope = scope.where(date: params[:date_from]..params[:date_to]) if params[:date_from] && params[:date_to]
     scope = scope.where('amount >= ?', params[:min_amount]) if params[:min_amount].present?
     scope = scope.where('amount <= ?', params[:max_amount]) if params[:max_amount].present?
-    scope = scope.where('description ILIKE ?', "%#{params[:search]}%") if params[:search].present?
+    scope = scope.search_description(params[:search]) if params[:search].present?
     scope
   }
 
@@ -71,6 +99,66 @@ class Transaction < ApplicationRecord
                   transactions.where(transaction_type: 'expense').sum(:amount)).to_f,
       transactions_count: transactions.count
     }
+  end
+
+  # Comprehensive filtering method
+  def self.filtered_search(params = {})
+    scope = all
+
+    # Text search
+    scope = scope.search_description(params[:search]) if params[:search].present?
+
+    # Category filters
+    if params[:category_id].present?
+      scope = scope.by_category(params[:category_id])
+    elsif params[:category_ids].present?
+      scope = scope.by_categories(params[:category_ids])
+    end
+
+    # Transaction type filter
+    scope = scope.by_type(params[:transaction_type]) if params[:transaction_type].present?
+
+    # Account filter
+    scope = scope.by_account(params[:account_id]) if params[:account_id].present?
+
+    # Date filters
+    if params[:period].present?
+      scope = case params[:period]
+              when 'this_month' then scope.this_month
+              when 'last_month' then scope.last_month
+              when 'this_year' then scope.this_year
+              when 'last_year' then scope.last_year
+              else scope
+              end
+    elsif params[:start_date].present? && params[:end_date].present?
+      scope = scope.by_date_range(params[:start_date], params[:end_date])
+    end
+
+    # Amount range filter
+    if params[:min_amount].present? || params[:max_amount].present?
+      scope = scope.by_amount_range(params[:min_amount], params[:max_amount])
+    end
+
+    # Sorting
+    scope = apply_sorting(scope, params[:sort_by], params[:sort_direction])
+
+    scope
+  end
+
+  def self.apply_sorting(scope, sort_by, direction)
+    direction = direction&.to_sym || :desc
+    direction = :desc unless %i[asc desc].include?(direction)
+
+    case sort_by&.to_s
+    when 'amount'
+      scope.order_by_amount(direction)
+    when 'description'
+      scope.order_by_description(direction)
+    when 'date'
+      scope.order_by_date(direction)
+    else
+      scope.order_by_date(:desc) # Default sorting
+    end
   end
 
   # Instance methods
