@@ -30,6 +30,9 @@ export const transactionSchema = z.object({
   notes: z.string().optional(),
 })
 
+// Shared validation patterns
+export const hexColorRegex = /^#[0-9A-Fa-f]{6}$/
+
 export type LoginInput = z.infer<typeof loginSchema>
 export type RegisterInput = z.infer<typeof registerSchema>
 export type TransactionInput = z.infer<typeof transactionSchema>
