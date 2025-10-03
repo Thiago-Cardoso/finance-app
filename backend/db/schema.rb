@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_03_212453) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -46,6 +46,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_type"], name: "index_accounts_on_account_type"
+    t.index ["user_id", "is_active"], name: "index_accounts_on_user_active"
     t.index ["user_id"], name: "index_accounts_on_user_id"
   end
 
@@ -64,6 +65,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
     t.index ["category_id"], name: "index_budgets_on_category_id"
     t.index ["period"], name: "index_budgets_on_period"
     t.index ["user_id", "category_id", "period", "start_date"], name: "index_budgets_on_user_category_period", unique: true
+    t.index ["user_id", "is_active", "start_date", "end_date"], name: "index_budgets_on_user_active_dates"
     t.index ["user_id"], name: "index_budgets_on_user_id"
   end
 
@@ -94,6 +96,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
     t.datetime "updated_at", null: false
     t.index ["is_achieved"], name: "index_goals_on_is_achieved"
     t.index ["target_date"], name: "index_goals_on_target_date"
+    t.index ["user_id", "is_achieved", "target_date"], name: "index_goals_on_user_achieved_target"
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
@@ -116,8 +119,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_211730) do
     t.index ["transaction_type"], name: "index_transactions_on_transaction_type"
     t.index ["user_id", "account_id"], name: "index_transactions_on_user_and_account"
     t.index ["user_id", "amount"], name: "index_transactions_on_user_and_amount"
+    t.index ["user_id", "category_id", "date"], name: "index_transactions_on_user_category_date"
     t.index ["user_id", "category_id"], name: "index_transactions_on_user_and_category"
+    t.index ["user_id", "created_at"], name: "index_transactions_on_user_created"
     t.index ["user_id", "date", "amount"], name: "index_transactions_on_user_date_amount"
+    t.index ["user_id", "date", "transaction_type"], name: "index_transactions_on_user_date_type"
     t.index ["user_id", "date"], name: "index_transactions_on_user_and_date"
     t.index ["user_id", "transaction_type"], name: "index_transactions_on_user_and_type"
     t.index ["user_id"], name: "index_transactions_on_user_id"
