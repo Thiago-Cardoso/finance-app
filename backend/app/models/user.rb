@@ -36,6 +36,10 @@ class User < ApplicationRecord
     }
   end
 
+  def available_categories
+    Category.available_for_user(self)
+  end
+
   private
 
   def generate_jti
