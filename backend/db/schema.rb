@@ -10,9 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_30_131154) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_03_013843) do
+  create_schema "auth"
+  create_schema "extensions"
+  create_schema "graphql"
+  create_schema "graphql_public"
+  create_schema "pgbouncer"
+  create_schema "realtime"
+  create_schema "storage"
+  create_schema "vault"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "extensions.pg_stat_statements"
+  enable_extension "extensions.pgcrypto"
+  enable_extension "extensions.uuid-ossp"
+  enable_extension "graphql.pg_graphql"
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
+  enable_extension "vault.supabase_vault"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
@@ -97,8 +112,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_30_131154) do
     t.index ["account_id"], name: "index_transactions_on_account_id"
     t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["date"], name: "index_transactions_on_date"
+    t.index ["description"], name: "index_transactions_on_description_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["transaction_type"], name: "index_transactions_on_transaction_type"
+    t.index ["user_id", "account_id"], name: "index_transactions_on_user_and_account"
+    t.index ["user_id", "amount"], name: "index_transactions_on_user_and_amount"
+    t.index ["user_id", "category_id"], name: "index_transactions_on_user_and_category"
+    t.index ["user_id", "date", "amount"], name: "index_transactions_on_user_date_amount"
+    t.index ["user_id", "date"], name: "index_transactions_on_user_and_date"
     t.index ["user_id", "date"], name: "index_transactions_on_user_id_and_date"
+    t.index ["user_id", "transaction_type"], name: "index_transactions_on_user_and_type"
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
