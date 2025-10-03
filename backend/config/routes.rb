@@ -33,6 +33,8 @@ Rails.application.routes.draw do
         collection do
           get :summary
           get :search
+          get :filter_options
+          get :search_suggestions
           get :export
         end
       end
