@@ -1,3 +1,5 @@
+'use client'
+
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { API_BASE_URL } from '@/lib/constants'
@@ -99,6 +101,12 @@ export function useDashboard(period?: DashboardPeriod) {
   return useQuery<DashboardData>({
     queryKey: ['dashboard', period],
     queryFn: async () => {
+      // TODO: Security improvement needed - replace localStorage with httpOnly cookies
+      // Current localStorage usage poses XSS risk - backend should set secure cookies
+      if (typeof window === 'undefined') {
+        throw new Error('Dashboard hook can only be used on client side')
+      }
+      
       const token = localStorage.getItem('token')
 
       let url = `${API_BASE_URL}/dashboard`

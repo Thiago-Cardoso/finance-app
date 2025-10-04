@@ -39,7 +39,9 @@ export default function LoginPage() {
 
       const result = await response.json()
 
-      // Salvar token
+      // TODO: Security Risk - Replace with httpOnly cookies
+      // Current localStorage storage is vulnerable to XSS attacks
+      // Backend should set secure, httpOnly, sameSite cookies instead
       localStorage.setItem('token', result.data.access_token)
 
       // Redirecionar para dashboard

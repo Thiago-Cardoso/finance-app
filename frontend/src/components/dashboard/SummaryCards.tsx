@@ -1,6 +1,5 @@
 import { formatCurrency } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Wallet, Target } from 'lucide-react'
-import { clsx } from 'clsx'
 
 interface SummaryData {
   current_month: {
