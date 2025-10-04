@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 test('dashboard with dynamic colors', async ({ page }) => {
   // Set up auth token in localStorage
@@ -134,8 +134,8 @@ test('dashboard with dynamic colors', async ({ page }) => {
   // Navigate to dashboard
   await page.goto('http://localhost:3000/dashboard')
 
-  // Wait for page to load
-  await page.waitForTimeout(5000)
+  // Wait for dashboard content to appear
+  await page.getByText('Transações Recentes').waitFor()
 
   // Take full page screenshot regardless
   await page.screenshot({

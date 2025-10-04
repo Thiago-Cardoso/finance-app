@@ -1,6 +1,5 @@
 import { formatCurrency } from '@/lib/utils'
 import { Target, Calendar } from 'lucide-react'
-import { clsx } from 'clsx'
 
 interface Goal {
   goal_id: string

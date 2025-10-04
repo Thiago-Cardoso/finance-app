@@ -2,7 +2,6 @@ import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { clsx } from 'clsx'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 

@@ -36,12 +36,13 @@ export function FinancialChart({ data }: FinancialChartProps) {
     saldo: item.balance
   }))
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  // Custom tooltip with proper typing
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; dataKey: string; color: string }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900 mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {formatCurrency(entry.value)}
             </p>
