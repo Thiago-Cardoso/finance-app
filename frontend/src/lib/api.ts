@@ -9,7 +9,7 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
 
     const config: RequestInit = {
       headers: {

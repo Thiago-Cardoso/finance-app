@@ -10,8 +10,15 @@ import {
 
 export const categoriesService = {
   // Get all categories with optional filters
-  async getAll(filters?: CategoryFilters): Promise<CategoryResponse> {
-    const params = new URLSearchParams()
+  async getAll(
+    filters?: CategoryFilters,
+    page = 1,
+    per_page = 10,
+  ): Promise<CategoryResponse> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: per_page.toString(),
+    })
 
     if (filters?.category_type && filters.category_type !== 'all') {
       params.append('category_type', filters.category_type)
@@ -24,7 +31,7 @@ export const categoriesService = {
     }
 
     const queryString = params.toString()
-    const url = `/categories${queryString ? `?${queryString}` : ''}`
+    const url = `/categories?${queryString}`
 
     return api.get<CategoryResponse>(url)
   },

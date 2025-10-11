@@ -31,11 +31,11 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Transações Recentes
         </h3>
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           Nenhuma transação encontrada
         </div>
       </div>
@@ -51,20 +51,20 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
   }
 
   return (
-    <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-100/50 overflow-hidden">
+    <div className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-100/50 dark:border-gray-700/50 overflow-hidden">
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/30 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/30 dark:from-blue-900/10 dark:via-transparent dark:to-purple-900/10 pointer-events-none" />
 
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h3 className="text-lg font-black bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
             Transações Recentes
           </h3>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => router.push('/transactions')}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 font-bold transition-all"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 font-bold transition-all"
           >
             Ver todas
             <ArrowRight className="w-4 h-4 ml-1" />
@@ -82,7 +82,7 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
             return (
               <div
                 key={transaction.id}
-                className="group flex items-center justify-between p-4 rounded-xl bg-white/60 hover:bg-white border border-gray-100/50 hover:border-gray-200 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                className="group flex items-center justify-between p-4 rounded-xl bg-white/60 dark:bg-gray-900/60 hover:bg-white dark:hover:bg-gray-900 border border-gray-100/50 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 cursor-pointer"
                 onClick={() => router.push(`/transactions/${transaction.id}`)}
               >
                 <div className="flex items-center space-x-4 flex-1 min-w-0">
@@ -113,10 +113,10 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-black text-gray-900 truncate">
+                    <p className="text-sm font-black text-gray-900 dark:text-gray-100 truncate">
                       {transaction.description}
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-gray-500 mt-1">
+                    <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
                       <span className="font-semibold">{formatDate(transaction.date)}</span>
                       {transaction.category && (
                         <>
@@ -146,7 +146,7 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
                     {formatCurrency(Math.abs(amount))}
                   </div>
                   {transaction.account && (
-                    <div className="text-xs font-semibold text-gray-400 mt-0.5">
+                    <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-0.5">
                       {transaction.account.name}
                     </div>
                   )}

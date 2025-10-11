@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-
 export default function LoginPage() {
   const router = useRouter()
+  const { login } = useAuth()
   const [email, setEmail] = useState('test@example.com')
   const [password, setPassword] = useState('password123')
   const [error, setError] = useState('')
@@ -20,31 +20,7 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/sign_in`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user: {
-            email,
-            password,
-          },
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Email ou senha inválidos')
-      }
-
-      const result = await response.json()
-
-      // TODO: Security Risk - Replace with httpOnly cookies
-      // Current localStorage storage is vulnerable to XSS attacks
-      // Backend should set secure, httpOnly, sameSite cookies instead
-      localStorage.setItem('token', result.data.access_token)
-
-      // Redirecionar para dashboard
+      await login(email, password)
       router.push('/dashboard')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao fazer login')
