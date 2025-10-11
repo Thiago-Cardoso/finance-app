@@ -14,10 +14,7 @@ module Api
         # Filter by type if provided
         @categories = @categories.for_type(params[:category_type]) if params[:category_type].present?
 
-        render json: {
-          success: true,
-          data: ActiveModelSerializers::SerializableResource.new(@categories, each_serializer: CategorySerializer).as_json
-        }
+        paginate @categories
       end
 
       def show
