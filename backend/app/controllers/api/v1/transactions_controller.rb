@@ -7,22 +7,15 @@ module Api
       before_action :set_transaction, only: %i[show update destroy]
 
       def index
-        # Use TransactionFilterService for consistent filtering across all endpoints
-        result = TransactionFilterService.call(
-          user: current_user,
-          filters: filter_params.merge(
-            page: params[:page],
-            per_page: per_page
-          )
+        filter_service = TransactionFilterService.new(
+          current_user,
+          filter_params.to_h
         )
+        result = filter_service.call
 
         @transactions = result[:transactions]
-
-        render json: {
-          success: true,
-          data: TransactionSerializer.new(@transactions).as_json,
-          meta: pagination_meta(@transactions).merge(result[:meta])
-        }
+        
+        paginate @transactions
       end
 
       def show

@@ -5,6 +5,7 @@ module Api
   module V1
     class BaseController < ApplicationController
       include Authenticable
+      include Paginable
 
       # protect_from_forgery not needed in API-only mode
       respond_to :json
