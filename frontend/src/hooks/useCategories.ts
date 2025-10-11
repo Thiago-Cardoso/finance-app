@@ -1,32 +1,33 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import { categoriesService } from '@/services/categories'
-import {
-  Category,
-  CategoryFormData,
-  CategoryFilters,
-  CategoryStatistics,
-} from '@/types/category'
+import { CategoryFormData, CategoryFilters } from '@/types/category'
 import { toast } from 'react-hot-toast'
 
 export const categoryKeys = {
   all: ['categories'] as const,
   lists: () => [...categoryKeys.all, 'list'] as const,
-  list: (filters?: CategoryFilters) =>
-    [...categoryKeys.lists(), filters] as const,
+  list: (filters?: CategoryFilters, page?: number, per_page?: number) =>
+    [...categoryKeys.lists(), { filters, page, per_page }] as const,
   details: () => [...categoryKeys.all, 'detail'] as const,
   detail: (id: number) => [...categoryKeys.details(), id] as const,
-  transactions: (id: number) => [...categoryKeys.all, 'transactions', id] as const,
+  transactions: (id: number) =>
+    [...categoryKeys.all, 'transactions', id] as const,
   statistics: (start_date?: string, end_date?: string) =>
     [...categoryKeys.all, 'statistics', start_date, end_date] as const,
 }
 
 // Get all categories
-export function useCategories(filters?: CategoryFilters) {
+export function useCategories(
+  filters?: CategoryFilters,
+  page = 1,
+  per_page = 10,
+) {
   return useQuery({
-    queryKey: categoryKeys.list(filters),
+    queryKey: categoryKeys.list(filters, page, per_page),
     queryFn: async () => {
-      const response = await categoriesService.getAll(filters)
-      return response.data as Category[]
+      const response = await categoriesService.getAll(filters, page, per_page)
+      return response
     },
   })
 }
@@ -44,15 +45,15 @@ export function useCategory(id: number) {
 }
 
 // Get category transactions
-export function useCategoryTransactions(
-  id: number,
-  page = 1,
-  per_page = 10
-) {
+export function useCategoryTransactions(id: number, page = 1, per_page = 10) {
   return useQuery({
     queryKey: [...categoryKeys.transactions(id), page, per_page],
     queryFn: async () => {
-      const response = await categoriesService.getTransactions(id, page, per_page)
+      const response = await categoriesService.getTransactions(
+        id,
+        page,
+        per_page,
+      )
       return response
     },
     enabled: !!id,
@@ -60,10 +61,7 @@ export function useCategoryTransactions(
 }
 
 // Get category statistics
-export function useCategoryStatistics(
-  start_date?: string,
-  end_date?: string
-) {
+export function useCategoryStatistics(start_date?: string, end_date?: string) {
   return useQuery({
     queryKey: categoryKeys.statistics(start_date, end_date),
     queryFn: async () => {
@@ -83,11 +81,14 @@ export function useCreateCategory() {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
       toast.success('Category created successfully')
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       console.error('Create category error:', error)
-      const message = error.message?.includes('401') || error.message?.includes('Unauthorized')
-        ? 'Authentication required. Please log in.'
-        : error.response?.data?.message || error.message || 'Failed to create category'
+      const message =
+        error.message?.includes('401') || error.message?.includes('Unauthorized')
+          ? 'Authentication required. Please log in.'
+          : error.response?.data?.message ||
+            error.message ||
+            'Failed to create category'
       toast.error(message)
     },
   })
@@ -102,10 +103,12 @@ export function useUpdateCategory() {
       categoriesService.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables.id) })
+      queryClient.invalidateQueries({
+        queryKey: categoryKeys.detail(variables.id),
+      })
       toast.success('Category updated successfully')
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       const message = error.response?.data?.message || 'Failed to update category'
       toast.error(message)
     },
@@ -122,7 +125,7 @@ export function useDeleteCategory() {
       queryClient.invalidateQueries({ queryKey: categoryKeys.all })
       toast.success('Category deleted successfully')
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<any>) => {
       const message = error.response?.data?.message || 'Failed to delete category'
       toast.error(message)
     },

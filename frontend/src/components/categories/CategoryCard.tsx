@@ -21,34 +21,45 @@ export function CategoryCard({
 
   return (
     <div
-      className="group relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+      className="group relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden"
       onClick={() => onClick?.(category)}
     >
+      {/* Color Bar at Top */}
+      <div
+        className="h-2 w-full"
+        style={{ backgroundColor: category.color }}
+      />
+
+      {/* Gradient Background Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-gray-50/50 dark:to-gray-900/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      <div className="p-5">
+
       {/* Category Icon and Color */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="relative flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
+            className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300"
             style={{ backgroundColor: category.color }}
           >
             {category.icon}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-lg group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {category.name}
             </h3>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1.5">
               <span
-                className={`text-xs px-2 py-0.5 rounded-full ${
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm ${
                   isIncome
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                    ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 dark:from-green-900/40 dark:to-green-800/40 dark:text-green-400'
+                    : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:to-red-800/40 dark:text-red-400'
                 }`}
               >
                 {isIncome ? 'Income' : 'Expense'}
               </span>
               {category.is_default && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-gray-700 dark:to-gray-600 dark:text-gray-300 shadow-sm">
                   Default
                 </span>
               )}
@@ -58,14 +69,14 @@ export function CategoryCard({
 
         {/* Action Buttons */}
         {!category.is_default && (
-          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="relative flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {onEdit && (
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   onEdit(category)
                 }}
-                className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                className="p-2 text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                 aria-label="Edit category"
               >
                 <Edit2 className="w-4 h-4" />
@@ -77,7 +88,7 @@ export function CategoryCard({
                   e.stopPropagation()
                   onDelete(category)
                 }}
-                className="p-2 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                className="p-2 text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
                 aria-label="Delete category"
               >
                 <Trash2 className="w-4 h-4" />
@@ -89,27 +100,28 @@ export function CategoryCard({
 
       {/* Usage Stats */}
       {category.usage_stats && (
-        <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">Transactions</span>
-            <span className="font-medium text-gray-900 dark:text-gray-100">
+        <div className="relative space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions</span>
+            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
               {category.usage_stats.transactions_count}
             </span>
           </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-600 dark:text-gray-400">This Month</span>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</span>
             <span
-              className={`font-medium ${
+              className={`text-sm font-bold px-3 py-1 rounded-full shadow-sm ${
                 isIncome
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
+                  ? 'bg-gradient-to-r from-green-100 to-green-200 text-green-700 dark:from-green-900/40 dark:to-green-800/40 dark:text-green-400'
+                  : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:to-red-800/40 dark:text-red-400'
               }`}
             >
-              ${category.usage_stats.total_amount_current_month.toFixed(2)}
+              ${Number(category.usage_stats.total_amount_current_month || 0).toFixed(2)}
             </span>
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

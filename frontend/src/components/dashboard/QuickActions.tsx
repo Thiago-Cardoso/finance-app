@@ -41,9 +41,9 @@ export function QuickActions() {
   ]
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 border border-gray-100">
-      <h3 className="text-lg font-bold text-gray-800 mb-5 flex items-center">
-        <Plus className="w-5 h-5 mr-2 text-gray-600" />
+    <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center">
+        <Plus className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
         Ações Rápidas
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

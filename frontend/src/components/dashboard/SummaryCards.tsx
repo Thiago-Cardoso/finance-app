@@ -32,11 +32,11 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="relative bg-white rounded-2xl shadow-xl p-6 animate-pulse overflow-hidden border border-gray-100"
+            className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 animate-pulse overflow-hidden border border-gray-100 dark:border-gray-700"
           >
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gray-200 to-gray-300" />
-            <div className="h-4 bg-gray-200 rounded w-24 mb-4"></div>
-            <div className="h-10 bg-gray-200 rounded w-32"></div>
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-4"></div>
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-32"></div>
           </div>
         ))}
       </div>
@@ -97,7 +97,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
         return (
           <div
             key={index}
-            className="group relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden border border-gray-100/50"
+            className="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden border border-gray-100/50 dark:border-gray-700/50"
           >
             {/* Gradient accent bar at top - dynamic color */}
             <div
@@ -108,14 +108,14 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
             />
 
             {/* Background pattern */}
-            <div className="absolute inset-0 opacity-[0.03]" style={{
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08]" style={{
               backgroundImage: `radial-gradient(circle at 1px 1px, ${card.colorHex} 1px, transparent 0)`,
               backgroundSize: '24px 24px'
             }} />
 
             <div className="relative flex items-start justify-between">
               <div className="flex-1">
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5 flex items-center">
+                <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2.5 flex items-center">
                   {card.title}
                   <span className="ml-2 w-1 h-1 rounded-full" style={{ backgroundColor: card.colorHex }} />
                 </p>
@@ -144,7 +144,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
                         {isPositiveChange && '+'}{Math.abs(card.change).toFixed(1)}%
                       </span>
                     </div>
-                    <span className="text-xs text-gray-400 ml-2 font-medium">vs anterior</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 font-medium">vs anterior</span>
                   </div>
                 )}
               </div>

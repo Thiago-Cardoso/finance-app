@@ -20,7 +20,8 @@ interface TransactionFiltersProps {
 }
 
 export function TransactionFilters({ filters, onFiltersChange }: TransactionFiltersProps) {
-  const { data: categories } = useCategories()
+  const { data: categoryResponse } = useCategories()
+  const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
 
   const handleFilterChange = (key: string, value: string) => {
     onFiltersChange({ ...filters, [key]: value })

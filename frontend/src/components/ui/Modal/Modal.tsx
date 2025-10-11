@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, ReactNode } from 'react'
+import { Fragment, ReactNode, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -22,9 +22,22 @@ const sizeClasses = {
 }
 
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog as="div" className="relative" onClose={onClose} style={{ zIndex: 9999 }}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -34,10 +47,10 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" style={{ zIndex: 9998 }} />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-y-auto z-50">
+        <div className="fixed inset-0 overflow-y-auto" style={{ zIndex: 9999 }}>
           <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={Fragment}
@@ -50,21 +63,22 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
             >
               <Dialog.Panel
                 className={cn(
-                  'w-full transform overflow-visible rounded-2xl bg-white p-6 text-left shadow-2xl ring-1 ring-black/5 transition-all',
+                  'w-full transform overflow-visible rounded-2xl bg-white dark:bg-gray-800 p-6 text-left shadow-2xl ring-1 ring-black/5 transition-all',
                   sizeClasses[size]
                 )}
+                style={{ zIndex: 10000 }}
               >
                 {title && (
                   <div className="flex items-center justify-between mb-4">
                     <Dialog.Title
                       as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900"
+                      className="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100"
                     >
                       {title}
                     </Dialog.Title>
                     <button
                       type="button"
-                      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                      className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-500 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                       onClick={onClose}
                     >
                       <span className="sr-only">Close</span>
