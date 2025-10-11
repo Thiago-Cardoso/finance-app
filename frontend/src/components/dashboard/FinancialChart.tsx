@@ -18,11 +18,11 @@ interface FinancialChartProps {
 export function FinancialChart({ data }: FinancialChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Evolução Financeira
         </h3>
-        <div className="h-80 flex items-center justify-center text-gray-500">
+        <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
           Dados não disponíveis
         </div>
       </div>
@@ -40,8 +40,8 @@ export function FinancialChart({ data }: FinancialChartProps) {
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; dataKey: string; color: string }>; label?: string }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-2">{label}</p>
+        <div className="bg-white dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900 dark:text-gray-100 mb-2">{label}</p>
           {payload.map((entry, index: number) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.name}: {formatCurrency(entry.value)}
@@ -54,28 +54,28 @@ export function FinancialChart({ data }: FinancialChartProps) {
   }
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 border border-gray-100">
+    <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-bold text-gray-800">
+        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
           Evolução Financeira
         </h3>
         <div className="flex items-center space-x-4 text-sm">
-          <div className="flex items-center px-3 py-1.5 bg-emerald-50 rounded-full">
+          <div className="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-emerald-700">Receitas</span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Receitas</span>
           </div>
-          <div className="flex items-center px-3 py-1.5 bg-rose-50 rounded-full">
+          <div className="flex items-center px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-rose-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-rose-700">Despesas</span>
+            <span className="font-semibold text-rose-700 dark:text-rose-400">Despesas</span>
           </div>
-          <div className="flex items-center px-3 py-1.5 bg-blue-50 rounded-full">
+          <div className="flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-blue-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-blue-700">Saldo</span>
+            <span className="font-semibold text-blue-700 dark:text-blue-400">Saldo</span>
           </div>
         </div>
       </div>
 
-      <div className="h-80 bg-white rounded-lg p-4 shadow-inner">
+      <div className="h-80 bg-white dark:bg-gray-800 rounded-lg p-4 shadow-inner">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
             <defs>

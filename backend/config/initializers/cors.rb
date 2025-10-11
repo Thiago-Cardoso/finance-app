@@ -9,7 +9,7 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     origins Rails.env.production? ?
       ['https://finance-app.vercel.app', 'https://finance-app-demo.vercel.app'] :
-      ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001']
+      ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:3002']
 
     resource '*',
       headers: :any,

@@ -51,8 +51,11 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
   const [formError, setFormError] = useState<string | null>(null)
   const createTransaction = useCreateTransaction()
   const updateTransaction = useUpdateTransaction()
-  const { data: categories } = useCategories()
-  const { data: accounts } = useAccounts()
+  const { data: categoryResponse } = useCategories()
+  const { data: accountResponse } = useAccounts()
+
+  const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
+  const accounts = Array.isArray(accountResponse?.data) ? accountResponse.data : []
 
   const {
     register,
