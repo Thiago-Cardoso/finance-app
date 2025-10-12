@@ -30,18 +30,29 @@ export const categorySchema = z.object({
 export const transactionFormSchema = z.object({
   description: z
     .string()
-    .min(2, 'Descrição deve ter pelo menos 2 caracteres')
+    .min(3, 'Descrição deve ter pelo menos 3 caracteres')
     .max(100, 'Descrição não pode ter mais de 100 caracteres'),
-  amount: amountSchema,
-  transaction_type: z.enum(['income', 'expense'], {
+  amount: z.string()
+    .min(1, 'Valor é obrigatório')
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
+      message: 'Valor deve ser um número positivo'
+    }),
+  transaction_type: z.enum(['income', 'expense', 'transfer'], {
     required_error: 'Tipo de transação é obrigatório'
   }),
-  category_id: z.number().optional(),
-  date: z.date({
-    required_error: 'Data é obrigatória',
-    invalid_type_error: 'Data inválida'
-  }),
+  category_id: z.string().optional(),
+  account_id: z.string().optional(),
+  transfer_account_id: z.string().optional(),
+  date: z.string().min(1, 'Data é obrigatória'),
   notes: z.string().max(500, 'Notas não podem ter mais de 500 caracteres').optional()
+}).refine((data) => {
+  if (data.transaction_type === 'transfer') {
+    return !!data.transfer_account_id
+  }
+  return true
+}, {
+  message: 'Conta de destino é obrigatória para transferências',
+  path: ['transfer_account_id']
 })
 
 export type TransactionFormData = z.infer<typeof transactionFormSchema>
