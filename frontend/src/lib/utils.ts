@@ -5,7 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(
+  amount: number,
+  options?: { compact?: boolean }
+): string {
+  if (options?.compact) {
+    const absAmount = Math.abs(amount)
+    if (absAmount >= 1000000) {
+      return `R$ ${(amount / 1000000).toFixed(1)}M`
+    } else if (absAmount >= 1000) {
+      return `R$ ${(amount / 1000).toFixed(1)}K`
+    }
+  }
+
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',

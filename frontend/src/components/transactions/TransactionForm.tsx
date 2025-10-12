@@ -55,7 +55,7 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
   const { data: accountResponse } = useAccounts()
 
   const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
-  const accounts = Array.isArray(accountResponse?.data) ? accountResponse.data : []
+  const accounts = Array.isArray(accountResponse) ? accountResponse : []
 
   const {
     register,
@@ -66,17 +66,19 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
     defaultValues: transaction ? {
-      description: transaction.description,
-      amount: transaction.raw_amount.toString(),
-      transaction_type: transaction.transaction_type,
-      date: transaction.date,
-      category_id: transaction.category?.id?.toString(),
-      account_id: transaction.account?.id?.toString(),
-      transfer_account_id: transaction.transfer_account?.id?.toString(),
+      description: transaction.description || '',
+      amount: transaction.raw_amount?.toString() || '',
+      transaction_type: transaction.transaction_type || 'expense',
+      date: transaction.date || new Date().toISOString().split('T')[0],
+      category_id: transaction.category?.id?.toString() || '',
+      account_id: transaction.account?.id?.toString() || '',
+      transfer_account_id: transaction.transfer_account?.id?.toString() || '',
       notes: transaction.notes || '',
     } : {
       transaction_type: 'expense',
       date: new Date().toISOString().split('T')[0],
+      description: '',
+      amount: '',
     }
   })
 

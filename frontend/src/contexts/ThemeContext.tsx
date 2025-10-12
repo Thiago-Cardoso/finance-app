@@ -20,9 +20,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Carregar preferência salva no primeiro render
   useEffect(() => {
     setMounted(true)
-    const savedTheme = localStorage.getItem('theme') as Theme | null
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-      setTheme(savedTheme)
+    // Only access localStorage in the browser
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme') as Theme | null
+      if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+        setTheme(savedTheme)
+      }
     }
   }, [])
 
