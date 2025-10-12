@@ -1,0 +1,13 @@
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Screenshots dinâmicos (não baseline)
+screenshots/
+*.png.diff.png
+*.png.actual.png
+
+# Trace files
+trace/
+*.zip
