@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Transaction } from '@/types/transaction'
+import { Transaction, TransactionType } from '@/types/transaction'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
+import { Account } from '@/types/account'
 import { useAccounts } from '@/hooks/useAccounts'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -15,30 +16,7 @@ import { Textarea } from '@/components/ui/Textarea'
 import { RadioGroup } from '@/components/ui/RadioGroup'
 import { AlertCircle } from 'lucide-react'
 
-const transactionSchema = z.object({
-  description: z.string().min(1, 'Descrição é obrigatória'),
-  amount: z.string()
-    .min(1, 'Valor é obrigatório')
-    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-      message: 'Valor deve ser um número positivo'
-    }),
-  transaction_type: z.enum(['income', 'expense', 'transfer']),
-  date: z.string().min(1, 'Data é obrigatória'),
-  category_id: z.string().optional(),
-  account_id: z.string().optional(),
-  transfer_account_id: z.string().optional(),
-  notes: z.string().optional(),
-}).refine((data) => {
-  if (data.transaction_type === 'transfer') {
-    return !!data.transfer_account_id
-  }
-  return true
-}, {
-  message: 'Conta de destino é obrigatória para transferências',
-  path: ['transfer_account_id']
-})
-
-type TransactionFormData = z.infer<typeof transactionSchema>
+import { transactionFormSchema, type TransactionFormData } from '@/lib/validations'
 
 interface TransactionFormProps {
   transaction?: Transaction
@@ -64,19 +42,21 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
     setValue,
     formState: { errors, isSubmitting }
   } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(transactionFormSchema),
     defaultValues: transaction ? {
-      description: transaction.description,
-      amount: transaction.raw_amount.toString(),
-      transaction_type: transaction.transaction_type,
-      date: transaction.date,
-      category_id: transaction.category?.id?.toString(),
-      account_id: transaction.account?.id?.toString(),
-      transfer_account_id: transaction.transfer_account?.id?.toString(),
+      description: transaction.description || '',
+      amount: transaction.raw_amount?.toString() || '',
+      transaction_type: transaction.transaction_type || 'expense',
+      date: transaction.date || new Date().toISOString().split('T')[0],
+      category_id: transaction.category?.id?.toString() || '',
+      account_id: transaction.account?.id?.toString() || '',
+      transfer_account_id: transaction.transfer_account?.id?.toString() || '',
       notes: transaction.notes || '',
     } : {
       transaction_type: 'expense',
       date: new Date().toISOString().split('T')[0],
+      description: '',
+      amount: '',
     }
   })
 
@@ -123,7 +103,7 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
         <RadioGroup
           {...register('transaction_type')}
           value={watch('transaction_type')}
-          onChange={(value) => setValue('transaction_type', value as any)}
+          onChange={(value) => setValue('transaction_type', value as 'income' | 'expense' | 'transfer')}
           name="transaction_type"
           options={[
             { value: 'expense', label: 'Despesa', color: 'text-red-600' },
@@ -189,7 +169,7 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
           error={errors.account_id?.message}
           options={[
             { value: '', label: 'Selecione uma conta' },
-            ...(accounts?.map(account => ({
+            ...(accounts?.map((account: { id: number; name: string }) => ({
               value: account.id.toString(),
               label: account.name
             })) || [])
