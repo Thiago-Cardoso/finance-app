@@ -31,12 +31,12 @@ export function QuickActions() {
       onClick: () => router.push('/transactions/new?type=transfer')
     },
     {
-      label: 'Ver Relatórios',
+      label: 'Ver Transações',
       icon: PieChart,
       gradient: 'from-purple-500 to-violet-600',
       hoverGradient: 'hover:from-purple-600 hover:to-violet-700',
       shadowColor: 'shadow-purple-500/50',
-      onClick: () => router.push('/reports')
+      onClick: () => router.push('/transactions')
     }
   ]
 

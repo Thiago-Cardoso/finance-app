@@ -22,11 +22,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token')
-    if (storedToken) {
-      setToken(storedToken)
-      // TODO: Validate token and get user data
-      // For now, we just set the token
+    // Only access localStorage in the browser
+    if (typeof window !== 'undefined') {
+      const storedToken = localStorage.getItem('token')
+      if (storedToken) {
+        setToken(storedToken)
+        // TODO: Validate token and get user data
+        // For now, we just set the token
+      }
     }
     setLoading(false)
   }, [])
