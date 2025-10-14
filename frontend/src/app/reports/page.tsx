@@ -135,17 +135,29 @@ export default function ReportsPage() {
         {/* Content */}
         <div className="space-y-8">
           {activeTab === 'financial' && (
-            <FinancialSummaryDashboard
-              data={financialData!}
-              loading={financialLoading}
-            />
+            financialData ? (
+              <FinancialSummaryDashboard
+                data={financialData}
+                loading={financialLoading}
+              />
+            ) : (
+              <div className="p-8 text-center text-gray-500">
+                {financialLoading ? 'Carregando dados financeiros...' : 'Nenhum dado disponível'}
+              </div>
+            )
           )}
 
           {activeTab === 'budget' && (
-            <BudgetPerformanceDashboard
-              data={budgetData!}
-              loading={budgetLoading}
-            />
+            budgetData ? (
+              <BudgetPerformanceDashboard
+                data={budgetData}
+                loading={budgetLoading}
+              />
+            ) : (
+              <div className="p-8 text-center text-gray-500">
+                {budgetLoading ? 'Carregando dados de orçamento...' : 'Nenhum dado disponível'}
+              </div>
+            )
           )}
 
           {activeTab === 'trends' && (
