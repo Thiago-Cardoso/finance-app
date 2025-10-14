@@ -112,7 +112,7 @@ export function BarChart({
         {showLegend && <Legend />}
 
         {bars && bars.length > 0 ? (
-          bars.map((bar, index) => (
+          bars.map(bar => (
             <Bar
               key={bar.key}
               dataKey={bar.key}
@@ -122,7 +122,7 @@ export function BarChart({
               animationDuration={animation ? 1000 : 0}
             />
           ))
-        ) : (
+        ) : yAxisKey ? (
           <Bar
             dataKey={yAxisKey}
             fill={barColor}
@@ -130,7 +130,7 @@ export function BarChart({
             radius={[4, 4, 0, 0]}
             animationDuration={animation ? 1000 : 0}
           />
-        )}
+        ) : null}
       </RechartsBarChart>
     </BaseChart>
   )
