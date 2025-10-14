@@ -12,6 +12,7 @@ class User < ApplicationRecord
   has_many :accounts, dependent: :destroy
   has_many :budgets, dependent: :destroy
   has_many :goals, dependent: :destroy
+  has_many :reports, dependent: :destroy
 
   # Validations
   validates :first_name, presence: true, length: { maximum: 100 }
