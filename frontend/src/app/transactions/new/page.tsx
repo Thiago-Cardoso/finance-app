@@ -51,6 +51,7 @@ export default function NewTransactionPage() {
         {/* Form Card */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
           <TransactionForm
+            initialType={type || undefined}
             onSuccess={handleSuccess}
             onCancel={handleCancel}
           />

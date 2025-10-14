@@ -67,20 +67,20 @@ export default function TransactionsPage() {
   const getFilterLabel = (key: string, value: string) => {
     switch (key) {
       case 'transaction_type':
-        return `Type: ${value === 'income' ? 'Income' : value === 'expense' ? 'Expense' : 'Transfer'}`
+        return `Tipo: ${value === 'income' ? 'Receita' : value === 'expense' ? 'Despesa' : 'Transferência'}`
       case 'category_id':
         const category = categories.find(c => c.id.toString() === value)
-        return `Category: ${category?.name || value}`
+        return `Categoria: ${category?.name || value}`
       case 'date_from':
-        return `From: ${value}`
+        return `De: ${value}`
       case 'date_to':
-        return `To: ${value}`
+        return `Até: ${value}`
       case 'amount_min':
-        return `Min: $${value}`
+        return `Mín: R$${value}`
       case 'amount_max':
-        return `Max: $${value}`
+        return `Máx: R$${value}`
       case 'search':
-        return `Search: ${value}`
+        return `Busca: ${value}`
       default:
         return `${key}: ${value}`
     }
@@ -92,7 +92,7 @@ export default function TransactionsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
           </div>
         </div>
       </div>
@@ -108,13 +108,13 @@ export default function TransactionsPage() {
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Authentication Required
+              Autenticação Necessária
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              You need to be logged in to access transactions. Please sign in to continue.
+              Você precisa estar logado para acessar as transações. Por favor, faça login para continuar.
             </p>
             <Button onClick={() => router.push('/auth/login')}>
-              Go to Login
+              Ir para Login
             </Button>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function TransactionsPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Transactions
+                    Transações
                   </h1>
                   {!isLoading && data?.pages?.[0]?.meta?.pagination && (
                     <span className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-sm font-semibold text-blue-800 dark:text-blue-200 shadow-sm">
@@ -142,7 +142,7 @@ export default function TransactionsPage() {
                   )}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                  Manage your income, expenses and transfers with ease
+                  Gerencie suas receitas, despesas e transferências com facilidade
                 </p>
               </div>
               <Button
@@ -150,7 +150,7 @@ export default function TransactionsPage() {
                 className="flex items-center justify-center gap-2 w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
               >
                 <Plus className="w-4 h-4" />
-                <span>New Transaction</span>
+                <span>Nova Transação</span>
               </Button>
             </div>
 
@@ -158,25 +158,25 @@ export default function TransactionsPage() {
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
               <div className="flex-1 w-full sm:max-w-[250px]">
                 <Select
-                  label="Type"
+                  label="Tipo"
                   value={filters.transaction_type}
                   onChange={(e) => setFilters({ ...filters, transaction_type: e.target.value })}
                   options={[
-                    { value: '', label: 'All Types' },
-                    { value: 'income', label: 'Income' },
-                    { value: 'expense', label: 'Expense' },
-                    { value: 'transfer', label: 'Transfer' },
+                    { value: '', label: 'Todos os Tipos' },
+                    { value: 'income', label: 'Receita' },
+                    { value: 'expense', label: 'Despesa' },
+                    { value: 'transfer', label: 'Transferência' },
                   ]}
                 />
               </div>
 
               <div className="flex-1 w-full sm:max-w-[250px]">
                 <Select
-                  label="Category"
+                  label="Categoria"
                   value={filters.category_id}
                   onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
                   options={[
-                    { value: '', label: 'All Categories' },
+                    { value: '', label: 'Todas as Categorias' },
                     ...(categories.map(cat => ({
                       value: cat.id.toString(),
                       label: cat.name
@@ -191,8 +191,8 @@ export default function TransactionsPage() {
                 className="flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-200"
               >
                 <SlidersHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">Advanced Filters</span>
-                <span className="sm:hidden">More</span>
+                <span className="hidden sm:inline">Filtros Avançados</span>
+                <span className="sm:hidden">Mais</span>
               </Button>
 
               {hasActiveFilters && (
@@ -201,7 +201,7 @@ export default function TransactionsPage() {
                   onClick={handleClearFilters}
                   className="hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
-                  Clear All
+                  Limpar Tudo
                 </Button>
               )}
             </div>
@@ -251,7 +251,7 @@ export default function TransactionsPage() {
         <SimpleModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
-          title="New Transaction"
+          title="Nova Transação"
           size="lg"
         >
           <TransactionForm
