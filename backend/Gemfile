@@ -43,6 +43,12 @@ gem 'kaminari'
 # Validation and error handling
 gem 'active_model_serializers'
 
+# Report exports
+gem 'prawn'
+gem 'prawn-table'
+gem 'caxlsx'
+gem 'caxlsx_rails'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
