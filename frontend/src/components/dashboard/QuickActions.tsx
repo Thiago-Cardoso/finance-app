@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/Button'
-import { Plus, TrendingUp, TrendingDown, ArrowRightLeft, PieChart } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, ArrowRightLeft, PieChart, FileText } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export function QuickActions() {
@@ -37,6 +37,14 @@ export function QuickActions() {
       hoverGradient: 'hover:from-purple-600 hover:to-violet-700',
       shadowColor: 'shadow-purple-500/50',
       onClick: () => router.push('/transactions')
+    },
+    {
+      label: 'Relatórios',
+      icon: FileText,
+      gradient: 'from-orange-500 to-amber-600',
+      hoverGradient: 'hover:from-orange-600 hover:to-amber-700',
+      shadowColor: 'shadow-orange-500/50',
+      onClick: () => router.push('/reports')
     }
   ]
 
@@ -46,7 +54,7 @@ export function QuickActions() {
         <Plus className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
         Ações Rápidas
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {actions.map((action, index) => {
           const Icon = action.icon
           return (

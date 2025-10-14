@@ -4,10 +4,9 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Transaction, TransactionType } from '@/types/transaction'
+import { Transaction, Account } from '@/types/transaction'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
-import { Account } from '@/types/account'
 import { useAccounts } from '@/hooks/useAccounts'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -20,20 +19,21 @@ import { transactionFormSchema, type TransactionFormData } from '@/lib/validatio
 
 interface TransactionFormProps {
   transaction?: Transaction
+  initialType?: 'income' | 'expense' | 'transfer'
   onSuccess: () => void
   onCancel: () => void
 }
 
-export function TransactionForm({ transaction, onSuccess, onCancel }: TransactionFormProps) {
+export function TransactionForm({ transaction, initialType, onSuccess, onCancel }: TransactionFormProps) {
   const isEditing = !!transaction
   const [formError, setFormError] = useState<string | null>(null)
   const createTransaction = useCreateTransaction()
   const updateTransaction = useUpdateTransaction()
   const { data: categoryResponse } = useCategories()
-  const { data: accountResponse } = useAccounts()
+  const { data: accountsData } = useAccounts()
 
   const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
-  const accounts = Array.isArray(accountResponse?.data) ? accountResponse.data : []
+  const accounts = Array.isArray(accountsData) ? accountsData : []
 
   const {
     register,
@@ -53,7 +53,7 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
       transfer_account_id: transaction.transfer_account?.id?.toString() || '',
       notes: transaction.notes || '',
     } : {
-      transaction_type: 'expense',
+      transaction_type: initialType || 'expense',
       date: new Date().toISOString().split('T')[0],
       description: '',
       amount: '',
@@ -184,7 +184,7 @@ export function TransactionForm({ transaction, onSuccess, onCancel }: Transactio
             error={errors.transfer_account_id?.message}
             options={[
               { value: '', label: 'Selecione uma conta' },
-              ...(accounts?.map(account => ({
+              ...(accounts?.map((account: Account) => ({
                 value: account.id.toString(),
                 label: account.name
               })) || [])
