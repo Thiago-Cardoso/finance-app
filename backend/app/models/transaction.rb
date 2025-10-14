@@ -24,6 +24,9 @@ class Transaction < ApplicationRecord
   # Scopes
   scope :for_user, ->(user) { where(user: user) }
   scope :by_type, ->(type) { where(transaction_type: type) }
+  scope :income, -> { where(transaction_type: 'income') }
+  scope :expense, -> { where(transaction_type: 'expense') }
+  scope :transfer, -> { where(transaction_type: 'transfer') }
   scope :by_date_range, ->(start_date, end_date) { where(date: start_date..end_date) }
   scope :by_category, ->(category) { where(category: category) }
   scope :by_categories, ->(category_ids) { where(category_id: category_ids) }
