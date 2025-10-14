@@ -10,9 +10,9 @@ module Api
       # POST /api/v1/auth/sign_up
       def sign_up
         user = User.new(sign_up_params)
+        user.confirmed_at = Time.now # Auto-confirm user
 
         if user.save
-          user.send_confirmation_instructions unless user.confirmed?
           tokens = JwtService.generate_tokens(user)
 
           render_success({
@@ -29,18 +29,12 @@ module Api
         user = User.find_for_database_authentication(email: sign_in_params[:email])
 
         if user&.valid_password?(sign_in_params[:password])
-          if user.confirmed?
-            tokens = JwtService.generate_tokens(user)
+          tokens = JwtService.generate_tokens(user)
 
-            render_success({
-                             user: user_data(user),
-                             **tokens
-                           }, 'Signed in successfully')
-          else
-            render_error('Please confirm your email before signing in',
-                         [{ field: 'email', message: 'Email not confirmed' }],
-                         :unauthorized)
-          end
+          render_success({
+                           user: user_data(user),
+                           **tokens
+                         }, 'Signed in successfully')
         else
           render_error('Invalid email or password',
                        [{ field: 'credentials', message: 'Invalid email or password' }],
