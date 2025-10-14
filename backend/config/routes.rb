@@ -78,6 +78,14 @@ Rails.application.routes.draw do
         get :cash_flow, to: 'cash_flow#index'
         get :export, to: 'export#create'
       end
+
+      # Analytics endpoints
+      get 'analytics/financial_summary', to: 'analytics#financial_summary'
+      get 'analytics/budget_performance', to: 'analytics#budget_performance'
+      get 'analytics/export', to: 'analytics#export'
+      get 'analytics/reports', to: 'analytics#reports'
+      get 'analytics/reports/:id', to: 'analytics#show_report'
+      delete 'analytics/reports/:id', to: 'analytics#destroy_report'
     end
   end
 
