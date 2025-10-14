@@ -21,6 +21,7 @@ export function BarChart({
   barColor = '#3b82f6',
   stackId,
   layout = 'vertical',
+  bars,
   showGrid = true,
   showLegend = true,
   showTooltip = true,
@@ -110,13 +111,26 @@ export function BarChart({
 
         {showLegend && <Legend />}
 
-        <Bar
-          dataKey={yAxisKey}
-          fill={barColor}
-          stackId={stackId}
-          radius={[4, 4, 0, 0]}
-          animationDuration={animation ? 1000 : 0}
-        />
+        {bars && bars.length > 0 ? (
+          bars.map((bar, index) => (
+            <Bar
+              key={bar.key}
+              dataKey={bar.key}
+              fill={bar.color}
+              stackId={bar.stackId}
+              radius={[4, 4, 0, 0]}
+              animationDuration={animation ? 1000 : 0}
+            />
+          ))
+        ) : (
+          <Bar
+            dataKey={yAxisKey}
+            fill={barColor}
+            stackId={stackId}
+            radius={[4, 4, 0, 0]}
+            animationDuration={animation ? 1000 : 0}
+          />
+        )}
       </RechartsBarChart>
     </BaseChart>
   )
