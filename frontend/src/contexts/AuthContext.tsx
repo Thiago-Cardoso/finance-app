@@ -36,8 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('[AuthContext] Attempting login...', { email, API_BASE_URL })
-
       const response = await fetch(`${API_BASE_URL}/auth/sign_in`, {
         method: 'POST',
         headers: {
@@ -51,16 +49,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       })
 
-      console.log('[AuthContext] Response status:', response.status)
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Network error' }))
-        console.error('[AuthContext] Login error response:', errorData)
-        throw new Error(errorData.message || 'Email ou senha inválidos')
+        const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
+
+        // Extrair mensagem de erro específica
+        let errorMessage = 'Usuário ou senha inválidos'
+
+        if (errorData.message) {
+          errorMessage = errorData.message
+        } else if (errorData.error) {
+          errorMessage = errorData.error
+        } else if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+          errorMessage = errorData.errors.map((err: any) => err.message || err).join(', ')
+        }
+
+        throw new Error(errorMessage)
       }
 
       const result = await response.json()
-      console.log('[AuthContext] Login successful:', { user: result.data?.user })
 
       const accessToken = result.data.access_token
 
@@ -68,7 +74,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
-      console.error('[AuthContext] Login error:', error)
       throw error
     }
   }
@@ -86,8 +91,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Erro ao criar conta')
+        const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
+
+        // Extrair mensagem de erro específica
+        let errorMessage = 'Erro ao criar conta'
+
+        if (errorData.message) {
+          errorMessage = errorData.message
+        }
+
+        // Se houver erros específicos de campos, mostrar detalhes
+        if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+          const fieldErrors = errorData.errors.map((err: any) => {
+            if (err.field && err.message) {
+              const fieldName = err.field === 'email' ? 'Email' :
+                               err.field === 'password' ? 'Senha' :
+                               err.field === 'first_name' ? 'Nome' :
+                               err.field === 'last_name' ? 'Sobrenome' : err.field
+
+              let message = err.message
+              if (message === 'has already been taken') {
+                message = 'já está em uso'
+              } else if (message === 'is too short') {
+                message = 'é muito curto'
+              } else if (message === 'is invalid') {
+                message = 'é inválido'
+              } else if (message === 'can\'t be blank') {
+                message = 'não pode ficar em branco'
+              }
+
+              return `${fieldName} ${message}`
+            }
+            return err.message || err
+          })
+          errorMessage = fieldErrors.join('. ')
+        }
+
+        throw new Error(errorMessage)
       }
 
       const result = await response.json()
@@ -97,7 +137,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
-      console.error('Register error:', error)
       throw error
     }
   }
