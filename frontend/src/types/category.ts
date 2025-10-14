@@ -1,6 +1,6 @@
 // Category types for the Finance App
 
-export type CategoryType = 'income' | 'expense';
+export type CategoryType = 'income' | 'expense' | 'both';
 
 export interface Category {
   id: number;

@@ -1,10 +1,11 @@
 export interface ChartData {
   name: string
-  value: number
+  value?: number
   date?: string
   category?: string
   type?: 'income' | 'expense'
   color?: string
+  [key: string]: any
 }
 
 export interface ChartConfig {
@@ -43,10 +44,11 @@ export interface LineChartProps extends ChartConfig {
 export interface BarChartProps extends ChartConfig {
   data: ChartData[]
   xAxisKey: string
-  yAxisKey: string
+  yAxisKey?: string
   barColor?: string
   stackId?: string
   layout?: 'horizontal' | 'vertical'
+  bars?: Array<{ key: string; color: string; stackId?: string }>
   title?: string
   description?: string
   loading?: boolean
