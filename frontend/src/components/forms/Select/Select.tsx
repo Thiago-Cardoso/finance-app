@@ -33,6 +33,9 @@ export function Select({
   const { control, formState: { errors } } = useFormContext()
   const hasError = !!errors[name]
 
+  // Generate stable instanceId to prevent hydration mismatch
+  const instanceId = `select-${name}`
+
   const customStyles = {
     control: (provided: any, state: any) => ({
       ...provided,
@@ -103,6 +106,7 @@ export function Select({
       render={({ field: { onChange, value, onBlur } }) => (
         <ReactSelect
           {...props}
+          instanceId={instanceId}
           options={options}
           value={options.find(option => option.value === value) || null}
           onChange={(selectedOption: any) => {

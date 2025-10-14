@@ -29,8 +29,18 @@ class ApiClient {
     return response.json()
   }
 
-  async get<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint)
+  async get<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
+    let url = endpoint
+    if (params) {
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+        .join('&')
+      if (queryString) {
+        url = `${endpoint}?${queryString}`
+      }
+    }
+    return this.request<T>(url)
   }
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {
@@ -51,6 +61,33 @@ class ApiClient {
     return this.request<T>(endpoint, {
       method: 'DELETE',
     })
+  }
+
+  async getBlob(endpoint: string, params?: Record<string, unknown>): Promise<Blob> {
+    let url = `${this.baseURL}${endpoint}`
+    if (params) {
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value !== undefined && value !== null && value !== '')
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+        .join('&')
+      if (queryString) {
+        url = `${url}?${queryString}`
+      }
+    }
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+
+    const response = await fetch(url, {
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    return response.blob()
   }
 }
 

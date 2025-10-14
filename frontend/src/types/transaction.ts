@@ -11,7 +11,7 @@ export interface Transaction {
     name: string
     color: string
     icon?: string
-    category_type: string
+    category_type: 'income' | 'expense' | 'both'
   }
   account?: {
     id: number

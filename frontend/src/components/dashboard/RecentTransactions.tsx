@@ -83,6 +83,7 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
               <div
                 key={transaction.id}
                 className="group flex items-center justify-between p-4 rounded-xl bg-white/60 dark:bg-gray-900/60 hover:bg-white dark:hover:bg-gray-900 border border-gray-100/50 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 cursor-pointer"
+                // @ts-expect-error - Next.js App Router typing issue
                 onClick={() => router.push(`/transactions/${transaction.id}`)}
               >
                 <div className="flex items-center space-x-4 flex-1 min-w-0">

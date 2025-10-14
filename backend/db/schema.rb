@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_03_212453) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -100,6 +100,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_212453) do
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
+  create_table "reports", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "report_type", default: 0, null: false
+    t.integer "period_type", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.jsonb "filter_criteria", default: {}
+    t.bigint "user_id", null: false
+    t.datetime "generated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["generated_at"], name: "index_reports_on_generated_at"
+    t.index ["report_type"], name: "index_reports_on_report_type"
+    t.index ["status"], name: "index_reports_on_status"
+    t.index ["user_id", "report_type"], name: "index_reports_on_user_id_and_report_type"
+    t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.string "description", null: false
     t.decimal "amount", precision: 12, scale: 2, null: false
@@ -155,6 +172,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_03_212453) do
   add_foreign_key "budgets", "users", on_delete: :cascade
   add_foreign_key "categories", "users", on_delete: :cascade
   add_foreign_key "goals", "users", on_delete: :cascade
+  add_foreign_key "reports", "users"
   add_foreign_key "transactions", "accounts", column: "transfer_account_id", on_delete: :nullify
   add_foreign_key "transactions", "accounts", on_delete: :nullify
   add_foreign_key "transactions", "categories", on_delete: :nullify
