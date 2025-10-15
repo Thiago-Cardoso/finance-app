@@ -10,7 +10,8 @@ module Api
       # POST /api/v1/auth/sign_up
       def sign_up
         user = User.new(sign_up_params)
-        user.confirmed_at = Time.now # Auto-confirm user
+        # Auto-confirm user only in development or test environments
+        user.confirmed_at = Time.now if Rails.env.development? || Rails.env.test?
 
         if user.save
           tokens = JwtService.generate_tokens(user)
@@ -29,12 +30,18 @@ module Api
         user = User.find_for_database_authentication(email: sign_in_params[:email])
 
         if user&.valid_password?(sign_in_params[:password])
-          tokens = JwtService.generate_tokens(user)
+          if user.confirmed? || Rails.env.development? || Rails.env.test?
+            tokens = JwtService.generate_tokens(user)
 
-          render_success({
-                           user: user_data(user),
-                           **tokens
-                         }, 'Signed in successfully')
+            render_success({
+                             user: user_data(user),
+                             **tokens
+                           }, 'Signed in successfully')
+          else
+            render_error('Account not confirmed',
+                         [{ field: 'confirmation', message: 'Please confirm your account before signing in.' }],
+                         :unauthorized)
+          end
         else
           render_error('Invalid email or password',
                        [{ field: 'credentials', message: 'Invalid email or password' }],
