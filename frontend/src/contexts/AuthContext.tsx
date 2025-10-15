@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User, RegisterData } from '@/types/auth'
+import { parseApiError } from '@/lib/errorUtils'
 
 interface AuthContextType {
   user: User | null
@@ -36,8 +37,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      console.log('[AuthContext] Attempting login...', { email, API_BASE_URL })
-
       const response = await fetch(`${API_BASE_URL}/auth/sign_in`, {
         method: 'POST',
         headers: {
@@ -51,16 +50,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       })
 
-      console.log('[AuthContext] Response status:', response.status)
-
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Network error' }))
-        console.error('[AuthContext] Login error response:', errorData)
-        throw new Error(errorData.message || 'Email ou senha inválidos')
-      }
-
-      const result = await response.json()
-      console.log('[AuthContext] Login successful:', { user: result.data?.user })
+      const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
+      throw new Error(parseApiError(errorData) || 'Usuário ou senha inválidos')
+    }      const result = await response.json()
 
       const accessToken = result.data.access_token
 
@@ -68,7 +61,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
-      console.error('[AuthContext] Login error:', error)
       throw error
     }
   }
@@ -86,8 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Erro ao criar conta')
+        const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
+        throw new Error(parseApiError(errorData) || 'Erro ao criar conta')
       }
 
       const result = await response.json()
@@ -97,7 +89,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
-      console.error('Register error:', error)
       throw error
     }
   }

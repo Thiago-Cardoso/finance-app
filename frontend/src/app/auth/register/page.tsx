@@ -6,25 +6,51 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { RegisterData } from '@/types/auth'
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
-  const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const { register } = useAuth()
+  const [formData, setFormData] = useState<RegisterData>({
+    email: '',
+    password: '',
+    password_confirmation: '',
+    first_name: '',
+    last_name: '',
+  })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
+    // Validação de senha
+    if (formData.password !== formData.password_confirmation) {
+      setError('As senhas não coincidem')
+      setLoading(false)
+      return
+    }
+
+    if (formData.password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres')
+      setLoading(false)
+      return
+    }
+
     try {
-      await login(email, password)
+      await register(formData)
       router.push('/dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao fazer login')
+      setError(err instanceof Error ? err.message : 'Erro ao criar conta')
     } finally {
       setLoading(false)
     }
@@ -37,10 +63,10 @@ export default function LoginPage() {
           Finance App
         </h1>
         <p className="text-center text-gray-600 mb-8">
-          Faça login para acessar o dashboard
+          Crie sua conta para começar
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div role="alert" aria-live="assertive" className="p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg">
               <div className="flex items-start">
@@ -51,7 +77,7 @@ export default function LoginPage() {
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
-                    Erro ao fazer login
+                    Erro ao criar conta
                   </h3>
                   <p className="text-sm text-red-700 dark:text-red-400 mt-1">
                     {error}
@@ -61,15 +87,48 @@ export default function LoginPage() {
             </div>
           )}
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="first_name" className="block text-sm font-semibold text-gray-700 mb-2">
+                Nome
+              </label>
+              <Input
+                id="first_name"
+                name="first_name"
+                type="text"
+                value={formData.first_name}
+                onChange={handleChange}
+                placeholder="João"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="last_name" className="block text-sm font-semibold text-gray-700 mb-2">
+                Sobrenome
+              </label>
+              <Input
+                id="last_name"
+                name="last_name"
+                type="text"
+                value={formData.last_name}
+                onChange={handleChange}
+                placeholder="Silva"
+                required
+              />
+            </div>
+          </div>
+
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
               Email
             </label>
             <Input
               id="email"
+              name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
               placeholder="seu@email.com"
               required
             />
@@ -81,9 +140,26 @@ export default function LoginPage() {
             </label>
             <Input
               id="password"
+              name="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">Mínimo de 6 caracteres</p>
+          </div>
+
+          <div>
+            <label htmlFor="password_confirmation" className="block text-sm font-semibold text-gray-700 mb-2">
+              Confirmar Senha
+            </label>
+            <Input
+              id="password_confirmation"
+              name="password_confirmation"
+              type="password"
+              value={formData.password_confirmation}
+              onChange={handleChange}
               placeholder="••••••••"
               required
             />
@@ -94,18 +170,18 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Criando conta...' : 'Criar conta'}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Não tem uma conta?{' '}
+            Já tem uma conta?{' '}
             <Link
-              href="/auth/register"
+              href="/auth/login"
               className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
             >
-              Criar conta
+              Fazer login
             </Link>
           </p>
         </div>

@@ -15,15 +15,13 @@ Rails.application.routes.draw do
       get '/health', to: 'health#show'
 
       # Authentication routes
-      namespace :auth do
-        post :sign_up
-        post :sign_in
-        delete :sign_out
-        post :refresh_token
-        post :reset_password
-        put :update_password
-        post :confirm_email
-      end
+      post 'auth/sign_up', to: 'auth#sign_up'
+      post 'auth/sign_in', to: 'auth#sign_in'
+      delete 'auth/sign_out', to: 'auth#sign_out'
+      post 'auth/refresh_token', to: 'auth#refresh_token'
+      post 'auth/reset_password', to: 'auth#reset_password'
+      put 'auth/update_password', to: 'auth#update_password'
+      post 'auth/confirm_email', to: 'auth#confirm_email'
 
       # Dashboard endpoint
       get '/dashboard', to: 'dashboard#show'

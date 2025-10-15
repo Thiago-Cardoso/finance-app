@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/AuthContext'
 import { useDashboard } from '@/hooks/useDashboard'
 import { SummaryCards } from '@/components/dashboard/SummaryCards'
 import { FinancialChart } from '@/components/dashboard/FinancialChart'
@@ -10,18 +12,26 @@ import { GoalsProgress } from '@/components/dashboard/GoalsProgress'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { PeriodFilter } from '@/components/dashboard/PeriodFilter'
 import { ThemeToggle } from '@/components/ui/ThemeToggle/ThemeToggle'
+import { Button } from '@/components/ui/Button'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Grid, GridItem, VStack, HStack } from '@/components/ui'
-import { Loader2 } from 'lucide-react'
+import { Loader2, LogOut } from 'lucide-react'
 
 export default function DashboardPage() {
+  const router = useRouter()
+  const { logout } = useAuth()
   const [period, setPeriod] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     end: new Date()
   })
 
   const { data, isLoading, error, refetch } = useDashboard(period)
+
+  const handleLogout = () => {
+    logout()
+    router.push('/auth/login')
+  }
 
   if (isLoading) {
     return (
@@ -54,7 +64,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <PageLayout>
-        {/* Header with Period Filter and Theme Toggle */}
+        {/* Header with Period Filter, Theme Toggle and Logout */}
         <PageHeader
           title="Dashboard"
           subtitle="Visão geral das suas finanças"
@@ -62,6 +72,14 @@ export default function DashboardPage() {
             <HStack spacing={4}>
               <ThemeToggle />
               <PeriodFilter period={period} onPeriodChange={setPeriod} />
+              <Button
+                variant="ghost"
+                onClick={handleLogout}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Sair</span>
+              </Button>
             </HStack>
           }
         />
