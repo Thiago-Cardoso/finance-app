@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User, RegisterData } from '@/types/auth'
+import { parseApiError } from '@/lib/errorUtils'
 
 interface AuthContextType {
   user: User | null
@@ -50,23 +51,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
-
-        // Extrair mensagem de erro específica
-        let errorMessage = 'Usuário ou senha inválidos'
-
-        if (errorData.message) {
-          errorMessage = errorData.message
-        } else if (errorData.error) {
-          errorMessage = errorData.error
-        } else if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
-          errorMessage = errorData.errors.map((err: any) => err.message || err).join(', ')
-        }
-
-        throw new Error(errorMessage)
-      }
-
-      const result = await response.json()
+      const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
+      throw new Error(parseApiError(errorData) || 'Usuário ou senha inválidos')
+    }      const result = await response.json()
 
       const accessToken = result.data.access_token
 
@@ -92,42 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
-
-        // Extrair mensagem de erro específica
-        let errorMessage = 'Erro ao criar conta'
-
-        if (errorData.message) {
-          errorMessage = errorData.message
-        }
-
-        // Se houver erros específicos de campos, mostrar detalhes
-        if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
-          const fieldErrors = errorData.errors.map((err: any) => {
-            if (err.field && err.message) {
-              const fieldName = err.field === 'email' ? 'Email' :
-                               err.field === 'password' ? 'Senha' :
-                               err.field === 'first_name' ? 'Nome' :
-                               err.field === 'last_name' ? 'Sobrenome' : err.field
-
-              let message = err.message
-              if (message === 'has already been taken') {
-                message = 'já está em uso'
-              } else if (message === 'is too short') {
-                message = 'é muito curto'
-              } else if (message === 'is invalid') {
-                message = 'é inválido'
-              } else if (message === 'can\'t be blank') {
-                message = 'não pode ficar em branco'
-              }
-
-              return `${fieldName} ${message}`
-            }
-            return err.message || err
-          })
-          errorMessage = fieldErrors.join('. ')
-        }
-
-        throw new Error(errorMessage)
+        throw new Error(parseApiError(errorData) || 'Erro ao criar conta')
       }
 
       const result = await response.json()
