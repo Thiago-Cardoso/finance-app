@@ -111,8 +111,7 @@ export function CategoryStatistics({
                         {category.name}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {category.transactions_count} transaç
-                        {category.transactions_count !== 1 ? 'ões' : 'ão'}
+                        {category.transactions_count} {category.transactions_count !== 1 ? 'transações' : 'transação'}
                       </p>
                     </div>
                   </div>
