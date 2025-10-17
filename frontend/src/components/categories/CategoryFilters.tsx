@@ -49,7 +49,7 @@ export function CategoryFilters({ filters, onChange }: CategoryFiltersProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Search categories..."
+            placeholder="Buscar categorias..."
             value={filters.search || ''}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -60,9 +60,9 @@ export function CategoryFilters({ filters, onChange }: CategoryFiltersProps) {
         <div className="w-full sm:w-48">
           <Select
             options={[
-              { value: 'all', label: 'All Types' },
-              { value: 'income', label: 'Income' },
-              { value: 'expense', label: 'Expense' },
+              { value: 'all', label: 'Todos os Tipos' },
+              { value: 'income', label: 'Receita' },
+              { value: 'expense', label: 'Despesa' },
             ]}
             value={filters.category_type || 'all'}
             onChange={(e) => handleTypeChange(e.target.value)}
@@ -74,9 +74,9 @@ export function CategoryFilters({ filters, onChange }: CategoryFiltersProps) {
         <div className="w-full sm:w-48">
           <Select
             options={[
-              { value: 'all', label: 'All Categories' },
-              { value: 'true', label: 'Default Only' },
-              { value: 'false', label: 'Custom Only' },
+              { value: 'all', label: 'Todas as Categorias' },
+              { value: 'true', label: 'Apenas Padrão' },
+              { value: 'false', label: 'Apenas Personalizadas' },
             ]}
             value={
               filters.is_default === undefined
@@ -95,10 +95,10 @@ export function CategoryFilters({ filters, onChange }: CategoryFiltersProps) {
           <button
             onClick={clearFilters}
             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            aria-label="Clear all filters"
+            aria-label="Limpar todos os filtros"
           >
             <X className="w-4 h-4" />
-            <span className="hidden sm:inline">Clear</span>
+            <span className="hidden sm:inline">Limpar</span>
           </button>
         )}
       </div>

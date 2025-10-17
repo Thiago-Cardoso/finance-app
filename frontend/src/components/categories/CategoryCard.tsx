@@ -56,11 +56,11 @@ export function CategoryCard({
                     : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:to-red-800/40 dark:text-red-400'
                 }`}
               >
-                {isIncome ? 'Income' : 'Expense'}
+                {isIncome ? 'Receita' : 'Despesa'}
               </span>
               {category.is_default && (
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-gray-700 dark:to-gray-600 dark:text-gray-300 shadow-sm">
-                  Default
+                  Padrão
                 </span>
               )}
             </div>
@@ -102,13 +102,13 @@ export function CategoryCard({
       {category.usage_stats && (
         <div className="relative space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Transactions</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Transações</span>
             <span className="text-sm font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
               {category.usage_stats.transactions_count}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">This Month</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Este Mês</span>
             <span
               className={`text-sm font-bold px-3 py-1 rounded-full shadow-sm ${
                 isIncome
