@@ -14,17 +14,17 @@ import { IconPicker } from './IconPicker'
 const categorySchema = z.object({
   name: z
     .string()
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name must be at most 50 characters'),
+    .min(2, 'Nome deve ter pelo menos 2 caracteres')
+    .max(50, 'Nome deve ter no máximo 50 caracteres'),
   color: z
     .string()
-    .regex(hexColorRegex, 'Must be a valid hex color (e.g., #ff0000)'),
+    .regex(hexColorRegex, 'Deve ser uma cor hexadecimal válida (ex: #ff0000)'),
   icon: z
     .string()
-    .min(1, 'Icon is required')
-    .max(2, 'Icon must be at most 2 characters'),
+    .min(1, 'Ícone é obrigatório')
+    .max(2, 'Ícone deve ter no máximo 2 caracteres'),
   category_type: z.enum(['income', 'expense'], {
-    required_error: 'Category type is required',
+    required_error: 'Tipo de categoria é obrigatório',
   }),
 })
 
@@ -79,8 +79,8 @@ export function CategoryForm({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Category Name */}
       <Input
-        label="Category Name"
-        placeholder="e.g., Groceries, Salary"
+        label="Nome da Categoria"
+        placeholder="ex: Mercado, Salário"
         error={errors.name?.message}
         required
         {...register('name')}
@@ -89,7 +89,7 @@ export function CategoryForm({
       {/* Category Type */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Type <span className="text-red-500">*</span>
+          Tipo <span className="text-red-500">*</span>
         </label>
         <Controller
           name="category_type"
@@ -98,8 +98,8 @@ export function CategoryForm({
             <RadioGroup
               name="category_type"
               options={[
-                { value: 'income', label: 'Income', color: 'text-green-600' },
-                { value: 'expense', label: 'Expense', color: 'text-red-600' },
+                { value: 'income', label: 'Receita', color: 'text-green-600' },
+                { value: 'expense', label: 'Despesa', color: 'text-red-600' },
               ]}
               value={field.value}
               onChange={field.onChange}
@@ -114,7 +114,7 @@ export function CategoryForm({
       {/* Color Picker */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Color <span className="text-red-500">*</span>
+          Cor <span className="text-red-500">*</span>
         </label>
         <Controller
           name="color"
@@ -131,7 +131,7 @@ export function CategoryForm({
       {/* Icon Picker */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Icon <span className="text-red-500">*</span>
+          Ícone <span className="text-red-500">*</span>
         </label>
         <Controller
           name="icon"
@@ -153,7 +153,7 @@ export function CategoryForm({
           disabled={isLoading}
           className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Cancel
+          Cancelar
         </button>
         <button
           type="submit"
@@ -166,7 +166,7 @@ export function CategoryForm({
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           )}
-          {category ? 'Update Category' : 'Create Category'}
+          {category ? 'Atualizar Categoria' : 'Criar Categoria'}
         </button>
       </div>
     </form>

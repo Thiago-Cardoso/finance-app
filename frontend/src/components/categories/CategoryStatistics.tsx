@@ -53,29 +53,29 @@ export function CategoryStatistics({
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
           <Tag className="w-5 h-5" />
-          Summary
+          Resumo
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Total Categories</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Total de Categorias</p>
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
               {statistics.summary.total_categories}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Active</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Ativas</p>
             <p className="text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
               {statistics.summary.active_categories}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">With Transactions</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Com Transações</p>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">
               {statistics.summary.categories_with_transactions}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">Unused</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Não Utilizadas</p>
             <p className="text-2xl font-bold text-gray-500 dark:text-gray-400 mt-1">
               {statistics.summary.unused_categories}
             </p>
@@ -87,13 +87,13 @@ export function CategoryStatistics({
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
           <Activity className="w-5 h-5" />
-          Top Categories
+          Principais Categorias
         </h3>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {statistics.top_categories.length === 0 ? (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                No category data available
+                Nenhum dado de categoria disponível
               </div>
             ) : (
               statistics.top_categories.map((category) => (
@@ -111,8 +111,7 @@ export function CategoryStatistics({
                         {category.name}
                       </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {category.transactions_count} transaction
-                        {category.transactions_count !== 1 ? 's' : ''}
+                        {category.transactions_count} {category.transactions_count !== 1 ? 'transações' : 'transação'}
                       </p>
                     </div>
                   </div>
@@ -138,13 +137,13 @@ export function CategoryStatistics({
       <div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5" />
-          Trends (Last 2 Months)
+          Tendências (Últimos 2 Meses)
         </h3>
         <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
             {Object.entries(statistics.category_trends).length === 0 ? (
               <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                No trend data available
+                Nenhum dado de tendência disponível
               </div>
             ) : (
               Object.entries(statistics.category_trends).map(([name, trend]) => (
@@ -155,7 +154,7 @@ export function CategoryStatistics({
                   <div>
                     <p className="font-medium text-gray-900 dark:text-gray-100">{name}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Previous: ${trend.previous_amount.toFixed(2)} → Current: $
+                      Anterior: ${trend.previous_amount.toFixed(2)} → Atual: $
                       {trend.current_amount.toFixed(2)}
                     </p>
                   </div>

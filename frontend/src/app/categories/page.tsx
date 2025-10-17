@@ -44,7 +44,7 @@ export default function CategoriesPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
           </div>
         </div>
       </div>
@@ -60,13 +60,13 @@ export default function CategoriesPage() {
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Authentication Required
+              Autenticação Necessária
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              You need to be logged in to access categories. Please sign in to continue.
+              Você precisa estar logado para acessar categorias. Por favor, faça login para continuar.
             </p>
             <Button onClick={() => router.push('/auth/login')}>
-              Go to Login
+              Ir para Login
             </Button>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function CategoriesPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Categories
+                    Categorias
                   </h1>
                   {!isLoading && pagination && (
                     <span className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-sm font-semibold text-blue-800 dark:text-blue-200 shadow-sm">
@@ -142,7 +142,7 @@ export default function CategoriesPage() {
                   )}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                  Organize your finances with custom categories
+                  Organize suas finanças com categorias personalizadas
                 </p>
               </div>
               <div className="flex gap-3 w-full sm:w-auto">
@@ -152,15 +152,15 @@ export default function CategoriesPage() {
                   className="flex items-center justify-center gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Statistics</span>
+                  <span className="hidden sm:inline">Estatísticas</span>
                 </Button>
                 <Button
                   onClick={handleCreateCategory}
                   className="flex items-center justify-center gap-2 flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">New Category</span>
-                  <span className="sm:hidden">New</span>
+                  <span className="hidden sm:inline">Nova Categoria</span>
+                  <span className="sm:hidden">Nova</span>
                 </Button>
               </div>
             </div>
@@ -199,13 +199,13 @@ export default function CategoriesPage() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
               {filters.category_type !== 'all' || filters.is_default !== undefined
-                ? 'No categories found'
-                : 'Get Started with Categories'}
+                ? 'Nenhuma categoria encontrada'
+                : 'Comece com Categorias'}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               {filters.category_type !== 'all' || filters.is_default !== undefined
-                ? 'Try adjusting your filters or create a new category'
-                : 'Categories help you organize and track your income and expenses efficiently'}
+                ? 'Tente ajustar seus filtros ou crie uma nova categoria'
+                : 'Categorias ajudam você a organizar e rastrear suas receitas e despesas de forma eficiente'}
             </p>
             <div className="flex gap-3 justify-center">
               {(filters.category_type !== 'all' || filters.is_default !== undefined) && (
@@ -214,7 +214,7 @@ export default function CategoriesPage() {
                   onClick={() => setFilters({ category_type: 'all', search: '', is_default: undefined })}
                   className="shadow-md hover:shadow-lg transition-all duration-200"
                 >
-                  Clear Filters
+                  Limpar Filtros
                 </Button>
               )}
               <Button
@@ -223,8 +223,8 @@ export default function CategoriesPage() {
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {filters.category_type !== 'all' || filters.is_default !== undefined
-                  ? 'Create Category'
-                  : 'Create Your First Category'}
+                  ? 'Criar Categoria'
+                  : 'Criar Sua Primeira Categoria'}
               </Button>
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={isFormOpen}
         onClose={handleFormCancel}
-        title={selectedCategory ? 'Edit Category' : 'Create Category'}
+        title={selectedCategory ? 'Editar Categoria' : 'Criar Categoria'}
         size="lg"
       >
         <CategoryForm
@@ -261,7 +261,7 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={isStatsOpen}
         onClose={() => setIsStatsOpen(false)}
-        title="Category Statistics"
+        title="Estatísticas de Categorias"
         size="2xl"
       >
         {statistics && <CategoryStatistics statistics={statistics} />}
@@ -271,12 +271,12 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={!!categoryToDelete}
         onClose={() => setCategoryToDelete(undefined)}
-        title="Delete Category"
+        title="Excluir Categoria"
         size="md"
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete the category &ldquo;
+            Tem certeza que deseja excluir a categoria &ldquo;
             <span className="font-semibold">{categoryToDelete?.name}</span>&rdquo;?
           </p>
           <div className="flex justify-end gap-3">
@@ -285,14 +285,14 @@ export default function CategoriesPage() {
               onClick={() => setCategoryToDelete(undefined)}
               disabled={deleteMutation.isPending}
             >
-              Cancel
+              Cancelar
             </Button>
             <Button
               variant="danger"
               onClick={confirmDelete}
               loading={deleteMutation.isPending}
             >
-              Delete
+              Excluir
             </Button>
           </div>
         </div>

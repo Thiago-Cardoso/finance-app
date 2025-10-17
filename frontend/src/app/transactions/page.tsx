@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
-import { useIsMobile } from '@/hooks/useMediaQuery'
+
+import { Category } from '@/types/category'
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { TransactionFilters } from '@/components/transactions/TransactionFilters'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
@@ -13,13 +14,11 @@ import { Button } from '@/components/ui/Button'
 import { SimpleModal } from '@/components/ui/Modal/SimpleModal'
 import { FilterChip } from '@/components/ui/FilterChip/FilterChip'
 import { Select } from '@/components/ui/Select'
-import { Input } from '@/components/ui/Input'
-import { Plus, AlertCircle, Filter, SlidersHorizontal } from 'lucide-react'
+import { Plus, AlertCircle, SlidersHorizontal } from 'lucide-react'
 
 export default function TransactionsPage() {
   const router = useRouter()
   const { token, loading: authLoading } = useAuth()
-  const isMobile = useIsMobile()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [filters, setFilters] = useState({
@@ -42,11 +41,31 @@ export default function TransactionsPage() {
   } = useTransactions(filters)
 
   const { data: categoryResponse } = useCategories()
-  const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
+  const categories = useMemo(
+    () => (Array.isArray(categoryResponse?.data) ? categoryResponse.data : []),
+    [categoryResponse?.data]
+  )
 
   const transactions = data?.transactions || []
 
   const hasActiveFilters = Object.values(filters).some(value => value !== '')
+
+  // Auto-clear category_id if it's incompatible with the selected transaction_type
+  useEffect(() => {
+    setFilters(prev => {
+      if (
+        prev.category_id &&
+        prev.transaction_type &&
+        prev.transaction_type !== 'transfer'
+      ) {
+        const selectedCategory = categories.find((c: Category) => c.id.toString() === prev.category_id)
+        if (selectedCategory && selectedCategory.category_type !== prev.transaction_type) {
+          return { ...prev, category_id: '' }
+        }
+      }
+      return prev
+    })
+  }, [filters.transaction_type, filters.category_id, categories, setFilters])
 
   const handleClearFilters = () => {
     setFilters({
@@ -69,7 +88,7 @@ export default function TransactionsPage() {
       case 'transaction_type':
         return `Tipo: ${value === 'income' ? 'Receita' : value === 'expense' ? 'Despesa' : 'Transferência'}`
       case 'category_id':
-        const category = categories.find(c => c.id.toString() === value)
+        const category = categories.find((c: Category) => c.id.toString() === value)
         return `Categoria: ${category?.name || value}`
       case 'date_from':
         return `De: ${value}`
@@ -177,10 +196,19 @@ export default function TransactionsPage() {
                   onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
                   options={[
                     { value: '', label: 'Todas as Categorias' },
-                    ...(categories.map(cat => ({
-                      value: cat.id.toString(),
-                      label: cat.name
-                    })))
+                    ...(categories
+                      .filter((cat: Category) => {
+                        // Se não há tipo selecionado ou é transfer, mostra todas
+                        if (!filters.transaction_type || filters.transaction_type === 'transfer') {
+                          return true
+                        }
+                        // Filtra apenas categorias do tipo selecionado
+                        return cat.category_type === filters.transaction_type
+                      })
+                      .map((cat: Category) => ({
+                        value: cat.id.toString(),
+                        label: cat.name
+                      })))
                   ]}
                 />
               </div>
