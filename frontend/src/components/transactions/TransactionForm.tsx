@@ -35,6 +35,15 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
   const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
   const accounts = Array.isArray(accountsData) ? accountsData : []
 
+  // Get current date in local timezone (YYYY-MM-DD)
+  const getTodayDate = () => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   const {
     register,
     handleSubmit,
@@ -47,14 +56,14 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
       description: transaction.description || '',
       amount: transaction.raw_amount?.toString() || '',
       transaction_type: transaction.transaction_type || 'expense',
-      date: transaction.date || new Date().toISOString().split('T')[0],
+      date: transaction.date || getTodayDate(),
       category_id: transaction.category?.id?.toString() || '',
       account_id: transaction.account?.id?.toString() || '',
       transfer_account_id: transaction.transfer_account?.id?.toString() || '',
       notes: transaction.notes || '',
     } : {
       transaction_type: initialType || 'expense',
-      date: new Date().toISOString().split('T')[0],
+      date: getTodayDate(),
       description: '',
       amount: '',
     }
@@ -152,8 +161,7 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
             options={[
               { value: '', label: 'Selecione uma categoria' },
               ...(categories?.filter(cat =>
-                cat.category_type === transactionType ||
-                cat.category_type === 'both'
+                cat.category_type === transactionType
               ).map(cat => ({
                 value: cat.id.toString(),
                 label: cat.name

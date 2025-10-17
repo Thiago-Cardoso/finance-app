@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useTransactions } from '@/hooks/useTransactions'
@@ -47,6 +47,16 @@ export default function TransactionsPage() {
   const transactions = data?.transactions || []
 
   const hasActiveFilters = Object.values(filters).some(value => value !== '')
+
+  // Auto-clear category_id if it's incompatible with the selected transaction_type
+  useEffect(() => {
+    if (filters.category_id && filters.transaction_type && filters.transaction_type !== 'transfer') {
+      const selectedCategory = categories.find(c => c.id.toString() === filters.category_id)
+      if (selectedCategory && selectedCategory.category_type !== filters.transaction_type) {
+        setFilters({ ...filters, category_id: '' })
+      }
+    }
+  }, [filters.transaction_type, filters.category_id, categories])
 
   const handleClearFilters = () => {
     setFilters({
@@ -177,10 +187,19 @@ export default function TransactionsPage() {
                   onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
                   options={[
                     { value: '', label: 'Todas as Categorias' },
-                    ...(categories.map(cat => ({
-                      value: cat.id.toString(),
-                      label: cat.name
-                    })))
+                    ...(categories
+                      .filter(cat => {
+                        // Se não há tipo selecionado ou é transfer, mostra todas
+                        if (!filters.transaction_type || filters.transaction_type === 'transfer') {
+                          return true
+                        }
+                        // Filtra apenas categorias do tipo selecionado
+                        return cat.category_type === filters.transaction_type
+                      })
+                      .map(cat => ({
+                        value: cat.id.toString(),
+                        label: cat.name
+                      })))
                   ]}
                 />
               </div>

@@ -29,6 +29,22 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
   const isIncome = transaction.transaction_type === 'income'
   const isExpense = transaction.transaction_type === 'expense'
 
+  // Get amount value with fallback
+  const getAmountValue = () => {
+    // Try raw_amount first (number)
+    if (transaction.raw_amount !== undefined && transaction.raw_amount !== null) {
+      return Math.abs(Number(transaction.raw_amount))
+    }
+    // Fallback to amount (string) - parse and remove any non-numeric characters except decimal point
+    if (transaction.amount) {
+      const cleanAmount = transaction.amount.toString().replace(/[^\d.-]/g, '')
+      return Math.abs(Number(cleanAmount))
+    }
+    return 0
+  }
+
+  const amountValue = getAmountValue()
+
   return (
     <div
       className="px-6 py-4 hover:bg-gray-50 transition-colors"
@@ -78,7 +94,7 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
             >
               {isIncome && '+'}
               {isExpense && '-'}
-              {formatCurrency(Math.abs(transaction.raw_amount))}
+              {formatCurrency(amountValue)}
             </div>
             <div className="text-xs text-gray-500 capitalize">
               {transaction.transaction_type === 'income' && 'Receita'}
