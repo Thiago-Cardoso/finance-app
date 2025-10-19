@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/utils'
+import { useLocale } from '@/contexts/LocaleContext'
 import { TrendingUp, TrendingDown, Wallet, Target } from 'lucide-react'
 
 interface SummaryData {
@@ -26,6 +26,8 @@ interface SummaryCardsProps {
 }
 
 export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
+  const { t, formatCurrency } = useLocale()
+
   if (!data || !currentBalance) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -50,7 +52,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
 
   const cards = [
     {
-      title: 'Receitas do Mês',
+      title: t('dashboard.summary.monthlyIncome'),
       value: income,
       change: 0,
       icon: TrendingUp,
@@ -59,7 +61,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
       gradientTo: '#14b8a6'
     },
     {
-      title: 'Despesas do Mês',
+      title: t('dashboard.summary.monthlyExpenses'),
       value: expenses,
       change: 0,
       icon: TrendingDown,
@@ -68,7 +70,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
       gradientTo: '#ec4899'
     },
     {
-      title: 'Saldo do Mês',
+      title: t('dashboard.summary.monthlyBalance'),
       value: balance,
       change: data.variation.percentage,
       icon: Wallet,
@@ -78,7 +80,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
       trend: data.variation.trend
     },
     {
-      title: 'Saldo Total',
+      title: t('dashboard.summary.totalBalance'),
       value: totalBalance,
       change: 0,
       icon: Target,
@@ -144,7 +146,7 @@ export function SummaryCards({ data, currentBalance }: SummaryCardsProps) {
                         {isPositiveChange && '+'}{Math.abs(card.change).toFixed(1)}%
                       </span>
                     </div>
-                    <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 font-medium">vs anterior</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 font-medium">{t('dashboard.summary.vsPrevious')}</span>
                   </div>
                 )}
               </div>

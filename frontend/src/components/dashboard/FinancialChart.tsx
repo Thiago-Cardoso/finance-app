@@ -1,7 +1,7 @@
 'use client'
 
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
-import { formatCurrency } from '@/lib/utils'
+import { useLocale } from '@/contexts/LocaleContext'
 
 interface MonthlyData {
   month: string
@@ -16,14 +16,16 @@ interface FinancialChartProps {
 }
 
 export function FinancialChart({ data }: FinancialChartProps) {
+  const { t, formatCurrency } = useLocale()
+
   if (!data || data.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Evolução Financeira
+          {t('dashboard.charts.monthlyTrend')}
         </h3>
         <div className="h-80 flex items-center justify-center text-gray-500 dark:text-gray-400">
-          Dados não disponíveis
+          {t('dashboard.noData')}
         </div>
       </div>
     )
@@ -31,9 +33,9 @@ export function FinancialChart({ data }: FinancialChartProps) {
 
   const chartData = data.map(item => ({
     month: item.month_name ? item.month_name.split(' ')[0].substring(0, 3) : item.month || '',
-    receitas: item.income,
-    despesas: item.expenses,
-    saldo: item.balance
+    income: item.income,
+    expenses: item.expenses,
+    balance: item.balance
   }))
 
   // Custom tooltip with proper typing
@@ -57,20 +59,20 @@ export function FinancialChart({ data }: FinancialChartProps) {
     <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-          Evolução Financeira
+          {t('dashboard.charts.monthlyTrend')}
         </h3>
         <div className="flex items-center space-x-4 text-sm">
           <div className="flex items-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Receitas</span>
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">{t('dashboard.summary.income')}</span>
           </div>
           <div className="flex items-center px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-rose-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-rose-700 dark:text-rose-400">Despesas</span>
+            <span className="font-semibold text-rose-700 dark:text-rose-400">{t('dashboard.summary.expenses')}</span>
           </div>
           <div className="flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
             <div className="w-2.5 h-2.5 bg-blue-500 rounded-full mr-2"></div>
-            <span className="font-semibold text-blue-700 dark:text-blue-400">Saldo</span>
+            <span className="font-semibold text-blue-700 dark:text-blue-400">{t('dashboard.summary.balance')}</span>
           </div>
         </div>
       </div>
@@ -108,27 +110,30 @@ export function FinancialChart({ data }: FinancialChartProps) {
             <Tooltip content={<CustomTooltip />} />
             <Line
               type="monotone"
-              dataKey="receitas"
+              dataKey="income"
               stroke="#10b981"
               strokeWidth={3}
               dot={{ fill: '#10b981', strokeWidth: 2, r: 5 }}
               activeDot={{ r: 7, fill: '#10b981', stroke: '#fff', strokeWidth: 2 }}
+              name={t('dashboard.summary.income')}
             />
             <Line
               type="monotone"
-              dataKey="despesas"
+              dataKey="expenses"
               stroke="#ef4444"
               strokeWidth={3}
               dot={{ fill: '#ef4444', strokeWidth: 2, r: 5 }}
               activeDot={{ r: 7, fill: '#ef4444', stroke: '#fff', strokeWidth: 2 }}
+              name={t('dashboard.summary.expenses')}
             />
             <Line
               type="monotone"
-              dataKey="saldo"
+              dataKey="balance"
               stroke="#3b82f6"
               strokeWidth={3}
               dot={{ fill: '#3b82f6', strokeWidth: 2, r: 5 }}
               activeDot={{ r: 7, fill: '#3b82f6', stroke: '#fff', strokeWidth: 2 }}
+              name={t('dashboard.summary.balance')}
             />
           </LineChart>
         </ResponsiveContainer>

@@ -1,13 +1,15 @@
+import { useLocale } from '@/contexts/LocaleContext'
 import { Button } from '@/components/ui/Button'
 import { Plus, TrendingUp, TrendingDown, ArrowRightLeft, PieChart, FileText, Tag } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export function QuickActions() {
+  const { t } = useLocale()
   const router = useRouter()
 
   const actions = [
     {
-      label: 'Nova Receita',
+      label: t('dashboard.quickActions.newIncome'),
       icon: TrendingUp,
       gradient: 'from-emerald-500 to-teal-600',
       hoverGradient: 'hover:from-emerald-600 hover:to-teal-700',
@@ -15,7 +17,7 @@ export function QuickActions() {
       onClick: () => router.push('/transactions/new?type=income')
     },
     {
-      label: 'Nova Despesa',
+      label: t('dashboard.quickActions.newExpense'),
       icon: TrendingDown,
       gradient: 'from-rose-500 to-pink-600',
       hoverGradient: 'hover:from-rose-600 hover:to-pink-700',
@@ -23,7 +25,7 @@ export function QuickActions() {
       onClick: () => router.push('/transactions/new?type=expense')
     },
     {
-      label: 'Transferência',
+      label: t('dashboard.quickActions.transfer'),
       icon: ArrowRightLeft,
       gradient: 'from-blue-500 to-indigo-600',
       hoverGradient: 'hover:from-blue-600 hover:to-indigo-700',
@@ -31,7 +33,7 @@ export function QuickActions() {
       onClick: () => router.push('/transactions/new?type=transfer')
     },
     {
-      label: 'Categorias',
+      label: t('dashboard.quickActions.categories'),
       icon: Tag,
       gradient: 'from-cyan-500 to-sky-600',
       hoverGradient: 'hover:from-cyan-600 hover:to-sky-700',
@@ -39,7 +41,7 @@ export function QuickActions() {
       onClick: () => router.push('/categories')
     },
     {
-      label: 'Ver Transações',
+      label: t('dashboard.quickActions.viewTransactions'),
       icon: PieChart,
       gradient: 'from-purple-500 to-violet-600',
       hoverGradient: 'hover:from-purple-600 hover:to-violet-700',
@@ -47,7 +49,7 @@ export function QuickActions() {
       onClick: () => router.push('/transactions')
     },
     {
-      label: 'Relatórios',
+      label: t('dashboard.quickActions.reports'),
       icon: FileText,
       gradient: 'from-orange-500 to-amber-600',
       hoverGradient: 'hover:from-orange-600 hover:to-amber-700',
@@ -60,7 +62,7 @@ export function QuickActions() {
     <div className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
       <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-5 flex items-center">
         <Plus className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
-        Ações Rápidas
+        {t('dashboard.quickActions.title')}
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {actions.map((action, index) => {

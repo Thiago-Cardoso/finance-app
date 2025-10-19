@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLocale } from '@/contexts/LocaleContext'
 import { useDashboard } from '@/hooks/useDashboard'
 import { SummaryCards } from '@/components/dashboard/SummaryCards'
 import { FinancialChart } from '@/components/dashboard/FinancialChart'
@@ -12,6 +13,7 @@ import { GoalsProgress } from '@/components/dashboard/GoalsProgress'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { PeriodFilter } from '@/components/dashboard/PeriodFilter'
 import { ThemeToggle } from '@/components/ui/ThemeToggle/ThemeToggle'
+import { LanguageSelector } from '@/components/ui/LanguageSelector'
 import { Button } from '@/components/ui/Button'
 import { PageLayout } from '@/components/layout/PageLayout'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -21,6 +23,7 @@ import { Loader2, LogOut } from 'lucide-react'
 export default function DashboardPage() {
   const router = useRouter()
   const { logout } = useAuth()
+  const { t } = useLocale()
   const [period, setPeriod] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     end: new Date()
@@ -38,7 +41,7 @@ export default function DashboardPage() {
       <PageLayout>
         <HStack justify="center" align="center" className="min-h-screen">
           <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-          <span className="ml-2 text-gray-600 dark:text-gray-400">Carregando dashboard...</span>
+          <span className="ml-2 text-gray-600 dark:text-gray-400">{t('common.loading')}</span>
         </HStack>
       </PageLayout>
     )
@@ -48,13 +51,13 @@ export default function DashboardPage() {
     return (
       <PageLayout>
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 text-center">
-          <p className="text-red-800 dark:text-red-300 font-medium">Erro ao carregar dashboard</p>
+          <p className="text-red-800 dark:text-red-300 font-medium">{t('errors.generic')}</p>
           <p className="text-red-600 dark:text-red-400 text-sm mt-1">{(error as Error).message}</p>
           <button
             onClick={() => refetch()}
             className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-500 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-600"
           >
-            Tentar novamente
+            {t('common.cancel')}
           </button>
         </div>
       </PageLayout>
@@ -66,10 +69,11 @@ export default function DashboardPage() {
       <PageLayout>
         {/* Header with Period Filter, Theme Toggle and Logout */}
         <PageHeader
-          title="Dashboard"
-          subtitle="Visão geral das suas finanças"
+          title={t('dashboard.title')}
+          subtitle={t('dashboard.summary.title')}
           actions={
             <HStack spacing={4}>
+              <LanguageSelector />
               <ThemeToggle />
               <PeriodFilter period={period} onPeriodChange={setPeriod} />
               <Button
@@ -78,7 +82,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden sm:inline">Sair</span>
+                <span className="hidden sm:inline">{t('auth.logout')}</span>
               </Button>
             </HStack>
           }
