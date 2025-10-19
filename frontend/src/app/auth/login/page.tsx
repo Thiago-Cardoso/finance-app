@@ -4,12 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLocale } from '@/contexts/LocaleContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { LanguageSelector } from '@/components/ui/LanguageSelector'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login } = useAuth()
+  const { t } = useLocale()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -24,7 +27,7 @@ export default function LoginPage() {
       await login(email, password)
       router.push('/dashboard')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao fazer login')
+      setError(err instanceof Error ? err.message : t('auth.login.error'))
     } finally {
       setLoading(false)
     }
@@ -33,11 +36,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <div className="flex justify-end mb-4">
+          <LanguageSelector />
+        </div>
+
         <h1 className="text-3xl font-black text-center mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           Finance App
         </h1>
         <p className="text-center text-gray-600 mb-8">
-          Faça login para acessar o dashboard
+          {t('auth.login.subtitle')}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -51,7 +58,7 @@ export default function LoginPage() {
                 </div>
                 <div className="ml-3">
                   <h3 className="text-sm font-medium text-red-800 dark:text-red-300">
-                    Erro ao fazer login
+                    {t('auth.login.error')}
                   </h3>
                   <p className="text-sm text-red-700 dark:text-red-400 mt-1">
                     {error}
@@ -63,7 +70,7 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
+              {t('auth.login.email')}
             </label>
             <Input
               id="email"
@@ -77,7 +84,7 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-              Senha
+              {t('auth.login.password')}
             </label>
             <Input
               id="password"
@@ -94,18 +101,18 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? `${t('common.loading')}` : t('auth.login.submit')}
           </Button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Não tem uma conta?{' '}
+            {t('auth.login.noAccount')}{' '}
             <Link
               href="/auth/register"
               className="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
             >
-              Criar conta
+              {t('auth.login.signUp')}
             </Link>
           </p>
         </div>

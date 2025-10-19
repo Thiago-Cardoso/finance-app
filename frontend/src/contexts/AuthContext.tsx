@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { User, RegisterData } from '@/types/auth'
 import { parseApiError } from '@/lib/errorUtils'
+import { useLocale } from '@/contexts/LocaleContext'
 
 interface AuthContextType {
   user: User | null
@@ -21,6 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const { t } = useLocale()
 
   useEffect(() => {
     // Only access localStorage in the browser
@@ -51,9 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
-      throw new Error(parseApiError(errorData) || 'Usuário ou senha inválidos')
-    }      const result = await response.json()
+        const errorData = await response.json().catch(() => ({ message: t('errors.network') }))
+        throw new Error(parseApiError(errorData, t) || t('auth.login.error'))
+      }      const result = await response.json()
 
       const accessToken = result.data.access_token
 
@@ -78,8 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'Erro de conexão' }))
-        throw new Error(parseApiError(errorData) || 'Erro ao criar conta')
+        const errorData = await response.json().catch(() => ({ message: t('errors.network') }))
+        throw new Error(parseApiError(errorData, t) || t('auth.register.error'))
       }
 
       const result = await response.json()
