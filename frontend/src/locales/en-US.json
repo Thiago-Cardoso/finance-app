@@ -1,0 +1,456 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "close": "Close",
+    "submit": "Submit",
+    "create": "Create",
+    "update": "Update",
+    "actions": "Actions",
+    "select": "Select",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "subtitle": "Welcome back!",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up",
+      "success": "Successfully signed in",
+      "error": "Invalid email or password"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Start managing your finances",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "success": "Account created successfully",
+      "error": "Failed to create account"
+    },
+    "logout": "Sign Out",
+    "profile": "Profile"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome, {name}",
+    "summary": {
+      "title": "Financial Summary",
+      "income": "Income",
+      "expenses": "Expenses",
+      "balance": "Balance",
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "total": "Total",
+      "monthlyIncome": "Monthly Income",
+      "monthlyExpenses": "Monthly Expenses",
+      "monthlyBalance": "Monthly Balance",
+      "totalBalance": "Total Balance",
+      "vsPrevious": "vs previous"
+    },
+    "recentTransactions": "Recent Transactions",
+    "viewAll": "View all",
+    "topCategories": "Top Categories",
+    "goals": "Financial Goals",
+    "noData": "No data available",
+    "charts": {
+      "incomeVsExpenses": "Income vs Expenses",
+      "categoryBreakdown": "Category Breakdown",
+      "monthlyTrend": "Monthly Trend"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "newIncome": "New Income",
+      "newExpense": "New Expense",
+      "transfer": "Transfer",
+      "categories": "Categories",
+      "viewTransactions": "View Transactions",
+      "reports": "Reports"
+    }
+  },
+
+  "transactions": {
+    "title": "Transactions",
+    "subtitle": "Manage your income, expenses, and transfers with ease",
+    "new": "New Transaction",
+    "edit": "Edit Transaction",
+    "delete": "Delete Transaction",
+    "deleteConfirm": "Are you sure you want to delete this transaction?",
+    "deleteWarning": "This action cannot be undone.",
+    "details": "Transaction Details",
+    "backToDashboard": "Back to Dashboard",
+    "backToList": "Back to list",
+    "fields": {
+      "description": "Description",
+      "amount": "Amount",
+      "date": "Date",
+      "type": "Type",
+      "category": "Category",
+      "account": "Account",
+      "transferAccount": "Transfer Account",
+      "notes": "Notes"
+    },
+    "types": {
+      "income": "Income",
+      "expense": "Expense",
+      "transfer": "Transfer",
+      "all": "All Types"
+    },
+    "filters": {
+      "title": "Filters",
+      "advanced": "Advanced Filters",
+      "showAdvanced": "Show advanced filters",
+      "hideAdvanced": "Hide advanced filters",
+      "clearAll": "Clear All",
+      "dateRange": "Date Range",
+      "from": "From",
+      "to": "To",
+      "minAmount": "Minimum Amount",
+      "maxAmount": "Maximum Amount",
+      "allCategories": "All Categories",
+      "searchPlaceholder": "Search transactions..."
+    },
+    "allTransactions": "All Transactions",
+    "noTransactions": "No transactions found",
+    "noTransactionsWithFilters": "No transactions found with the applied filters",
+    "noTransactionsDescription": "Try adjusting your filters to find what you're looking for",
+    "createFirst": "Create your first transaction to get started",
+    "loadMore": "Load More Transactions",
+    "loadingMore": "Loading more...",
+    "success": {
+      "created": "Transaction created successfully",
+      "updated": "Transaction updated successfully",
+      "deleted": "Transaction deleted successfully"
+    },
+    "errors": {
+      "loadFailed": "Failed to load transactions",
+      "createFailed": "Failed to create transaction",
+      "updateFailed": "Failed to update transaction",
+      "deleteFailed": "Failed to delete transaction"
+    }
+  },
+
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Organize your finances with custom categories",
+    "statistics": "Statistics",
+    "statisticsTitle": "Category Statistics",
+    "new": "New Category",
+    "edit": "Edit Category",
+    "delete": "Delete Category",
+    "deleteConfirm": "Are you sure you want to delete this category?",
+    "default": "Default",
+    "transactions": "Transactions",
+    "thisMonth": "This Month",
+    "getStarted": "Get Started with Categories",
+    "description": "Categories help you organize and track your income and expenses efficiently",
+    "noResults": "Try adjusting your filters or create a new category",
+    "stats": {
+      "summary": "Summary",
+      "totalCategories": "Total Categories",
+      "active": "Active",
+      "withTransactions": "With Transactions",
+      "unused": "Unused",
+      "topCategories": "Top Categories",
+      "trends": "Trends (Last 2 Months)",
+      "noData": "No category data available",
+      "noTrendData": "No trend data available",
+      "transaction": "transaction",
+      "transactions": "transactions",
+      "previous": "Previous",
+      "current": "Current"
+    },
+    "fields": {
+      "name": "Name",
+      "color": "Color",
+      "icon": "Icon",
+      "type": "Type"
+    },
+    "types": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "noCategories": "No categories found",
+    "createFirst": "Create Your First Category",
+    "namePlaceholder": "e.g.: Groceries, Salary",
+    "createButton": "Create Category",
+    "updateButton": "Update Category",
+    "validation": {
+      "invalidColor": "Must be a valid hexadecimal color (e.g., #ff0000)",
+      "iconMaxLength": "Icon must be at most 2 characters"
+    },
+    "success": {
+      "created": "Category created successfully",
+      "updated": "Category updated successfully",
+      "deleted": "Category deleted successfully"
+    }
+  },
+
+  "accounts": {
+    "title": "Accounts",
+    "new": "New Account",
+    "edit": "Edit Account",
+    "delete": "Delete Account",
+    "fields": {
+      "name": "Name",
+      "type": "Type",
+      "initialBalance": "Initial Balance",
+      "currentBalance": "Current Balance"
+    },
+    "types": {
+      "checking": "Checking Account",
+      "savings": "Savings Account",
+      "creditCard": "Credit Card",
+      "investment": "Investment",
+      "cash": "Cash",
+      "other": "Other"
+    }
+  },
+
+  "goals": {
+    "title": "Financial Goals",
+    "new": "New Goal",
+    "edit": "Edit Goal",
+    "delete": "Delete Goal",
+    "deleteConfirm": "Are you sure you want to delete this goal?",
+    "fields": {
+      "name": "Goal Name",
+      "description": "Description",
+      "targetAmount": "Target Amount",
+      "currentAmount": "Current Amount",
+      "targetDate": "Target Date",
+      "type": "Goal Type",
+      "priority": "Priority",
+      "status": "Status"
+    },
+    "types": {
+      "savings": "Savings",
+      "debtPayoff": "Debt Payoff",
+      "investment": "Investment",
+      "expenseReduction": "Expense Reduction",
+      "general": "General"
+    },
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "progress": "Progress",
+    "remaining": "Remaining",
+    "daysRemaining": "{days} days remaining",
+    "completed": "Goal completed!",
+    "monthlyTarget": "Monthly Target",
+    "onTrack": "On track",
+    "behindSchedule": "Behind schedule",
+    "addContribution": "Add Contribution",
+    "milestones": "Milestones",
+    "achievements": "Achievements",
+    "noGoals": "No goals found",
+    "createFirst": "Create your first financial goal",
+    "success": {
+      "created": "Goal created successfully",
+      "updated": "Goal updated successfully",
+      "deleted": "Goal deleted successfully",
+      "contributionAdded": "Contribution added successfully"
+    }
+  },
+
+  "reports": {
+    "title": "Financial Reports",
+    "subtitle": "Analyze your financial data with detailed reports and personalized insights",
+    "monthly": "Monthly Report",
+    "category": "By Category",
+    "cashFlow": "Cash Flow",
+    "export": "Export",
+    "period": "Period",
+    "filters": "Filters",
+    "generate": "Generate Report",
+    "tabs": {
+      "financial": "Financial Summary",
+      "budget": "Budget Performance",
+      "trends": "Trends",
+      "custom": "Custom Reports"
+    },
+    "export": {
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV"
+    },
+    "loading": {
+      "financial": "Loading financial data...",
+      "budget": "Loading budget data..."
+    },
+    "noData": "No data available",
+    "summary": {
+      "totalIncome": "Total Income",
+      "totalExpenses": "Total Expenses",
+      "netBalance": "Net Balance",
+      "vsPrevious": "vs previous period",
+      "transactionCount": "Transactions",
+      "generatedAt": "Generated at"
+    },
+    "charts": {
+      "monthlyEvolution": "Monthly Evolution",
+      "categoryDistribution": "Category Distribution (Expenses)",
+      "income": "Income",
+      "expenses": "Expenses",
+      "balance": "Balance",
+      "noDataToDisplay": "No data to display"
+    },
+    "topTransactions": {
+      "expenses": "Top Expenses"
+    },
+    "insights": {
+      "title": "Insights"
+    },
+    "periodInfo": {
+      "period": "Period",
+      "from": "from",
+      "to": "to"
+    },
+    "comingSoon": {
+      "trends": {
+        "title": "Trend Analysis",
+        "description": "This feature will be available soon. You will be able to view spending trends, income patterns, and future projections."
+      },
+      "custom": {
+        "title": "Custom Reports",
+        "description": "Soon you will be able to create custom reports with specific metrics and visualizations tailored to your needs."
+      }
+    },
+    "filters": {
+      "title": "Filters",
+      "showAdvanced": "Show advanced filters",
+      "hideAdvanced": "Hide advanced filters",
+      "periodPreset": "Period",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "transactionType": "Transaction type",
+      "categories": "Categories",
+      "minAmount": "Minimum amount",
+      "maxAmount": "Maximum amount",
+      "apply": "Apply Filters",
+      "clear": "Clear",
+      "allTypes": "All types",
+      "allCategories": "All categories",
+      "presets": {
+        "thisMonth": "This month",
+        "lastMonth": "Last month",
+        "thisQuarter": "This quarter",
+        "lastQuarter": "Last quarter",
+        "thisYear": "This year",
+        "lastYear": "Last year",
+        "custom": "Custom period"
+      }
+    }
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "accounts": "Accounts",
+    "goals": "Goals",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+
+  "languageSelector": {
+    "title": "Language",
+    "portuguese": "Português (Brasil)",
+    "english": "English (USA)",
+    "changeLanguage": "Change language"
+  },
+
+  "validation": {
+    "required": "This field is required",
+    "email": "Invalid email",
+    "minLength": "Minimum of {min} characters",
+    "maxLength": "Maximum of {max} characters",
+    "min": "Minimum value: {min}",
+    "max": "Maximum value: {max}",
+    "passwordMatch": "Passwords do not match",
+    "invalidDate": "Invalid date",
+    "futureDate": "Date cannot be in the future",
+    "positiveNumber": "Value must be positive",
+    "invalidNumber": "Value must be a number",
+    "maxAmount": "Maximum value is {max}",
+    "transferAccountRequired": "Transfer account is required for transfers",
+    "startDateBeforeEndDate": "Start date must be before end date",
+    "minAmountLessThanMax": "Minimum amount must be less than maximum amount"
+  },
+
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Connection error. Check your internet.",
+    "unauthorized": "You are not authorized to access this resource.",
+    "notFound": "Resource not found.",
+    "serverError": "Server error. Please try again later.",
+    "api": {
+      "alreadyTaken": "is already taken",
+      "tooShort": "is too short",
+      "invalid": "is invalid",
+      "cantBeBlank": "cannot be blank",
+      "unknown": "Unknown error"
+    }
+  },
+
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "showing": "Showing",
+    "to": "to",
+    "results": "results"
+  },
+
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "lastWeek": "Last week",
+    "thisMonth": "This month",
+    "lastMonth": "Last month",
+    "thisYear": "This year",
+    "lastYear": "Last year",
+    "custom": "Custom"
+  },
+
+  "currency": {
+    "symbol": "$",
+    "code": "USD",
+    "format": "{symbol}{amount}"
+  }
+}
