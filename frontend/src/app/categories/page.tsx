@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, BarChart3, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLocale } from '@/contexts/LocaleContext'
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, useCategoryStatistics } from '@/hooks/useCategories'
 import { Category, CategoryFormData, CategoryFilters as CategoryFiltersType } from '@/types/category'
 import { Button } from '@/components/ui/Button/Button'
@@ -13,11 +14,13 @@ import { CategoryForm } from '@/components/categories/CategoryForm'
 import { CategoryFilters } from '@/components/categories/CategoryFilters'
 import { Pagination } from '@/components/ui/Pagination/Pagination'
 import { CategoryStatistics } from '@/components/categories/CategoryStatistics'
+import { LanguageSelector } from '@/components/ui/LanguageSelector/LanguageSelector'
 
 export default function CategoriesPage() {
   const router = useRouter()
   const { token, loading: authLoading } = useAuth()
-  
+  const { t } = useLocale()
+
   // All state declarations at the top
   const [filters, setFilters] = useState<CategoryFiltersType>({
     category_type: 'all',
@@ -44,7 +47,7 @@ export default function CategoriesPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+            <p className="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
           </div>
         </div>
       </div>
@@ -60,13 +63,13 @@ export default function CategoriesPage() {
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Autenticação Necessária
+              {t('errors.unauthorized')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Você precisa estar logado para acessar categorias. Por favor, faça login para continuar.
+              {t('auth.login.subtitle')}
             </p>
             <Button onClick={() => router.push('/auth/login')}>
-              Ir para Login
+              {t('auth.login.title')}
             </Button>
           </div>
         </div>
@@ -126,6 +129,11 @@ export default function CategoriesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Language Selector */}
+        <div className="mb-4 flex justify-end">
+          <LanguageSelector />
+        </div>
+
         {/* Header */}
         <div className="mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8">
@@ -133,16 +141,16 @@ export default function CategoriesPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Categorias
+                    {t('categories.title')}
                   </h1>
                   {!isLoading && pagination && (
                     <span className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-sm font-semibold text-blue-800 dark:text-blue-200 shadow-sm">
-                      {pagination.total_count} total
+                      {pagination.total_count} {t('dashboard.summary.total').toLowerCase()}
                     </span>
                   )}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                  Organize suas finanças com categorias personalizadas
+                  {t('categories.subtitle')}
                 </p>
               </div>
               <div className="flex gap-3 w-full sm:w-auto">
@@ -152,15 +160,15 @@ export default function CategoriesPage() {
                   className="flex items-center justify-center gap-2 flex-1 sm:flex-none shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Estatísticas</span>
+                  <span className="hidden sm:inline">{t('categories.statistics')}</span>
                 </Button>
                 <Button
                   onClick={handleCreateCategory}
                   className="flex items-center justify-center gap-2 flex-1 sm:flex-none bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
                   <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Nova Categoria</span>
-                  <span className="sm:hidden">Nova</span>
+                  <span className="hidden sm:inline">{t('categories.new')}</span>
+                  <span className="sm:hidden">{t('common.create')}</span>
                 </Button>
               </div>
             </div>
@@ -199,13 +207,13 @@ export default function CategoriesPage() {
             </div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
               {filters.category_type !== 'all' || filters.is_default !== undefined
-                ? 'Nenhuma categoria encontrada'
-                : 'Comece com Categorias'}
+                ? t('categories.noCategories')
+                : t('categories.getStarted')}
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
               {filters.category_type !== 'all' || filters.is_default !== undefined
-                ? 'Tente ajustar seus filtros ou crie uma nova categoria'
-                : 'Categorias ajudam você a organizar e rastrear suas receitas e despesas de forma eficiente'}
+                ? t('categories.noResults')
+                : t('categories.description')}
             </p>
             <div className="flex gap-3 justify-center">
               {(filters.category_type !== 'all' || filters.is_default !== undefined) && (
@@ -214,7 +222,7 @@ export default function CategoriesPage() {
                   onClick={() => setFilters({ category_type: 'all', search: '', is_default: undefined })}
                   className="shadow-md hover:shadow-lg transition-all duration-200"
                 >
-                  Limpar Filtros
+                  {t('common.clear')} {t('common.filter')}s
                 </Button>
               )}
               <Button
@@ -223,8 +231,8 @@ export default function CategoriesPage() {
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {filters.category_type !== 'all' || filters.is_default !== undefined
-                  ? 'Criar Categoria'
-                  : 'Criar Sua Primeira Categoria'}
+                  ? t('categories.new')
+                  : t('categories.createFirst')}
               </Button>
             </div>
           </div>
@@ -246,7 +254,7 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={isFormOpen}
         onClose={handleFormCancel}
-        title={selectedCategory ? 'Editar Categoria' : 'Criar Categoria'}
+        title={selectedCategory ? t('categories.edit') : t('categories.new')}
         size="lg"
       >
         <CategoryForm
@@ -261,7 +269,7 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={isStatsOpen}
         onClose={() => setIsStatsOpen(false)}
-        title="Estatísticas de Categorias"
+        title={t('categories.statisticsTitle')}
         size="2xl"
       >
         {statistics && <CategoryStatistics statistics={statistics} />}
@@ -271,12 +279,12 @@ export default function CategoriesPage() {
       <SimpleModal
         isOpen={!!categoryToDelete}
         onClose={() => setCategoryToDelete(undefined)}
-        title="Excluir Categoria"
+        title={t('categories.delete')}
         size="md"
       >
         <div className="space-y-4">
           <p className="text-gray-600 dark:text-gray-400">
-            Tem certeza que deseja excluir a categoria &ldquo;
+            {t('categories.deleteConfirm')} &ldquo;
             <span className="font-semibold">{categoryToDelete?.name}</span>&rdquo;?
           </p>
           <div className="flex justify-end gap-3">
@@ -285,14 +293,14 @@ export default function CategoriesPage() {
               onClick={() => setCategoryToDelete(undefined)}
               disabled={deleteMutation.isPending}
             >
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               variant="danger"
               onClick={confirmDelete}
               loading={deleteMutation.isPending}
             >
-              Excluir
+              {t('common.delete')}
             </Button>
           </div>
         </div>

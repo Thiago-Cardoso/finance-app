@@ -11,9 +11,10 @@ import { MoneyInput } from '@/components/forms/MoneyInput/MoneyInput'
 import { Button } from '@/components/ui/Button/Button'
 import { useCategories } from '@/hooks/useCategories'
 import { AnalyticsFilters } from '@/types/analytics'
+import { useLocale } from '@/contexts/LocaleContext'
 import { clsx } from 'clsx'
 
-const filtersSchema = z.object({
+const createFiltersSchema = (t: (key: string) => string) => z.object({
   period_preset: z.enum(['this_month', 'last_month', 'this_quarter', 'last_quarter', 'this_year', 'last_year', 'custom']).optional(),
   start_date: z.date().optional(),
   end_date: z.date().optional(),
@@ -27,7 +28,7 @@ const filtersSchema = z.object({
   }
   return true
 }, {
-  message: 'Data inicial deve ser anterior à data final',
+  message: t('validation.startDateBeforeEndDate'),
   path: ['end_date']
 }).refine((data) => {
   if (data.min_amount && data.max_amount) {
@@ -35,11 +36,11 @@ const filtersSchema = z.object({
   }
   return true
 }, {
-  message: 'Valor mínimo deve ser menor que o valor máximo',
+  message: t('validation.minAmountLessThanMax'),
   path: ['max_amount']
 })
 
-type FiltersFormData = z.infer<typeof filtersSchema>
+type FiltersFormData = z.infer<ReturnType<typeof createFiltersSchema>>
 
 interface ReportFiltersProps {
   initialFilters?: AnalyticsFilters
@@ -56,12 +57,13 @@ export function ReportFilters({
   showAdvanced = true,
   className
 }: ReportFiltersProps) {
+  const { t } = useLocale()
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
-  const { data: categoriesData } = useCategories()
+  const { data: categoriesData } = useCategories(undefined, 1, 100) // Fetch all categories (up to 100)
 
   const form = useForm<FiltersFormData>({
-    resolver: zodResolver(filtersSchema),
+    resolver: zodResolver(createFiltersSchema(t)),
     defaultValues: {
       period_preset: 'this_month',
       start_date: initialFilters.start_date ? new Date(initialFilters.start_date) : undefined,
@@ -86,18 +88,18 @@ export function ReportFilters({
   }))
 
   const periodPresetOptions: SelectOption[] = [
-    { value: 'this_month', label: 'Este mês' },
-    { value: 'last_month', label: 'Mês passado' },
-    { value: 'this_quarter', label: 'Este trimestre' },
-    { value: 'last_quarter', label: 'Trimestre passado' },
-    { value: 'this_year', label: 'Este ano' },
-    { value: 'last_year', label: 'Ano passado' },
-    { value: 'custom', label: 'Período personalizado' }
+    { value: 'this_month', label: t('reports.filters.presets.thisMonth') },
+    { value: 'last_month', label: t('reports.filters.presets.lastMonth') },
+    { value: 'this_quarter', label: t('reports.filters.presets.thisQuarter') },
+    { value: 'last_quarter', label: t('reports.filters.presets.lastQuarter') },
+    { value: 'this_year', label: t('reports.filters.presets.thisYear') },
+    { value: 'last_year', label: t('reports.filters.presets.lastYear') },
+    { value: 'custom', label: t('reports.filters.presets.custom') }
   ]
 
   const transactionTypeOptions: SelectOption[] = [
-    { value: 'income', label: 'Receitas' },
-    { value: 'expense', label: 'Despesas' }
+    { value: 'income', label: t('transactions.types.income') },
+    { value: 'expense', label: t('transactions.types.expense') }
   ]
 
   const handlePeriodPresetChange = (preset: string) => {
@@ -188,7 +190,7 @@ export function ReportFilters({
       className
     )}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filtros</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('reports.filters.title')}</h3>
         {showAdvanced && (
           <Button
             variant="ghost"
@@ -196,7 +198,7 @@ export function ReportFilters({
             onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
             type="button"
           >
-            {isAdvancedOpen ? 'Ocultar' : 'Mostrar'} filtros avançados
+            {isAdvancedOpen ? t('reports.filters.hideAdvanced') : t('reports.filters.showAdvanced')}
           </Button>
         )}
       </div>
@@ -204,7 +206,7 @@ export function ReportFilters({
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {/* Period Preset */}
-          <FormField name="period_preset" label="Período">
+          <FormField name="period_preset" label={t('reports.filters.periodPreset')}>
             <Select
               name="period_preset"
               options={periodPresetOptions}
@@ -215,11 +217,11 @@ export function ReportFilters({
 
           {/* Custom Date Range */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField name="start_date" label="Data inicial">
+            <FormField name="start_date" label={t('reports.filters.startDate')}>
               <DatePicker name="start_date" />
             </FormField>
 
-            <FormField name="end_date" label="Data final">
+            <FormField name="end_date" label={t('reports.filters.endDate')}>
               <DatePicker name="end_date" />
             </FormField>
           </div>
@@ -228,30 +230,30 @@ export function ReportFilters({
           {isAdvancedOpen && (
             <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField name="transaction_type" label="Tipo de transação">
+                <FormField name="transaction_type" label={t('reports.filters.transactionType')}>
                   <Select
                     name="transaction_type"
                     options={transactionTypeOptions}
-                    placeholder="Todos os tipos"
+                    placeholder={t('reports.filters.allTypes')}
                   />
                 </FormField>
 
-                <FormField name="category_ids" label="Categorias">
+                <FormField name="category_ids" label={t('reports.filters.categories')}>
                   <Select
                     name="category_ids"
                     options={categoryOptions}
-                    placeholder="Todas as categorias"
+                    placeholder={t('reports.filters.allCategories')}
                     isMulti
                   />
                 </FormField>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField name="min_amount" label="Valor mínimo">
+                <FormField name="min_amount" label={t('reports.filters.minAmount')}>
                   <MoneyInput name="min_amount" placeholder="0,00" />
                 </FormField>
 
-                <FormField name="max_amount" label="Valor máximo">
+                <FormField name="max_amount" label={t('reports.filters.maxAmount')}>
                   <MoneyInput name="max_amount" placeholder="0,00" />
                 </FormField>
               </div>
@@ -266,13 +268,13 @@ export function ReportFilters({
               onClick={handleClearFilters}
               disabled={loading}
             >
-              Limpar
+              {t('reports.filters.clear')}
             </Button>
             <Button
               type="submit"
               loading={loading}
             >
-              Aplicar Filtros
+              {t('reports.filters.apply')}
             </Button>
           </div>
         </form>
