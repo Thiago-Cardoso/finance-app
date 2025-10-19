@@ -15,16 +15,27 @@ module Localizable
   private
 
   def extract_locale_from_header
-    locale = request.headers['Accept-Language']&.scan(/^[a-z]{2}/)&.first
-    return nil unless locale
+    accept_language = request.headers['Accept-Language']
+    return I18n.default_locale unless accept_language
 
-    case locale
-    when 'pt'
-      :'pt-BR'
-    when 'en'
-      :'en-US'
-    else
-      I18n.default_locale
+    # Parse the Accept-Language header following RFC 2616
+    locales = accept_language.split(',').map do |lang|
+      lang, quality = lang.split(';q=')
+      quality = quality ? quality.to_f : 1.0
+      [lang.strip.downcase, quality]
+    end.sort_by { |_, q| -q }
+
+    # Try to find the first matching locale
+    locales.each do |lang, _|
+      base_lang = lang.split('-').first
+      case base_lang
+      when 'pt'
+        return :'pt-BR'
+      when 'en'
+        return :'en-US'
+      end
     end
+
+    I18n.default_locale
   end
 end
