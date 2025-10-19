@@ -6,6 +6,7 @@ import { PieChart } from '@/components/charts/PieChart/PieChart'
 import { BarChart } from '@/components/charts/BarChart/BarChart'
 import { FinancialSummary } from '@/types/analytics'
 import { formatCurrency } from '@/lib/utils'
+import { useLocale } from '@/contexts/LocaleContext'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Minus, ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react'
 
@@ -24,6 +25,7 @@ interface SummaryCardProps {
 }
 
 function SummaryCard({ title, value, growth, color, icon }: SummaryCardProps) {
+  const { t } = useLocale()
   const isPositiveGrowth = growth !== undefined && growth > 0
   const isNegativeGrowth = growth !== undefined && growth < 0
   const isNeutralGrowth = growth === 0
@@ -71,7 +73,7 @@ function SummaryCard({ title, value, growth, color, icon }: SummaryCardProps) {
             )}>
               {isPositiveGrowth && '+'}{Math.abs(growth).toFixed(1)}%
             </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">vs período anterior</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{t('reports.summary.vsPrevious')}</span>
           </div>
         )}
       </div>
@@ -80,6 +82,7 @@ function SummaryCard({ title, value, growth, color, icon }: SummaryCardProps) {
 }
 
 export function FinancialSummaryDashboard({ data, loading = false, className }: FinancialSummaryDashboardProps) {
+  const { t, formatCurrency: formatCurrencyLocale } = useLocale()
   const chartData = useMemo(() => {
     if (!data) return { monthlyData: [], categoryData: [], trendsData: [] }
 
@@ -87,9 +90,9 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
     const monthlyData = (data.monthly_breakdown || []).map(month => ({
       name: month.month_name,
       date: month.month,
-      Receitas: month.income,
-      Despesas: month.expense,
-      Saldo: month.net
+      income: month.income,
+      expenses: month.expense,
+      balance: month.net
     }))
 
     // Category distribution data (expenses)
@@ -124,7 +127,7 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
   if (!data) {
     return (
       <div className={cn('text-center py-12', className)}>
-        <p className="text-gray-500 dark:text-gray-400">Nenhum dado disponível</p>
+        <p className="text-gray-500 dark:text-gray-400">{t('reports.noData')}</p>
       </div>
     )
   }
@@ -134,21 +137,21 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <SummaryCard
-          title="Total de Receitas"
+          title={t('reports.summary.totalIncome')}
           value={data.summary.total_income}
           growth={data.comparisons?.previous_period?.income_growth}
           color="green"
           icon={<ArrowUpCircle className="w-5 h-5" />}
         />
         <SummaryCard
-          title="Total de Despesas"
+          title={t('reports.summary.totalExpenses')}
           value={data.summary.total_expenses}
           growth={data.comparisons?.previous_period?.expense_growth}
           color="red"
           icon={<ArrowDownCircle className="w-5 h-5" />}
         />
         <SummaryCard
-          title="Saldo Líquido"
+          title={t('reports.summary.netBalance')}
           value={data.summary.net_balance}
           growth={data.comparisons?.previous_period?.net_growth}
           color={data.summary.net_balance >= 0 ? 'green' : 'red'}
@@ -161,21 +164,21 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
         {/* Monthly Evolution */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Evolução Mensal
+            {t('reports.charts.monthlyEvolution')}
           </h3>
           {chartData.monthlyData.length > 0 ? (
             <BarChart
               data={chartData.monthlyData}
               xAxisKey="name"
               bars={[
-                { key: 'Receitas', color: '#10b981' },
-                { key: 'Despesas', color: '#ef4444' }
+                { key: 'income', color: '#10b981' },
+                { key: 'expenses', color: '#ef4444' }
               ]}
               height={300}
             />
           ) : (
             <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
-              Sem dados para exibir
+              {t('reports.charts.noDataToDisplay')}
             </div>
           )}
         </div>
@@ -183,7 +186,7 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
         {/* Category Distribution */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Distribuição por Categoria (Despesas)
+            {t('reports.charts.categoryDistribution')}
           </h3>
           {chartData.categoryData.length > 0 ? (
             <PieChart
@@ -195,7 +198,7 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
             />
           ) : (
             <div className="h-[300px] flex items-center justify-center text-gray-500 dark:text-gray-400">
-              Sem dados para exibir
+              {t('reports.charts.noDataToDisplay')}
             </div>
           )}
         </div>
@@ -207,7 +210,7 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
         {data.top_transactions && data.top_transactions.expenses.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Maiores Despesas
+              {t('reports.topTransactions.expenses')}
             </h3>
             <div className="space-y-3">
               {data.top_transactions.expenses.slice(0, 5).map((transaction) => (
@@ -235,7 +238,7 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
         {data.insights && data.insights.length > 0 && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-              Insights
+              {t('reports.insights.title')}
             </h3>
             <div className="space-y-4">
               {data.insights.slice(0, 3).map((insight, index) => (
@@ -271,14 +274,14 @@ export function FinancialSummaryDashboard({ data, loading = false, className }: 
       <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 text-sm text-gray-600 dark:text-gray-400">
         <div className="flex flex-wrap gap-4">
           <span>
-            <strong>Período:</strong> {data.period.start_date} até {data.period.end_date}
+            <strong>{t('reports.periodInfo.period')}:</strong> {data.period.start_date} {t('reports.periodInfo.to')} {data.period.end_date}
           </span>
           <span>
-            <strong>Transações:</strong> {data.summary.transaction_count}
+            <strong>{t('reports.summary.transactionCount')}:</strong> {data.summary.transaction_count}
           </span>
           {data.generated_at && (
             <span>
-              <strong>Gerado em:</strong> {new Date(data.generated_at).toLocaleString('pt-BR')}
+              <strong>{t('reports.summary.generatedAt')}:</strong> {new Date(data.generated_at).toLocaleString(formatCurrencyLocale === formatCurrency ? 'en-US' : 'pt-BR')}
             </span>
           )}
         </div>
