@@ -10,16 +10,14 @@ type CurrencyConfig = {
   format: string
 }
 
-type TranslationObject = {
-  [key: string]: string | TranslationObject | CurrencyConfig
+type TranslationValue = string | { [key: string]: TranslationValue }
+
+type TranslationData = {
+  [key: string]: TranslationValue
+  currency: CurrencyConfig
 }
 
-type Translations = {
-  [key in Locale]: {
-    [key: string]: TranslationObject
-    currency: CurrencyConfig
-  }
-}
+type Translations = Record<Locale, TranslationData>
 
 interface LocaleContextType {
   locale: Locale
@@ -29,13 +27,26 @@ interface LocaleContextType {
   formatDate: (date: Date | string) => string
 }
 
-const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
-
-
-let translations: Translations = {
-  'pt-BR': { currency: { symbol: 'R$', code: 'BRL', format: '{symbol} {value}' } },
-  'en-US': { currency: { symbol: '$', code: 'USD', format: '{symbol} {value}' } }
+const defaultTranslations: Translations = {
+  'pt-BR': {
+    currency: { symbol: 'R$', code: 'BRL', format: '{symbol} {value}' },
+    common: {
+      loading: 'Carregando...',
+      error: 'Erro'
+    }
+  },
+  'en-US': {
+    currency: { symbol: '$', code: 'USD', format: '{symbol} {value}' },
+    common: {
+      loading: 'Loading...',
+      error: 'Error'
+    }
+  }
 }
+
+let translations = { ...defaultTranslations }
+
+const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
 // Load translations on the client side only
 if (typeof window !== 'undefined') {
@@ -44,8 +55,14 @@ if (typeof window !== 'undefined') {
     import('@/locales/en-US.json')
   ]).then(([ptBR, enUS]) => {
     translations = {
-      'pt-BR': ptBR.default as Translations['pt-BR'],
-      'en-US': enUS.default as Translations['en-US']
+      'pt-BR': {
+        ...defaultTranslations['pt-BR'],
+        ...ptBR.default
+      },
+      'en-US': {
+        ...defaultTranslations['en-US'],
+        ...enUS.default
+      }
     }
   }).catch(error => {
     console.error('Error loading translations:', error)
@@ -58,7 +75,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true)
-    // Load saved locale from localStorage
     if (typeof window !== 'undefined') {
       try {
         const savedLocale = localStorage.getItem('locale') as Locale | null
@@ -76,23 +92,22 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('locale', newLocale)
+        document.documentElement.lang = newLocale
       } catch (error) {
         console.error('Error saving locale to localStorage:', error)
       }
-    }
-      document.documentElement.lang = newLocale
     }
   }, [])
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.')
-    let value: TranslationObject | string | undefined = translations[locale]
+    let value: TranslationValue | undefined = translations[locale]
 
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k]
       } else {
-        return key // Return key if translation not found
+        return key
       }
     }
 
@@ -100,7 +115,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       return key
     }
 
-    // Replace parameters in the translation
     if (params) {
       return Object.entries(params).reduce((result, [paramKey, paramValue]) => {
         return result.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramValue))
@@ -112,7 +126,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const formatCurrency = useCallback((amount: number): string => {
     const currencyConfig = translations[locale].currency
-    const symbol = currencyConfig?.symbol || 'R$'
+    const { symbol = 'R$' } = currencyConfig
+
     const formattedAmount = new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
@@ -130,21 +145,18 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }).format(dateObj)
   }, [locale])
 
-  // Prevent hydration mismatch
   if (!mounted) {
     return null
   }
 
-  const value: LocaleContextType = {
-    locale,
-    setLocale,
-    t,
-    formatCurrency,
-    formatDate
-  }
-
   return (
-    <LocaleContext.Provider value={value}>
+    <LocaleContext.Provider value={{
+      locale,
+      setLocale,
+      t,
+      formatCurrency,
+      formatDate
+    }}>
       {children}
     </LocaleContext.Provider>
   )
