@@ -1,0 +1,456 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "clear": "Limpar",
+    "close": "Fechar",
+    "submit": "Enviar",
+    "create": "Criar",
+    "update": "Atualizar",
+    "actions": "Ações",
+    "select": "Selecionar",
+    "all": "Todos",
+    "none": "Nenhum",
+    "yes": "Sim",
+    "no": "Não"
+  },
+
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "subtitle": "Bem-vindo de volta!",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueceu sua senha?",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se",
+      "success": "Login realizado com sucesso",
+      "error": "E-mail ou senha inválidos"
+    },
+    "register": {
+      "title": "Criar Conta",
+      "subtitle": "Comece a gerenciar suas finanças",
+      "firstName": "Primeiro Nome",
+      "lastName": "Sobrenome",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "submit": "Criar Conta",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar",
+      "success": "Conta criada com sucesso",
+      "error": "Erro ao criar conta"
+    },
+    "logout": "Sair",
+    "profile": "Perfil"
+  },
+
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Bem-vindo, {name}",
+    "summary": {
+      "title": "Resumo Financeiro",
+      "income": "Receitas",
+      "expenses": "Despesas",
+      "balance": "Saldo",
+      "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "total": "Total",
+      "monthlyIncome": "Receitas do Mês",
+      "monthlyExpenses": "Despesas do Mês",
+      "monthlyBalance": "Saldo do Mês",
+      "totalBalance": "Saldo Total",
+      "vsPrevious": "vs anterior"
+    },
+    "recentTransactions": "Transações Recentes",
+    "viewAll": "Ver todas",
+    "topCategories": "Principais Categorias",
+    "goals": "Metas Financeiras",
+    "noData": "Nenhum dado disponível",
+    "charts": {
+      "incomeVsExpenses": "Receitas vs Despesas",
+      "categoryBreakdown": "Distribuição por Categoria",
+      "monthlyTrend": "Tendência Mensal"
+    },
+    "quickActions": {
+      "title": "Ações Rápidas",
+      "newIncome": "Nova Receita",
+      "newExpense": "Nova Despesa",
+      "transfer": "Transferência",
+      "categories": "Categorias",
+      "viewTransactions": "Ver Transações",
+      "reports": "Relatórios"
+    }
+  },
+
+  "transactions": {
+    "title": "Transações",
+    "subtitle": "Gerencie suas receitas, despesas e transferências com facilidade",
+    "new": "Nova Transação",
+    "edit": "Editar Transação",
+    "delete": "Excluir Transação",
+    "deleteConfirm": "Tem certeza que deseja excluir esta transação?",
+    "deleteWarning": "Esta ação não pode ser desfeita.",
+    "details": "Detalhes da Transação",
+    "backToDashboard": "Voltar ao Dashboard",
+    "backToList": "Voltar à lista",
+    "fields": {
+      "description": "Descrição",
+      "amount": "Valor",
+      "date": "Data",
+      "type": "Tipo",
+      "category": "Categoria",
+      "account": "Conta",
+      "transferAccount": "Conta de Destino",
+      "notes": "Observações"
+    },
+    "types": {
+      "income": "Receita",
+      "expense": "Despesa",
+      "transfer": "Transferência",
+      "all": "Todos os Tipos"
+    },
+    "filters": {
+      "title": "Filtros",
+      "advanced": "Filtros Avançados",
+      "showAdvanced": "Mostrar filtros avançados",
+      "hideAdvanced": "Ocultar filtros avançados",
+      "clearAll": "Limpar Tudo",
+      "dateRange": "Período",
+      "from": "De",
+      "to": "Até",
+      "minAmount": "Valor Mínimo",
+      "maxAmount": "Valor Máximo",
+      "allCategories": "Todas as Categorias",
+      "searchPlaceholder": "Buscar transações..."
+    },
+    "allTransactions": "Todas as Transações",
+    "noTransactions": "Nenhuma transação encontrada",
+    "noTransactionsWithFilters": "Nenhuma transação encontrada com os filtros aplicados",
+    "noTransactionsDescription": "Tente ajustar seus filtros para encontrar o que está procurando",
+    "createFirst": "Crie sua primeira transação para começar",
+    "loadMore": "Carregar Mais Transações",
+    "loadingMore": "Carregando mais...",
+    "success": {
+      "created": "Transação criada com sucesso",
+      "updated": "Transação atualizada com sucesso",
+      "deleted": "Transação excluída com sucesso"
+    },
+    "errors": {
+      "loadFailed": "Erro ao carregar transações",
+      "createFailed": "Erro ao criar transação",
+      "updateFailed": "Erro ao atualizar transação",
+      "deleteFailed": "Erro ao excluir transação"
+    }
+  },
+
+  "categories": {
+    "title": "Categorias",
+    "subtitle": "Organize suas finanças com categorias personalizadas",
+    "statistics": "Estatísticas",
+    "statisticsTitle": "Estatísticas de Categorias",
+    "new": "Nova Categoria",
+    "edit": "Editar Categoria",
+    "delete": "Excluir Categoria",
+    "deleteConfirm": "Tem certeza que deseja excluir esta categoria?",
+    "default": "Padrão",
+    "transactions": "Transações",
+    "thisMonth": "Este Mês",
+    "getStarted": "Comece com Categorias",
+    "description": "Categorias ajudam você a organizar e rastrear suas receitas e despesas de forma eficiente",
+    "noResults": "Tente ajustar seus filtros ou crie uma nova categoria",
+    "stats": {
+      "summary": "Resumo",
+      "totalCategories": "Total de Categorias",
+      "active": "Ativas",
+      "withTransactions": "Com Transações",
+      "unused": "Não Utilizadas",
+      "topCategories": "Principais Categorias",
+      "trends": "Tendências (Últimos 2 Meses)",
+      "noData": "Nenhum dado de categoria disponível",
+      "noTrendData": "Nenhum dado de tendência disponível",
+      "transaction": "transação",
+      "transactions": "transações",
+      "previous": "Anterior",
+      "current": "Atual"
+    },
+    "fields": {
+      "name": "Nome",
+      "color": "Cor",
+      "icon": "Ícone",
+      "type": "Tipo"
+    },
+    "types": {
+      "income": "Receita",
+      "expense": "Despesa"
+    },
+    "noCategories": "Nenhuma categoria encontrada",
+    "createFirst": "Criar Sua Primeira Categoria",
+    "namePlaceholder": "ex: Mercado, Salário",
+    "createButton": "Criar Categoria",
+    "updateButton": "Atualizar Categoria",
+    "validation": {
+      "invalidColor": "Deve ser uma cor hexadecimal válida (ex: #ff0000)",
+      "iconMaxLength": "Ícone deve ter no máximo 2 caracteres"
+    },
+    "success": {
+      "created": "Categoria criada com sucesso",
+      "updated": "Categoria atualizada com sucesso",
+      "deleted": "Categoria excluída com sucesso"
+    }
+  },
+
+  "accounts": {
+    "title": "Contas",
+    "new": "Nova Conta",
+    "edit": "Editar Conta",
+    "delete": "Excluir Conta",
+    "fields": {
+      "name": "Nome",
+      "type": "Tipo",
+      "initialBalance": "Saldo Inicial",
+      "currentBalance": "Saldo Atual"
+    },
+    "types": {
+      "checking": "Conta Corrente",
+      "savings": "Poupança",
+      "creditCard": "Cartão de Crédito",
+      "investment": "Investimento",
+      "cash": "Dinheiro",
+      "other": "Outro"
+    }
+  },
+
+  "goals": {
+    "title": "Metas Financeiras",
+    "new": "Nova Meta",
+    "edit": "Editar Meta",
+    "delete": "Excluir Meta",
+    "deleteConfirm": "Tem certeza que deseja excluir esta meta?",
+    "fields": {
+      "name": "Nome da Meta",
+      "description": "Descrição",
+      "targetAmount": "Valor Alvo",
+      "currentAmount": "Valor Atual",
+      "targetDate": "Data Alvo",
+      "type": "Tipo de Meta",
+      "priority": "Prioridade",
+      "status": "Status"
+    },
+    "types": {
+      "savings": "Poupança",
+      "debtPayoff": "Quitação de Dívida",
+      "investment": "Investimento",
+      "expenseReduction": "Redução de Gastos",
+      "general": "Geral"
+    },
+    "priority": {
+      "low": "Baixa",
+      "medium": "Média",
+      "high": "Alta",
+      "urgent": "Urgente"
+    },
+    "status": {
+      "active": "Ativa",
+      "paused": "Pausada",
+      "completed": "Concluída",
+      "failed": "Falhada",
+      "cancelled": "Cancelada"
+    },
+    "progress": "Progresso",
+    "remaining": "Restante",
+    "daysRemaining": "{days} dias restantes",
+    "completed": "Meta concluída!",
+    "monthlyTarget": "Meta Mensal",
+    "onTrack": "No caminho certo",
+    "behindSchedule": "Atrasada",
+    "addContribution": "Adicionar Contribuição",
+    "milestones": "Marcos",
+    "achievements": "Conquistas",
+    "noGoals": "Nenhuma meta encontrada",
+    "createFirst": "Crie sua primeira meta financeira",
+    "success": {
+      "created": "Meta criada com sucesso",
+      "updated": "Meta atualizada com sucesso",
+      "deleted": "Meta excluída com sucesso",
+      "contributionAdded": "Contribuição adicionada com sucesso"
+    }
+  },
+
+  "reports": {
+    "title": "Relatórios Financeiros",
+    "subtitle": "Analise seus dados financeiros com relatórios detalhados e insights personalizados",
+    "monthly": "Relatório Mensal",
+    "category": "Por Categoria",
+    "cashFlow": "Fluxo de Caixa",
+    "export": "Exportar",
+    "period": "Período",
+    "filters": "Filtros",
+    "generate": "Gerar Relatório",
+    "tabs": {
+      "financial": "Resumo Financeiro",
+      "budget": "Performance de Orçamentos",
+      "trends": "Tendências",
+      "custom": "Relatórios Personalizados"
+    },
+    "export": {
+      "pdf": "Exportar PDF",
+      "excel": "Exportar Excel",
+      "csv": "Exportar CSV"
+    },
+    "loading": {
+      "financial": "Carregando dados financeiros...",
+      "budget": "Carregando dados de orçamento..."
+    },
+    "noData": "Nenhum dado disponível",
+    "summary": {
+      "totalIncome": "Total de Receitas",
+      "totalExpenses": "Total de Despesas",
+      "netBalance": "Saldo Líquido",
+      "vsPrevious": "vs período anterior",
+      "transactionCount": "Transações",
+      "generatedAt": "Gerado em"
+    },
+    "charts": {
+      "monthlyEvolution": "Evolução Mensal",
+      "categoryDistribution": "Distribuição por Categoria (Despesas)",
+      "income": "Receitas",
+      "expenses": "Despesas",
+      "balance": "Saldo",
+      "noDataToDisplay": "Sem dados para exibir"
+    },
+    "topTransactions": {
+      "expenses": "Maiores Despesas"
+    },
+    "insights": {
+      "title": "Insights"
+    },
+    "periodInfo": {
+      "period": "Período",
+      "from": "de",
+      "to": "até"
+    },
+    "comingSoon": {
+      "trends": {
+        "title": "Análise de Tendências",
+        "description": "Esta funcionalidade estará disponível em breve. Você poderá visualizar tendências de gastos, padrões de receitas e projeções futuras."
+      },
+      "custom": {
+        "title": "Relatórios Personalizados",
+        "description": "Em breve você poderá criar relatórios personalizados com métricas específicas e visualizações sob medida para suas necessidades."
+      }
+    },
+    "filters": {
+      "title": "Filtros",
+      "showAdvanced": "Mostrar filtros avançados",
+      "hideAdvanced": "Ocultar filtros avançados",
+      "periodPreset": "Período",
+      "startDate": "Data inicial",
+      "endDate": "Data final",
+      "transactionType": "Tipo de transação",
+      "categories": "Categorias",
+      "minAmount": "Valor mínimo",
+      "maxAmount": "Valor máximo",
+      "apply": "Aplicar Filtros",
+      "clear": "Limpar",
+      "allTypes": "Todos os tipos",
+      "allCategories": "Todas as categorias",
+      "presets": {
+        "thisMonth": "Este mês",
+        "lastMonth": "Mês passado",
+        "thisQuarter": "Este trimestre",
+        "lastQuarter": "Trimestre passado",
+        "thisYear": "Este ano",
+        "lastYear": "Ano passado",
+        "custom": "Período personalizado"
+      }
+    }
+  },
+
+  "navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transações",
+    "categories": "Categorias",
+    "accounts": "Contas",
+    "goals": "Metas",
+    "reports": "Relatórios",
+    "settings": "Configurações"
+  },
+
+  "languageSelector": {
+    "title": "Idioma",
+    "portuguese": "Português (Brasil)",
+    "english": "English (USA)",
+    "changeLanguage": "Alterar idioma"
+  },
+
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "email": "E-mail inválido",
+    "minLength": "Mínimo de {min} caracteres",
+    "maxLength": "Máximo de {max} caracteres",
+    "min": "Valor mínimo: {min}",
+    "max": "Valor máximo: {max}",
+    "passwordMatch": "As senhas não coincidem",
+    "invalidDate": "Data inválida",
+    "futureDate": "A data não pode ser no futuro",
+    "positiveNumber": "O valor deve ser positivo",
+    "invalidNumber": "O valor deve ser um número",
+    "maxAmount": "Valor máximo é {max}",
+    "transferAccountRequired": "Conta de destino é obrigatória para transferências",
+    "startDateBeforeEndDate": "Data inicial deve ser anterior à data final",
+    "minAmountLessThanMax": "Valor mínimo deve ser menor que o valor máximo"
+  },
+
+  "errors": {
+    "generic": "Ocorreu um erro. Por favor, tente novamente.",
+    "network": "Erro de conexão. Verifique sua internet.",
+    "unauthorized": "Você não está autorizado a acessar este recurso.",
+    "notFound": "Recurso não encontrado.",
+    "serverError": "Erro no servidor. Tente novamente mais tarde.",
+    "api": {
+      "alreadyTaken": "já está em uso",
+      "tooShort": "é muito curto",
+      "invalid": "é inválido",
+      "cantBeBlank": "não pode ficar em branco",
+      "unknown": "Erro desconhecido"
+    }
+  },
+
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Próximo",
+    "page": "Página",
+    "of": "de",
+    "showing": "Mostrando",
+    "to": "até",
+    "results": "resultados"
+  },
+
+  "dates": {
+    "today": "Hoje",
+    "yesterday": "Ontem",
+    "thisWeek": "Esta semana",
+    "lastWeek": "Semana passada",
+    "thisMonth": "Este mês",
+    "lastMonth": "Mês passado",
+    "thisYear": "Este ano",
+    "lastYear": "Ano passado",
+    "custom": "Personalizado"
+  },
+
+  "currency": {
+    "symbol": "R$",
+    "code": "BRL",
+    "format": "{symbol}{amount}"
+  }
+}
