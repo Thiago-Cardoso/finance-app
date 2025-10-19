@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale } from '@/contexts/LocaleContext'
 import { Category } from '@/types/category'
 import { Edit2, Trash2, TrendingUp, TrendingDown } from 'lucide-react'
 import { Button } from '@/components/ui/Button/Button'
@@ -17,6 +18,7 @@ export function CategoryCard({
   onDelete,
   onClick,
 }: CategoryCardProps) {
+  const { t, formatCurrency } = useLocale()
   const isIncome = category.category_type === 'income'
 
   return (
@@ -56,11 +58,11 @@ export function CategoryCard({
                     : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:to-red-800/40 dark:text-red-400'
                 }`}
               >
-                {isIncome ? 'Receita' : 'Despesa'}
+                {isIncome ? t('categories.types.income') : t('categories.types.expense')}
               </span>
               {category.is_default && (
                 <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 dark:from-gray-700 dark:to-gray-600 dark:text-gray-300 shadow-sm">
-                  Padrão
+                  {t('categories.default')}
                 </span>
               )}
             </div>
@@ -102,13 +104,13 @@ export function CategoryCard({
       {category.usage_stats && (
         <div className="relative space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Transações</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('categories.transactions')}</span>
             <span className="text-sm font-bold text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
               {category.usage_stats.transactions_count}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Este Mês</span>
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('categories.thisMonth')}</span>
             <span
               className={`text-sm font-bold px-3 py-1 rounded-full shadow-sm ${
                 isIncome
@@ -116,7 +118,7 @@ export function CategoryCard({
                   : 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 dark:from-red-900/40 dark:to-red-800/40 dark:text-red-400'
               }`}
             >
-              ${Number(category.usage_stats.total_amount_current_month || 0).toFixed(2)}
+              {formatCurrency(Number(category.usage_stats.total_amount_current_month || 0))}
             </span>
           </div>
         </div>
