@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import { useLocale } from '@/contexts/LocaleContext'
 import { useTransactions } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 
@@ -14,11 +15,13 @@ import { Button } from '@/components/ui/Button'
 import { SimpleModal } from '@/components/ui/Modal/SimpleModal'
 import { FilterChip } from '@/components/ui/FilterChip/FilterChip'
 import { Select } from '@/components/ui/Select'
-import { Plus, AlertCircle, SlidersHorizontal } from 'lucide-react'
+import { LanguageSelector } from '@/components/ui/LanguageSelector/LanguageSelector'
+import { Plus, AlertCircle, SlidersHorizontal, ArrowLeft } from 'lucide-react'
 
 export default function TransactionsPage() {
   const router = useRouter()
   const { token, loading: authLoading } = useAuth()
+  const { t, formatCurrency } = useLocale()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false)
   const [filters, setFilters] = useState({
@@ -40,7 +43,7 @@ export default function TransactionsPage() {
     isFetchingNextPage
   } = useTransactions(filters)
 
-  const { data: categoryResponse } = useCategories()
+  const { data: categoryResponse } = useCategories(undefined, 1, 100) // Fetch all categories (up to 100)
   const categories = useMemo(
     () => (Array.isArray(categoryResponse?.data) ? categoryResponse.data : []),
     [categoryResponse?.data]
@@ -86,20 +89,21 @@ export default function TransactionsPage() {
   const getFilterLabel = (key: string, value: string) => {
     switch (key) {
       case 'transaction_type':
-        return `Tipo: ${value === 'income' ? 'Receita' : value === 'expense' ? 'Despesa' : 'Transferência'}`
+        const typeLabel = value === 'income' ? t('transactions.types.income') : value === 'expense' ? t('transactions.types.expense') : t('transactions.types.transfer')
+        return `${t('transactions.fields.type')}: ${typeLabel}`
       case 'category_id':
         const category = categories.find((c: Category) => c.id.toString() === value)
-        return `Categoria: ${category?.name || value}`
+        return `${t('transactions.fields.category')}: ${category?.name || value}`
       case 'date_from':
-        return `De: ${value}`
+        return `${t('transactions.filters.from')}: ${value}`
       case 'date_to':
-        return `Até: ${value}`
+        return `${t('transactions.filters.to')}: ${value}`
       case 'amount_min':
-        return `Mín: R$${value}`
+        return `${t('transactions.filters.minAmount')}: ${formatCurrency(Number(value))}`
       case 'amount_max':
-        return `Máx: R$${value}`
+        return `${t('transactions.filters.maxAmount')}: ${formatCurrency(Number(value))}`
       case 'search':
-        return `Busca: ${value}`
+        return `${t('common.search')}: ${value}`
       default:
         return `${key}: ${value}`
     }
@@ -111,7 +115,7 @@ export default function TransactionsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Carregando...</p>
+            <p className="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
           </div>
         </div>
       </div>
@@ -127,13 +131,13 @@ export default function TransactionsPage() {
               <AlertCircle className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Autenticação Necessária
+              {t('errors.unauthorized')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Você precisa estar logado para acessar as transações. Por favor, faça login para continuar.
+              {t('auth.login.subtitle')}
             </p>
             <Button onClick={() => router.push('/auth/login')}>
-              Ir para Login
+              {t('auth.login.title')}
             </Button>
           </div>
         </div>
@@ -144,6 +148,19 @@ export default function TransactionsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Back to Dashboard Button and Language Selector */}
+        <div className="mb-4 flex justify-between items-center">
+          <Button
+            variant="ghost"
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>{t('transactions.backToDashboard')}</span>
+          </Button>
+          <LanguageSelector />
+        </div>
+
         {/* Header with Inline Filters */}
         <div className="mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 md:p-8">
@@ -152,16 +169,16 @@ export default function TransactionsPage() {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Transações
+                    {t('transactions.title')}
                   </h1>
                   {!isLoading && data?.pages?.[0]?.meta?.pagination && (
                     <span className="px-3 py-1 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-sm font-semibold text-blue-800 dark:text-blue-200 shadow-sm">
-                      {data.pages[0].meta.pagination.total_count} total
+                      {data.pages[0].meta.pagination.total_count} {t('dashboard.summary.total').toLowerCase()}
                     </span>
                   )}
                 </div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
-                  Gerencie suas receitas, despesas e transferências com facilidade
+                  {t('transactions.subtitle')}
                 </p>
               </div>
               <Button
@@ -169,7 +186,7 @@ export default function TransactionsPage() {
                 className="flex items-center justify-center gap-2 w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
               >
                 <Plus className="w-4 h-4" />
-                <span>Nova Transação</span>
+                <span>{t('transactions.new')}</span>
               </Button>
             </div>
 
@@ -177,25 +194,25 @@ export default function TransactionsPage() {
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
               <div className="flex-1 w-full sm:max-w-[250px]">
                 <Select
-                  label="Tipo"
+                  label={t('transactions.fields.type')}
                   value={filters.transaction_type}
                   onChange={(e) => setFilters({ ...filters, transaction_type: e.target.value })}
                   options={[
-                    { value: '', label: 'Todos os Tipos' },
-                    { value: 'income', label: 'Receita' },
-                    { value: 'expense', label: 'Despesa' },
-                    { value: 'transfer', label: 'Transferência' },
+                    { value: '', label: t('transactions.types.all') },
+                    { value: 'income', label: t('transactions.types.income') },
+                    { value: 'expense', label: t('transactions.types.expense') },
+                    { value: 'transfer', label: t('transactions.types.transfer') },
                   ]}
                 />
               </div>
 
               <div className="flex-1 w-full sm:max-w-[250px]">
                 <Select
-                  label="Categoria"
+                  label={t('transactions.fields.category')}
                   value={filters.category_id}
                   onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
                   options={[
-                    { value: '', label: 'Todas as Categorias' },
+                    { value: '', label: t('transactions.filters.allCategories') },
                     ...(categories
                       .filter((cat: Category) => {
                         // Se não há tipo selecionado ou é transfer, mostra todas
@@ -219,8 +236,8 @@ export default function TransactionsPage() {
                 className="flex items-center gap-2 shadow-md hover:shadow-lg transition-all duration-200"
               >
                 <SlidersHorizontal className="w-4 h-4" />
-                <span className="hidden sm:inline">Filtros Avançados</span>
-                <span className="sm:hidden">Mais</span>
+                <span className="hidden sm:inline">{t('transactions.filters.advanced')}</span>
+                <span className="sm:hidden">{t('common.filter')}</span>
               </Button>
 
               {hasActiveFilters && (
@@ -229,7 +246,7 @@ export default function TransactionsPage() {
                   onClick={handleClearFilters}
                   className="hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
-                  Limpar Tudo
+                  {t('transactions.filters.clearAll')}
                 </Button>
               )}
             </div>
@@ -279,7 +296,7 @@ export default function TransactionsPage() {
         <SimpleModal
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
-          title="Nova Transação"
+          title={t('transactions.new')}
           size="lg"
         >
           <TransactionForm

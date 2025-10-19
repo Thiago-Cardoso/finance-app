@@ -8,6 +8,7 @@ import { Transaction, Account } from '@/types/transaction'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
 import { useAccounts } from '@/hooks/useAccounts'
+import { useLocale } from '@/contexts/LocaleContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
@@ -15,7 +16,7 @@ import { Textarea } from '@/components/ui/Textarea'
 import { RadioGroup } from '@/components/ui/RadioGroup'
 import { AlertCircle } from 'lucide-react'
 
-import { transactionFormSchema, type TransactionFormData } from '@/lib/validations'
+import { createTransactionFormSchema, type TransactionFormData } from '@/lib/validations'
 
 interface TransactionFormProps {
   transaction?: Transaction
@@ -25,11 +26,12 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ transaction, initialType, onSuccess, onCancel }: TransactionFormProps) {
+  const { t } = useLocale()
   const isEditing = !!transaction
   const [formError, setFormError] = useState<string | null>(null)
   const createTransaction = useCreateTransaction()
   const updateTransaction = useUpdateTransaction()
-  const { data: categoryResponse } = useCategories()
+  const { data: categoryResponse } = useCategories(undefined, 1, 100) // Fetch all categories (up to 100)
   const { data: accountsData } = useAccounts()
 
   const categories = Array.isArray(categoryResponse?.data) ? categoryResponse.data : []
@@ -51,7 +53,7 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     setValue,
     formState: { errors, isSubmitting }
   } = useForm<TransactionFormData>({
-    resolver: zodResolver(transactionFormSchema),
+    resolver: zodResolver(createTransactionFormSchema(t)),
     defaultValues: transaction ? {
       description: transaction.description || '',
       amount: transaction.raw_amount?.toString() || '',
@@ -96,9 +98,9 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
 
       onSuccess()
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Erro ao salvar transação'
+      const message = error instanceof Error ? error.message : t('transactions.errors.createFailed')
       setFormError(message)
-      console.error('Erro ao salvar transação:', error)
+      console.error('Error saving transaction:', error)
     }
   }
 
@@ -106,8 +108,8 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {/* Transaction Type */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          Tipo de Transação
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          {t('transactions.fields.type')}
         </label>
         <RadioGroup
           {...register('transaction_type')}
@@ -115,36 +117,36 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
           onChange={(value) => setValue('transaction_type', value as 'income' | 'expense' | 'transfer')}
           name="transaction_type"
           options={[
-            { value: 'expense', label: 'Despesa', color: 'text-red-600' },
-            { value: 'income', label: 'Receita', color: 'text-green-600' },
-            { value: 'transfer', label: 'Transferência', color: 'text-blue-600' },
+            { value: 'expense', label: t('transactions.types.expense'), color: 'text-red-600' },
+            { value: 'income', label: t('transactions.types.income'), color: 'text-green-600' },
+            { value: 'transfer', label: t('transactions.types.transfer'), color: 'text-blue-600' },
           ]}
         />
       </div>
 
       {/* Description */}
       <Input
-        label="Descrição"
+        label={t('transactions.fields.description')}
         {...register('description')}
         error={errors.description?.message}
-        placeholder="Ex: Supermercado, Salário, Aluguel..."
+        placeholder={t('transactions.fields.description')}
         required
       />
 
       {/* Amount */}
       <Input
-        label="Valor"
+        label={t('transactions.fields.amount')}
         type="number"
         step="0.01"
         {...register('amount')}
         error={errors.amount?.message}
-        placeholder="0,00"
+        placeholder="0.00"
         required
       />
 
       {/* Date */}
       <Input
-        label="Data"
+        label={t('transactions.fields.date')}
         type="date"
         {...register('date')}
         error={errors.date?.message}
@@ -155,11 +157,11 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
         {/* Category */}
         {transactionType !== 'transfer' && (
           <Select
-            label="Categoria"
+            label={t('transactions.fields.category')}
             {...register('category_id')}
             error={errors.category_id?.message}
             options={[
-              { value: '', label: 'Selecione uma categoria' },
+              { value: '', label: t('common.select') },
               ...(categories?.filter(cat =>
                 cat.category_type === transactionType
               ).map(cat => ({
@@ -172,11 +174,11 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
 
         {/* Account */}
         <Select
-          label="Conta"
+          label={t('transactions.fields.account')}
           {...register('account_id')}
           error={errors.account_id?.message}
           options={[
-            { value: '', label: 'Selecione uma conta' },
+            { value: '', label: t('common.select') },
             ...(accounts?.map((account: { id: number; name: string }) => ({
               value: account.id.toString(),
               label: account.name
@@ -187,11 +189,11 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
         {/* Transfer Account (only for transfers) */}
         {transactionType === 'transfer' && (
           <Select
-            label="Conta de Destino"
+            label={t('transactions.fields.transferAccount')}
             {...register('transfer_account_id')}
             error={errors.transfer_account_id?.message}
             options={[
-              { value: '', label: 'Selecione uma conta' },
+              { value: '', label: t('common.select') },
               ...(accounts?.map((account: Account) => ({
                 value: account.id.toString(),
                 label: account.name
@@ -203,21 +205,21 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
 
       {/* Notes */}
       <Textarea
-        label="Observações"
+        label={t('transactions.fields.notes')}
         {...register('notes')}
         error={errors.notes?.message}
-        placeholder="Informações adicionais (opcional)"
+        placeholder={t('transactions.fields.notes')}
         rows={3}
       />
 
       {/* Error Message */}
       {formError && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
           <div className="flex items-start">
-            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 mr-3 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-medium text-red-800">Erro ao salvar transação</h3>
-              <p className="text-sm text-red-700 mt-1">{formError}</p>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">{t('transactions.errors.createFailed')}</h3>
+              <p className="text-sm text-red-700 dark:text-red-400 mt-1">{formError}</p>
             </div>
           </div>
         </div>
@@ -231,14 +233,14 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
           onClick={onCancel}
           disabled={isSubmitting}
         >
-          Cancelar
+          {t('common.cancel')}
         </Button>
         <Button
           type="submit"
           loading={isSubmitting}
           disabled={isSubmitting}
         >
-          {isEditing ? 'Atualizar' : 'Criar'} Transação
+          {isEditing ? t('common.update') : t('common.create')}
         </Button>
       </div>
     </form>
