@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale } from '@/contexts/LocaleContext'
 import { Transaction } from '@/types/transaction'
 import { TransactionItem } from './TransactionItem'
 import { TransactionItemSkeleton } from './TransactionItemSkeleton'
@@ -32,6 +33,7 @@ export function TransactionList({
   onClearFilters,
   onCreateTransaction
 }: TransactionListProps) {
+  const { t } = useLocale()
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
 
   if (isLoading && transactions.length === 0) {
@@ -54,7 +56,7 @@ export function TransactionList({
             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
           <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            Erro ao carregar transações
+            {t('transactions.errors.loadFailed')}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 max-w-md">
             {error.message}
@@ -72,12 +74,12 @@ export function TransactionList({
             <Receipt className="w-12 h-12 text-blue-600 dark:text-blue-400" />
           </div>
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-            {hasActiveFilters ? 'Nenhuma transação encontrada' : 'Nenhuma transação ainda'}
+            {hasActiveFilters ? t('transactions.noTransactionsWithFilters') : t('transactions.noTransactions')}
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md">
             {hasActiveFilters
-              ? 'Tente ajustar seus filtros para encontrar o que está procurando'
-              : 'Comece criando sua primeira transação para acompanhar suas finanças'}
+              ? t('transactions.noTransactionsDescription')
+              : t('transactions.createFirst')}
           </p>
           <div className="flex gap-3 justify-center">
             {hasActiveFilters && onClearFilters && (
@@ -86,7 +88,7 @@ export function TransactionList({
                 onClick={onClearFilters}
                 className="shadow-md hover:shadow-lg transition-all duration-200"
               >
-                Limpar Filtros
+                {t('common.clear')} {t('common.filter')}s
               </Button>
             )}
             {onCreateTransaction && (
@@ -95,7 +97,7 @@ export function TransactionList({
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                {hasActiveFilters ? 'Criar Transação' : 'Criar Sua Primeira Transação'}
+                {hasActiveFilters ? t('transactions.new') : t('transactions.createFirst')}
               </Button>
             )}
           </div>
@@ -109,7 +111,7 @@ export function TransactionList({
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-            Todas as Transações <span className="text-blue-600 dark:text-blue-400">({transactions.length})</span>
+            {t('transactions.allTransactions')} <span className="text-blue-600 dark:text-blue-400">({transactions.length})</span>
           </h2>
         </div>
 
@@ -134,10 +136,10 @@ export function TransactionList({
               {isFetchingNextPage ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Carregando mais...
+                  {t('transactions.loadingMore')}
                 </>
               ) : (
-                'Carregar Mais Transações'
+                t('transactions.loadMore')
               )}
             </Button>
           </div>
@@ -155,7 +157,7 @@ export function TransactionList({
       <SimpleModal
         isOpen={!!editingTransaction}
         onClose={() => setEditingTransaction(null)}
-        title="Editar Transação"
+        title={t('transactions.edit')}
         size="lg"
       >
         {editingTransaction && (
