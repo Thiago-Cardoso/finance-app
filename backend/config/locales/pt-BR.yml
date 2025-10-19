@@ -1,0 +1,220 @@
+pt-BR:
+  locale:
+    name: "Português (Brasil)"
+    native_name: "Português (Brasil)"
+
+  activerecord:
+    models:
+      user: "Usuário"
+      transaction: "Transação"
+      category: "Categoria"
+      account: "Conta"
+      budget: "Orçamento"
+      goal: "Meta"
+    attributes:
+      user:
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+        first_name: "Primeiro nome"
+        last_name: "Sobrenome"
+        full_name: "Nome completo"
+      transaction:
+        description: "Descrição"
+        amount: "Valor"
+        date: "Data"
+        transaction_type: "Tipo"
+        notes: "Observações"
+        category_id: "Categoria"
+        account_id: "Conta"
+        transfer_account_id: "Conta de destino"
+      category:
+        name: "Nome"
+        color: "Cor"
+        icon: "Ícone"
+        category_type: "Tipo de categoria"
+        is_active: "Ativo"
+        is_default: "Padrão"
+      account:
+        name: "Nome"
+        account_type: "Tipo de conta"
+        initial_balance: "Saldo inicial"
+        current_balance: "Saldo atual"
+        is_active: "Ativo"
+      budget:
+        name: "Nome"
+        amount: "Valor"
+        period: "Período"
+        category_id: "Categoria"
+      goal:
+        name: "Nome da meta"
+        description: "Descrição"
+        target_amount: "Valor alvo"
+        current_amount: "Valor atual"
+        target_date: "Data alvo"
+        goal_type: "Tipo de meta"
+        status: "Status"
+        priority: "Prioridade"
+    errors:
+      messages:
+        blank: "não pode ficar em branco"
+        invalid: "é inválido"
+        taken: "já está em uso"
+        too_short: "é muito curto (mínimo: %{count} caracteres)"
+        too_long: "é muito longo (máximo: %{count} caracteres)"
+        greater_than: "deve ser maior que %{count}"
+        greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+        less_than: "deve ser menor que %{count}"
+        less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+        not_a_number: "não é um número"
+        not_an_integer: "não é um número inteiro"
+        confirmation: "não é igual a %{attribute}"
+        record_invalid: "A validação falhou: %{errors}"
+        inclusion: "não está incluído na lista"
+        exclusion: "está reservado"
+        wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
+
+  controllers:
+    auth:
+      sign_in:
+        success: "Login realizado com sucesso"
+        failure: "E-mail ou senha inválidos"
+        invalid_credentials: "Credenciais inválidas"
+      sign_up:
+        success: "Cadastro realizado com sucesso"
+        failure: "Erro ao realizar cadastro"
+        email_taken: "E-mail já está em uso"
+      sign_out:
+        success: "Logout realizado com sucesso"
+      forgot_password:
+        success: "Instruções enviadas para seu e-mail"
+        user_not_found: "Usuário não encontrado"
+      reset_password:
+        success: "Senha alterada com sucesso"
+        invalid_token: "Token inválido ou expirado"
+
+    transactions:
+      create:
+        success: "Transação criada com sucesso"
+        failure: "Erro ao criar transação"
+      update:
+        success: "Transação atualizada com sucesso"
+        failure: "Erro ao atualizar transação"
+      destroy:
+        success: "Transação excluída com sucesso"
+        failure: "Erro ao excluir transação"
+      not_found: "Transação não encontrada"
+
+    categories:
+      create:
+        success: "Categoria criada com sucesso"
+        failure: "Erro ao criar categoria"
+      update:
+        success: "Categoria atualizada com sucesso"
+        failure: "Erro ao atualizar categoria"
+      destroy:
+        success: "Categoria excluída com sucesso"
+        failure: "Erro ao excluir categoria"
+        has_transactions: "Não é possível excluir categoria com transações"
+      not_found: "Categoria não encontrada"
+
+    accounts:
+      create:
+        success: "Conta criada com sucesso"
+        failure: "Erro ao criar conta"
+      update:
+        success: "Conta atualizada com sucesso"
+        failure: "Erro ao atualizar conta"
+      destroy:
+        success: "Conta excluída com sucesso"
+        failure: "Erro ao excluir conta"
+        has_transactions: "Não é possível excluir conta com transações"
+      not_found: "Conta não encontrada"
+
+    budgets:
+      create:
+        success: "Orçamento criado com sucesso"
+        failure: "Erro ao criar orçamento"
+      update:
+        success: "Orçamento atualizado com sucesso"
+        failure: "Erro ao atualizar orçamento"
+      destroy:
+        success: "Orçamento excluído com sucesso"
+        failure: "Erro ao excluir orçamento"
+      not_found: "Orçamento não encontrado"
+
+    goals:
+      create:
+        success: "Meta criada com sucesso"
+        failure: "Erro ao criar meta"
+      update:
+        success: "Meta atualizada com sucesso"
+        failure: "Erro ao atualizar meta"
+      destroy:
+        success: "Meta excluída com sucesso"
+        failure: "Erro ao excluir meta"
+      contribution:
+        success: "Contribuição adicionada com sucesso"
+        failure: "Erro ao adicionar contribuição"
+      complete:
+        success: "Meta concluída com sucesso"
+        already_completed: "Meta já está concluída"
+      not_found: "Meta não encontrada"
+
+  enums:
+    transaction:
+      transaction_type:
+        income: "Receita"
+        expense: "Despesa"
+        transfer: "Transferência"
+
+    category:
+      category_type:
+        income: "Receita"
+        expense: "Despesa"
+
+    account:
+      account_type:
+        checking: "Conta Corrente"
+        savings: "Poupança"
+        credit_card: "Cartão de Crédito"
+        investment: "Investimento"
+        cash: "Dinheiro"
+        other: "Outro"
+
+    budget:
+      period:
+        weekly: "Semanal"
+        monthly: "Mensal"
+        quarterly: "Trimestral"
+        yearly: "Anual"
+
+    goal:
+      goal_type:
+        savings: "Poupança"
+        debt_payoff: "Quitação de Dívida"
+        investment: "Investimento"
+        expense_reduction: "Redução de Gastos"
+        general: "Geral"
+      status:
+        active: "Ativa"
+        paused: "Pausada"
+        completed: "Concluída"
+        failed: "Falhada"
+        cancelled: "Cancelada"
+      priority:
+        low: "Baixa"
+        medium: "Média"
+        high: "Alta"
+        urgent: "Urgente"
+
+  errors:
+    unauthorized: "Não autorizado"
+    forbidden: "Acesso negado"
+    not_found: "Recurso não encontrado"
+    unprocessable_entity: "Não foi possível processar a solicitação"
+    internal_server_error: "Erro interno do servidor"
+    validation_failed: "Falha na validação"
+    invalid_token: "Token inválido"
+    token_expired: "Token expirado"
+    missing_token: "Token ausente"
