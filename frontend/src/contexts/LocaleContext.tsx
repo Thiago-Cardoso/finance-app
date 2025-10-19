@@ -4,12 +4,21 @@ import { createContext, useContext, useState, useEffect, ReactNode, useCallback 
 
 export type Locale = 'pt-BR' | 'en-US'
 
+type CurrencyConfig = {
+  symbol: string
+  code: string
+  format: string
+}
+
 type TranslationObject = {
-  [key: string]: string | TranslationObject
+  [key: string]: string | TranslationObject | CurrencyConfig
 }
 
 type Translations = {
-  [key in Locale]: TranslationObject
+  [key in Locale]: {
+    [key: string]: TranslationObject
+    currency: CurrencyConfig
+  }
 }
 
 interface LocaleContextType {
@@ -22,9 +31,25 @@ interface LocaleContextType {
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
-const translations: Translations = {
-  'pt-BR': require('@/locales/pt-BR.json'),
-  'en-US': require('@/locales/en-US.json')
+
+let translations: Translations = {
+  'pt-BR': { currency: { symbol: 'R$', code: 'BRL', format: '{symbol} {value}' } },
+  'en-US': { currency: { symbol: '$', code: 'USD', format: '{symbol} {value}' } }
+}
+
+// Load translations on the client side only
+if (typeof window !== 'undefined') {
+  Promise.all([
+    import('@/locales/pt-BR.json'),
+    import('@/locales/en-US.json')
+  ]).then(([ptBR, enUS]) => {
+    translations = {
+      'pt-BR': ptBR.default as Translations['pt-BR'],
+      'en-US': enUS.default as Translations['en-US']
+    }
+  }).catch(error => {
+    console.error('Error loading translations:', error)
+  })
 }
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -35,9 +60,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     setMounted(true)
     // Load saved locale from localStorage
     if (typeof window !== 'undefined') {
-      const savedLocale = localStorage.getItem('locale') as Locale | null
-      if (savedLocale && ['pt-BR', 'en-US'].includes(savedLocale)) {
-        setLocaleState(savedLocale)
+      try {
+        const savedLocale = localStorage.getItem('locale') as Locale | null
+        if (savedLocale && ['pt-BR', 'en-US'].includes(savedLocale)) {
+          setLocaleState(savedLocale)
+        }
+      } catch (error) {
+        console.error('Error accessing localStorage:', error)
       }
     }
   }, [])
@@ -45,14 +74,19 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)
     if (typeof window !== 'undefined') {
-      localStorage.setItem('locale', newLocale)
+      try {
+        localStorage.setItem('locale', newLocale)
+      } catch (error) {
+        console.error('Error saving locale to localStorage:', error)
+      }
+    }
       document.documentElement.lang = newLocale
     }
   }, [])
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.')
-    let value: any = translations[locale]
+    let value: TranslationObject | string | undefined = translations[locale]
 
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
@@ -77,7 +111,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, [locale])
 
   const formatCurrency = useCallback((amount: number): string => {
-    const currencyConfig = translations[locale].currency as any
+    const currencyConfig = translations[locale].currency
     const symbol = currencyConfig?.symbol || 'R$'
     const formattedAmount = new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,

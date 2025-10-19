@@ -20,8 +20,7 @@ import {
   ArrowRight,
   AlertCircle
 } from 'lucide-react'
-import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { useLocale } from '@/contexts/LocaleContext'
 
 export default function TransactionDetailPage() {
   const params = useParams()
@@ -45,9 +44,11 @@ export default function TransactionDetailPage() {
     }
   }
 
+  const { t, formatDate: formatLocaleDate } = useLocale()
+  
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+      return formatLocaleDate(new Date(dateString))
     } catch {
       return dateString
     }
@@ -60,7 +61,7 @@ export default function TransactionDetailPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 dark:text-gray-400">Carregando transação...</p>
+              <p className="text-gray-600 dark:text-gray-400">{t('transactions.loading')}</p>
             </div>
           </div>
         </div>
@@ -78,7 +79,7 @@ export default function TransactionDetailPage() {
                 <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                Transação não encontrada
+                {t('transactions.not_found')}
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 A transação solicitada não existe ou você não tem permissão para acessá-la.
@@ -298,11 +299,11 @@ export default function TransactionDetailPage() {
           <div className="px-8 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
               <span>
-                Criado em: {format(new Date(transaction.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                {t('transactions.created_at')}: {formatLocaleDate(transaction.created_at)}
               </span>
               {transaction.created_at !== transaction.updated_at && (
                 <span>
-                  Atualizado em: {format(new Date(transaction.updated_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  {t('transactions.updated_at')}: {formatLocaleDate(transaction.updated_at)}
                 </span>
               )}
             </div>
