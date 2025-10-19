@@ -1,0 +1,220 @@
+en-US:
+  locale:
+    name: "English (USA)"
+    native_name: "English (USA)"
+
+  activerecord:
+    models:
+      user: "User"
+      transaction: "Transaction"
+      category: "Category"
+      account: "Account"
+      budget: "Budget"
+      goal: "Goal"
+    attributes:
+      user:
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Password confirmation"
+        first_name: "First name"
+        last_name: "Last name"
+        full_name: "Full name"
+      transaction:
+        description: "Description"
+        amount: "Amount"
+        date: "Date"
+        transaction_type: "Type"
+        notes: "Notes"
+        category_id: "Category"
+        account_id: "Account"
+        transfer_account_id: "Transfer account"
+      category:
+        name: "Name"
+        color: "Color"
+        icon: "Icon"
+        category_type: "Category type"
+        is_active: "Active"
+        is_default: "Default"
+      account:
+        name: "Name"
+        account_type: "Account type"
+        initial_balance: "Initial balance"
+        current_balance: "Current balance"
+        is_active: "Active"
+      budget:
+        name: "Name"
+        amount: "Amount"
+        period: "Period"
+        category_id: "Category"
+      goal:
+        name: "Goal name"
+        description: "Description"
+        target_amount: "Target amount"
+        current_amount: "Current amount"
+        target_date: "Target date"
+        goal_type: "Goal type"
+        status: "Status"
+        priority: "Priority"
+    errors:
+      messages:
+        blank: "can't be blank"
+        invalid: "is invalid"
+        taken: "has already been taken"
+        too_short: "is too short (minimum: %{count} characters)"
+        too_long: "is too long (maximum: %{count} characters)"
+        greater_than: "must be greater than %{count}"
+        greater_than_or_equal_to: "must be greater than or equal to %{count}"
+        less_than: "must be less than %{count}"
+        less_than_or_equal_to: "must be less than or equal to %{count}"
+        not_a_number: "is not a number"
+        not_an_integer: "is not an integer"
+        confirmation: "doesn't match %{attribute}"
+        record_invalid: "Validation failed: %{errors}"
+        inclusion: "is not included in the list"
+        exclusion: "is reserved"
+        wrong_length: "is the wrong length (should be %{count} characters)"
+
+  controllers:
+    auth:
+      sign_in:
+        success: "Successfully signed in"
+        failure: "Invalid email or password"
+        invalid_credentials: "Invalid credentials"
+      sign_up:
+        success: "Successfully signed up"
+        failure: "Sign up failed"
+        email_taken: "Email has already been taken"
+      sign_out:
+        success: "Successfully signed out"
+      forgot_password:
+        success: "Instructions sent to your email"
+        user_not_found: "User not found"
+      reset_password:
+        success: "Password changed successfully"
+        invalid_token: "Invalid or expired token"
+
+    transactions:
+      create:
+        success: "Transaction created successfully"
+        failure: "Failed to create transaction"
+      update:
+        success: "Transaction updated successfully"
+        failure: "Failed to update transaction"
+      destroy:
+        success: "Transaction deleted successfully"
+        failure: "Failed to delete transaction"
+      not_found: "Transaction not found"
+
+    categories:
+      create:
+        success: "Category created successfully"
+        failure: "Failed to create category"
+      update:
+        success: "Category updated successfully"
+        failure: "Failed to update category"
+      destroy:
+        success: "Category deleted successfully"
+        failure: "Failed to delete category"
+        has_transactions: "Cannot delete category with transactions"
+      not_found: "Category not found"
+
+    accounts:
+      create:
+        success: "Account created successfully"
+        failure: "Failed to create account"
+      update:
+        success: "Account updated successfully"
+        failure: "Failed to update account"
+      destroy:
+        success: "Account deleted successfully"
+        failure: "Failed to delete account"
+        has_transactions: "Cannot delete account with transactions"
+      not_found: "Account not found"
+
+    budgets:
+      create:
+        success: "Budget created successfully"
+        failure: "Failed to create budget"
+      update:
+        success: "Budget updated successfully"
+        failure: "Failed to update budget"
+      destroy:
+        success: "Budget deleted successfully"
+        failure: "Failed to delete budget"
+      not_found: "Budget not found"
+
+    goals:
+      create:
+        success: "Goal created successfully"
+        failure: "Failed to create goal"
+      update:
+        success: "Goal updated successfully"
+        failure: "Failed to update goal"
+      destroy:
+        success: "Goal deleted successfully"
+        failure: "Failed to delete goal"
+      contribution:
+        success: "Contribution added successfully"
+        failure: "Failed to add contribution"
+      complete:
+        success: "Goal completed successfully"
+        already_completed: "Goal is already completed"
+      not_found: "Goal not found"
+
+  enums:
+    transaction:
+      transaction_type:
+        income: "Income"
+        expense: "Expense"
+        transfer: "Transfer"
+
+    category:
+      category_type:
+        income: "Income"
+        expense: "Expense"
+
+    account:
+      account_type:
+        checking: "Checking Account"
+        savings: "Savings Account"
+        credit_card: "Credit Card"
+        investment: "Investment"
+        cash: "Cash"
+        other: "Other"
+
+    budget:
+      period:
+        weekly: "Weekly"
+        monthly: "Monthly"
+        quarterly: "Quarterly"
+        yearly: "Yearly"
+
+    goal:
+      goal_type:
+        savings: "Savings"
+        debt_payoff: "Debt Payoff"
+        investment: "Investment"
+        expense_reduction: "Expense Reduction"
+        general: "General"
+      status:
+        active: "Active"
+        paused: "Paused"
+        completed: "Completed"
+        failed: "Failed"
+        cancelled: "Cancelled"
+      priority:
+        low: "Low"
+        medium: "Medium"
+        high: "High"
+        urgent: "Urgent"
+
+  errors:
+    unauthorized: "Unauthorized"
+    forbidden: "Forbidden"
+    not_found: "Resource not found"
+    unprocessable_entity: "Unprocessable entity"
+    internal_server_error: "Internal server error"
+    validation_failed: "Validation failed"
+    invalid_token: "Invalid token"
+    token_expired: "Token expired"
+    missing_token: "Missing token"
