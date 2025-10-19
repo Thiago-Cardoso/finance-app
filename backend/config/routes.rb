@@ -14,6 +14,9 @@ Rails.application.routes.draw do
       # Health check endpoint
       get '/health', to: 'health#show'
 
+      # Locales (i18n) endpoints
+      resources :locales, only: [:index, :show]
+
       # Authentication routes
       post 'auth/sign_up', to: 'auth#sign_up'
       post 'auth/sign_in', to: 'auth#sign_in'
