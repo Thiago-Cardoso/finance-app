@@ -1,9 +1,9 @@
-import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { ArrowRight, TrendingUp, TrendingDown } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
+import { ptBR, enUS } from 'date-fns/locale'
+import { useLocale } from '@/contexts/LocaleContext'
 
 interface Transaction {
   id: string
@@ -28,15 +28,17 @@ interface RecentTransactionsProps {
 
 export function RecentTransactions({ data }: RecentTransactionsProps) {
   const router = useRouter()
+  const { t, locale, formatCurrency } = useLocale()
+  const dateLocale = locale === 'pt-BR' ? ptBR : enUS
 
   if (!data || data.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-          Transações Recentes
+          {t('dashboard.recentTransactions')}
         </h3>
         <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-          Nenhuma transação encontrada
+          {t('transactions.noTransactions')}
         </div>
       </div>
     )
@@ -44,7 +46,8 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
 
   const formatDate = (dateString: string) => {
     try {
-      return format(new Date(dateString), "dd/MM/yyyy", { locale: ptBR })
+      const dateFormat = locale === 'pt-BR' ? "dd/MM/yyyy" : "MM/dd/yyyy"
+      return format(new Date(dateString), dateFormat, { locale: dateLocale })
     } catch {
       return dateString
     }
@@ -58,7 +61,7 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
       <div className="relative">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-black bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Transações Recentes
+            {t('dashboard.recentTransactions')}
           </h3>
           <Button
             variant="ghost"
@@ -66,7 +69,7 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
             onClick={() => router.push('/transactions')}
             className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 font-bold transition-all"
           >
-            Ver todas
+            {t('dashboard.viewAll')}
             <ArrowRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
@@ -83,7 +86,6 @@ export function RecentTransactions({ data }: RecentTransactionsProps) {
               <div
                 key={transaction.id}
                 className="group flex items-center justify-between p-4 rounded-xl bg-white/60 dark:bg-gray-900/60 hover:bg-white dark:hover:bg-gray-900 border border-gray-100/50 dark:border-gray-700/50 hover:border-gray-200 dark:hover:border-gray-600 hover:shadow-lg transition-all duration-200 cursor-pointer"
-                // @ts-expect-error - Next.js App Router typing issue
                 onClick={() => router.push(`/transactions/${transaction.id}`)}
               >
                 <div className="flex items-center space-x-4 flex-1 min-w-0">
