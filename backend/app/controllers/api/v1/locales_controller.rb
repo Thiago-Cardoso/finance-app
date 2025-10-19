@@ -33,7 +33,7 @@ module Api
           }, status: :not_found
         end
 
-        translations = I18n.t('.', locale: locale)
+        translations = I18n.backend.translations[locale] || {}
 
         render json: {
           success: true,

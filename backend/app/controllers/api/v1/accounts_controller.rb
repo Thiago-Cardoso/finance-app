@@ -59,8 +59,11 @@ module Api
 
       # DELETE /api/v1/accounts/:id
       def destroy
-        @account.update(is_active: false)
-        head :no_content
+        if @account.update(is_active: false)
+          head :no_content
+        else
+          render json: { errors: @account.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       private
