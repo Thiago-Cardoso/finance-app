@@ -5,6 +5,7 @@ import './globals.css'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { LocaleProvider } from '@/contexts/LocaleContext'
 import { queryClient } from '@/lib/queryClient'
 import { Toaster } from 'react-hot-toast'
 
@@ -21,14 +22,16 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.variable}>
-        <ThemeProvider>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              {children}
-              <Toaster position="top-right" />
-            </AuthProvider>
-          </QueryClientProvider>
-        </ThemeProvider>
+        <LocaleProvider>
+          <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+              <AuthProvider>
+                {children}
+                <Toaster position="top-right" />
+              </AuthProvider>
+            </QueryClientProvider>
+          </ThemeProvider>
+        </LocaleProvider>
       </body>
     </html>
   )

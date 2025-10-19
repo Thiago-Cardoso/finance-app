@@ -7,12 +7,14 @@ import { BudgetPerformanceDashboard } from '@/components/reports/BudgetPerforman
 import { Button } from '@/components/ui/Button/Button'
 import { useFinancialSummaryData, useBudgetPerformanceData, useExportReport } from '@/hooks/useAnalytics'
 import { AnalyticsFilters } from '@/types/analytics'
+import { useLocale } from '@/contexts/LocaleContext'
 import { cn } from '@/lib/utils'
 import { FileText, PieChart, TrendingUp, Settings, Download } from 'lucide-react'
 
 type ReportTab = 'financial' | 'budget' | 'trends' | 'custom'
 
 export default function ReportsPage() {
+  const { t } = useLocale()
   const [activeTab, setActiveTab] = useState<ReportTab>('financial')
   const [filters, setFilters] = useState<AnalyticsFilters>({})
 
@@ -31,10 +33,10 @@ export default function ReportsPage() {
   const { mutate: exportReport, isPending: exporting } = useExportReport()
 
   const tabs = [
-    { id: 'financial' as ReportTab, label: 'Resumo Financeiro', icon: <FileText className="w-5 h-5" /> },
-    { id: 'budget' as ReportTab, label: 'Performance de Orçamentos', icon: <PieChart className="w-5 h-5" /> },
-    { id: 'trends' as ReportTab, label: 'Tendências', icon: <TrendingUp className="w-5 h-5" /> },
-    { id: 'custom' as ReportTab, label: 'Relatórios Personalizados', icon: <Settings className="w-5 h-5" /> }
+    { id: 'financial' as ReportTab, label: t('reports.tabs.financial'), icon: <FileText className="w-5 h-5" /> },
+    { id: 'budget' as ReportTab, label: t('reports.tabs.budget'), icon: <PieChart className="w-5 h-5" /> },
+    { id: 'trends' as ReportTab, label: t('reports.tabs.trends'), icon: <TrendingUp className="w-5 h-5" /> },
+    { id: 'custom' as ReportTab, label: t('reports.tabs.custom'), icon: <Settings className="w-5 h-5" /> }
   ]
 
   const handleExport = (format: 'pdf' | 'xlsx' | 'csv') => {
@@ -55,10 +57,10 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Relatórios Financeiros
+            {t('reports.title')}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Analise seus dados financeiros com relatórios detalhados e insights personalizados
+            {t('reports.subtitle')}
           </p>
         </div>
 
@@ -108,7 +110,7 @@ export default function ReportsPage() {
                 loading={exporting}
                 leftIcon={<Download className="w-4 h-4" />}
               >
-                Exportar PDF
+                {t('reports.export.pdf')}
               </Button>
               <Button
                 variant="secondary"
@@ -117,7 +119,7 @@ export default function ReportsPage() {
                 loading={exporting}
                 leftIcon={<Download className="w-4 h-4" />}
               >
-                Exportar Excel
+                {t('reports.export.excel')}
               </Button>
               <Button
                 variant="secondary"
@@ -126,7 +128,7 @@ export default function ReportsPage() {
                 loading={exporting}
                 leftIcon={<Download className="w-4 h-4" />}
               >
-                Exportar CSV
+                {t('reports.export.csv')}
               </Button>
             </div>
           )}
@@ -142,7 +144,7 @@ export default function ReportsPage() {
               />
             ) : (
               <div className="p-8 text-center text-gray-500">
-                {financialLoading ? 'Carregando dados financeiros...' : 'Nenhum dado disponível'}
+                {financialLoading ? t('reports.loading.financial') : t('reports.noData')}
               </div>
             )
           )}
@@ -155,7 +157,7 @@ export default function ReportsPage() {
               />
             ) : (
               <div className="p-8 text-center text-gray-500">
-                {budgetLoading ? 'Carregando dados de orçamento...' : 'Nenhum dado disponível'}
+                {budgetLoading ? t('reports.loading.budget') : t('reports.noData')}
               </div>
             )
           )}
@@ -164,11 +166,10 @@ export default function ReportsPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
               <TrendingUp className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Análise de Tendências
+                {t('reports.comingSoon.trends.title')}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Esta funcionalidade estará disponível em breve. Você poderá visualizar tendências de gastos,
-                padrões de receitas e projeções futuras.
+                {t('reports.comingSoon.trends.description')}
               </p>
             </div>
           )}
@@ -177,11 +178,10 @@ export default function ReportsPage() {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
               <Settings className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                Relatórios Personalizados
+                {t('reports.comingSoon.custom.title')}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Em breve você poderá criar relatórios personalizados com métricas específicas
-                e visualizações sob medida para suas necessidades.
+                {t('reports.comingSoon.custom.description')}
               </p>
             </div>
           )}
