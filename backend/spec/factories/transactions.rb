@@ -6,8 +6,8 @@ FactoryBot.define do
     category { association :category, :expense, user: user }
     account { association :account, user: user }
 
-    description { Faker::Lorem.sentence(word_count: 3) }
-    amount { Faker::Number.decimal(l_digits: 2, r_digits: 2) }
+    sequence(:description) { |n| "Transaction #{n}" }
+    amount { 100.00 }
     transaction_type { 'expense' }
     date { Date.current }
 

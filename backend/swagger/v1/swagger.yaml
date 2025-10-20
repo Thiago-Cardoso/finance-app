@@ -1,0 +1,2687 @@
+---
+openapi: 3.0.1
+info:
+  title: Personal Finance API
+  version: v1
+  description: API RESTful para aplicativo de controle financeiro pessoal. Permite
+    gerenciar transações, categorias, contas, orçamentos, metas financeiras e gerar
+    relatórios analíticos.
+  contact:
+    name: API Support
+    email: support@financeapp.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+paths:
+  "/api/v1/accounts":
+    get:
+      summary: Listar contas
+      tags:
+      - Accounts
+      security:
+      - bearerAuth: []
+      description: Lista todas as contas financeiras do usuário autenticado. Pode
+        retornar com paginação ou todas as contas (útil para dropdowns).
+      parameters:
+      - name: account_type
+        in: query
+        enum:
+        - checking
+        - savings
+        - credit_card
+        - investment
+        - cash
+        required: false
+        description: "Filtrar por tipo de conta:\n * `checking` \n * `savings` \n
+          * `credit_card` \n * `investment` \n * `cash` \n "
+        schema:
+          type: string
+      - name: all
+        in: query
+        enum:
+        - 'true'
+        - 'false'
+        required: false
+        description: Retornar todas as contas sem paginação
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Lista de contas retornada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Account"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        type: object
+                        properties:
+                          current_page:
+                            type: integer
+                          next_page:
+                            type: integer
+                            nullable: true
+                          prev_page:
+                            type: integer
+                            nullable: true
+                          total_pages:
+                            type: integer
+                          total_count:
+                            type: integer
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    post:
+      summary: Criar conta
+      tags:
+      - Accounts
+      security:
+      - bearerAuth: []
+      description: Cria uma nova conta financeira para o usuário.
+      parameters: []
+      responses:
+        '201':
+          description: Conta criada com sucesso
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Account"
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Conta Corrente Principal
+                    account_type:
+                      type: string
+                      enum:
+                      - checking
+                      - savings
+                      - credit_card
+                      - investment
+                      - cash
+                      example: checking
+                    initial_balance:
+                      type: number
+                      example: 1000.0
+                    current_balance:
+                      type: number
+                      example: 1000.0
+                    is_active:
+                      type: boolean
+                      example: true
+                  required:
+                  - name
+                  - account_type
+              required:
+              - account
+  "/api/v1/accounts/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID da conta
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Exibir conta
+      tags:
+      - Accounts
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Conta encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Account"
+        '404':
+          description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Atualizar conta
+      tags:
+      - Accounts
+      security:
+      - bearerAuth: []
+      description: Atualiza uma conta financeira do usuário.
+      parameters: []
+      responses:
+        '200':
+          description: Conta atualizada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Account"
+        '404':
+          description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    account_type:
+                      type: string
+                      enum:
+                      - checking
+                      - savings
+                      - credit_card
+                      - investment
+                      - cash
+                    initial_balance:
+                      type: number
+                    current_balance:
+                      type: number
+                    is_active:
+                      type: boolean
+              required:
+              - account
+    delete:
+      summary: Excluir conta
+      tags:
+      - Accounts
+      security:
+      - bearerAuth: []
+      description: Desativa uma conta financeira do usuário (soft delete). A conta
+        é marcada como inativa mas não é removida do banco de dados.
+      responses:
+        '204':
+          description: Conta desativada
+        '404':
+          description: Conta não encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Account not found
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/analytics/financial_summary":
+    get:
+      summary: Obter resumo financeiro
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Retorna um relatório de resumo financeiro detalhado com análise
+        de receitas, despesas, saldo e tendências para o período especificado.
+      parameters:
+      - name: period_type
+        in: query
+        enum:
+        - monthly
+        - quarterly
+        - yearly
+        - custom
+        required: false
+        description: "Tipo de período para o relatório:\n * `monthly` \n * `quarterly`
+          \n * `yearly` \n * `custom` \n "
+        schema:
+          type: string
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        description: Data inicial (usado com period_type=custom)
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        description: Data final (usado com period_type=custom)
+        schema:
+          type: string
+      - name: category_id
+        in: query
+        required: false
+        description: Filtrar por categoria específica
+        schema:
+          type: integer
+      - name: account_id
+        in: query
+        required: false
+        description: Filtrar por conta específica
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Resumo financeiro gerado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    additionalProperties: true
+                    description: Dados do resumo financeiro incluindo receitas, despesas,
+                      saldo, categorias principais e tendências
+        '422':
+          description: Parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/analytics/budget_performance":
+    get:
+      summary: Obter performance de orçamentos
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Retorna análise de performance dos orçamentos, mostrando gastos
+        vs. limites orçamentários, categorias que excederam o orçamento e projeções.
+      parameters:
+      - name: period_type
+        in: query
+        enum:
+        - monthly
+        - quarterly
+        - yearly
+        - custom
+        required: false
+        schema:
+          type: string
+        description: ":\n * `monthly` \n * `quarterly` \n * `yearly` \n * `custom`
+          \n "
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
+      - name: category_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: account_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Performance de orçamentos calculada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    additionalProperties: true
+                    description: Dados de performance incluindo orçamentos, gastos
+                      atuais, projeções e alertas
+        '422':
+          description: Parâmetros inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/analytics/export":
+    get:
+      summary: Exportar relatório
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Exporta relatórios financeiros em formato PDF ou Excel para download.
+      parameters:
+      - name: report_type
+        in: query
+        enum:
+        - financial_summary
+        - budget_performance
+        required: true
+        description: "Tipo de relatório a exportar:\n * `financial_summary` \n * `budget_performance`
+          \n "
+        schema:
+          type: string
+      - name: format
+        in: query
+        enum:
+        - pdf
+        - excel
+        required: false
+        description: 'Formato de exportação (default: pdf)'
+        schema:
+          type: string
+      - name: period_type
+        in: query
+        enum:
+        - monthly
+        - quarterly
+        - yearly
+        - custom
+        required: false
+        schema:
+          type: string
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
+      - name: category_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: account_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Arquivo exportado com sucesso
+        '400':
+          description: Tipo de relatório ou formato inválido
+          content:
+            application/pdf:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Invalid report type
+        '422':
+          description: Erro ao gerar relatório
+          content:
+            application/pdf:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+        '401':
+          description: Não autorizado
+          content:
+            application/pdf:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/analytics/reports":
+    get:
+      summary: Listar relatórios salvos
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Lista todos os relatórios gerados e salvos pelo usuário com paginação.
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Número da página
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Itens por página (default: 20)'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Lista de relatórios retornada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        report_type:
+                          type: string
+                        period_type:
+                          type: string
+                        status:
+                          type: string
+                        filter_criteria:
+                          type: object
+                        generated_at:
+                          type: string
+                          format: date-time
+                          nullable: true
+                        created_at:
+                          type: string
+                          format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      next_page:
+                        type: integer
+                        nullable: true
+                      prev_page:
+                        type: integer
+                        nullable: true
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/analytics/reports/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID do relatório
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Exibir relatório salvo
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Retorna os detalhes de um relatório específico salvo.
+      responses:
+        '200':
+          description: Relatório encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      report_type:
+                        type: string
+                      period_type:
+                        type: string
+                      status:
+                        type: string
+                      filter_criteria:
+                        type: object
+                      generated_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      created_at:
+                        type: string
+                        format: date-time
+        '404':
+          description: Relatório não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Report not found
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    delete:
+      summary: Excluir relatório salvo
+      tags:
+      - Analytics
+      security:
+      - bearerAuth: []
+      description: Remove um relatório salvo do usuário.
+      responses:
+        '200':
+          description: Relatório excluído
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Report deleted successfully
+        '404':
+          description: Relatório não encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Report not found
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/auth/sign_up":
+    post:
+      summary: Registrar novo usuário
+      tags:
+      - Authentication
+      security: []
+      description: Cria uma nova conta de usuário. O usuário é automaticamente confirmado
+        em desenvolvimento/test. Em produção, será enviado um email de confirmação.
+      parameters: []
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AuthTokensResponse"
+        '422':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserSignUpRequest"
+  "/api/v1/auth/sign_in":
+    post:
+      summary: Fazer login
+      tags:
+      - Authentication
+      security: []
+      description: Autentica um usuário existente e retorna tokens JWT (access_token
+        e refresh_token).
+      parameters: []
+      responses:
+        '200':
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AuthTokensResponse"
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserSignInRequest"
+  "/api/v1/auth/sign_out":
+    delete:
+      summary: Fazer logout
+      tags:
+      - Authentication
+      security:
+      - bearerAuth: []
+      description: Invalida o token JWT atual do usuário, fazendo logout.
+      responses:
+        '200':
+          description: Logout bem-sucedido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Signed out successfully
+                  data:
+                    type: object
+                    example: {}
+        '401':
+          description: Token inválido ou ausente
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/auth/refresh_token":
+    post:
+      summary: Renovar token de acesso
+      tags:
+      - Authentication
+      security: []
+      description: Gera um novo access_token usando o refresh_token ainda válido.
+      parameters: []
+      responses:
+        '200':
+          description: Token renovado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+                      token_type:
+                        type: string
+                        example: Bearer
+                      expires_in:
+                        type: integer
+                        example: 86400
+                  message:
+                    type: string
+                    example: Token refreshed successfully
+        '401':
+          description: Refresh token inválido
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                  description: Refresh token válido
+              required:
+              - refresh_token
+  "/api/v1/auth/reset_password":
+    post:
+      summary: Solicitar reset de senha
+      tags:
+      - Authentication
+      security: []
+      description: Envia instruções para reset de senha para o email do usuário.
+      parameters: []
+      responses:
+        '200':
+          description: Instruções enviadas (sempre retorna sucesso por segurança)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Password reset instructions sent
+                  data:
+                    type: object
+                    example: {}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                      format: email
+                      example: user@example.com
+                  required:
+                  - email
+              required:
+              - user
+  "/api/v1/auth/update_password":
+    put:
+      summary: Atualizar senha
+      tags:
+      - Authentication
+      security: []
+      description: Atualiza a senha do usuário usando o token recebido por email.
+      parameters: []
+      responses:
+        '200':
+          description: Senha atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AuthTokensResponse"
+        '422':
+          description: Token inválido ou senha não confere
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    reset_password_token:
+                      type: string
+                      example: abc123token
+                    password:
+                      type: string
+                      format: password
+                      example: NewPassword123!
+                    password_confirmation:
+                      type: string
+                      format: password
+                      example: NewPassword123!
+                  required:
+                  - reset_password_token
+                  - password
+                  - password_confirmation
+              required:
+              - user
+  "/api/v1/auth/confirm_email":
+    post:
+      summary: Confirmar email
+      tags:
+      - Authentication
+      security: []
+      description: Confirma o email do usuário usando o token enviado.
+      parameters: []
+      responses:
+        '200':
+          description: Email confirmado com sucesso
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/AuthTokensResponse"
+        '422':
+          description: Token de confirmação inválido
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmation_token:
+                  type: string
+                  example: abc123token
+              required:
+              - confirmation_token
+  "/api/v1/categories":
+    get:
+      summary: Listar categorias
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Lista todas as categorias disponíveis para o usuário (próprias
+        + padrão do sistema).
+      parameters:
+      - name: category_type
+        in: query
+        enum:
+        - income
+        - expense
+        required: false
+        description: "Filtrar por tipo de categoria:\n * `income` \n * `expense` \n "
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Lista de categorias retornada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Category"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        type: object
+                        properties:
+                          current_page:
+                            type: integer
+                          next_page:
+                            type: integer
+                            nullable: true
+                          prev_page:
+                            type: integer
+                            nullable: true
+                          total_pages:
+                            type: integer
+                          total_count:
+                            type: integer
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    post:
+      summary: Criar categoria
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Cria uma nova categoria personalizada para o usuário.
+      parameters: []
+      responses:
+        '201':
+          description: Categoria criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Category"
+                  message:
+                    type: string
+                    example: Category created successfully
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: Alimentação
+                    icon:
+                      type: string
+                      example: utensils
+                    color:
+                      type: string
+                      example: "#ff6b6b"
+                    category_type:
+                      type: string
+                      enum:
+                      - income
+                      - expense
+                      example: expense
+                    is_active:
+                      type: boolean
+                      example: true
+                  required:
+                  - name
+                  - category_type
+              required:
+              - category
+  "/api/v1/categories/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID da categoria
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Exibir categoria
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Categoria encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Category"
+        '404':
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Atualizar categoria
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Atualiza uma categoria personalizada do usuário. Categorias padrão
+        do sistema não podem ser atualizadas.
+      parameters: []
+      responses:
+        '200':
+          description: Categoria atualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Category"
+                  message:
+                    type: string
+                    example: Category updated successfully
+        '403':
+          description: Proibido - não pode modificar categorias padrão
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    icon:
+                      type: string
+                    color:
+                      type: string
+                    category_type:
+                      type: string
+                      enum:
+                      - income
+                      - expense
+                    is_active:
+                      type: boolean
+              required:
+              - category
+    delete:
+      summary: Excluir categoria
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Exclui uma categoria personalizada do usuário. Categorias padrão
+        do sistema não podem ser excluídas.
+      responses:
+        '200':
+          description: Categoria excluída
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Category deleted successfully
+        '403':
+          description: Proibido - não pode excluir categorias padrão
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/categories/{id}/transactions":
+    parameters:
+    - name: id
+      in: path
+      description: ID da categoria
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Listar transações da categoria
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Retorna todas as transações associadas a uma categoria específica.
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Transações da categoria retornadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Transaction"
+                  meta:
+                    type: object
+                    properties:
+                      pagination:
+                        type: object
+                        properties:
+                          current_page:
+                            type: integer
+                          total_pages:
+                            type: integer
+                          total_count:
+                            type: integer
+                          per_page:
+                            type: integer
+        '404':
+          description: Categoria não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/categories/statistics":
+    get:
+      summary: Obter estatísticas de categorias
+      tags:
+      - Categories
+      security:
+      - bearerAuth: []
+      description: Retorna estatísticas de uso e gastos por categoria para análise
+        financeira.
+      parameters:
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        description: Data inicial
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        description: Data final
+        schema:
+          type: string
+      - name: category_type
+        in: query
+        enum:
+        - income
+        - expense
+        required: false
+        schema:
+          type: string
+        description: ":\n * `income` \n * `expense` \n "
+      responses:
+        '200':
+          description: Estatísticas calculadas com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Estatísticas de categorias calculadas
+                  data:
+                    type: object
+                    additionalProperties: true
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/dashboard":
+    get:
+      summary: Obter dados do dashboard
+      tags:
+      - Dashboard
+      security:
+      - bearerAuth: []
+      description: Retorna dados consolidados do dashboard financeiro do usuário,
+        incluindo resumo, saldo, transações recentes, categorias principais, evolução
+        mensal, status dos orçamentos e progresso das metas.
+      parameters:
+      - name: period
+        in: query
+        enum:
+        - current_month
+        - last_month
+        - current_year
+        - custom
+        required: false
+        description: "Período dos dados (default: current_month):\n * `current_month`
+          \n * `last_month` \n * `current_year` \n * `custom` \n "
+        schema:
+          type: string
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        description: Data inicial (usado com period=custom)
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        description: Data final (usado com period=custom)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Dashboard retornado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          total_income:
+                            type: number
+                            example: 5000.0
+                          total_expenses:
+                            type: number
+                            example: 3000.0
+                          net_amount:
+                            type: number
+                            example: 2000.0
+                          variation_percentage:
+                            type: number
+                            example: 15.5
+                          variation_trend:
+                            type: string
+                            enum:
+                            - up
+                            - down
+                            - stable
+                            example: up
+                      current_balance:
+                        type: object
+                        properties:
+                          raw:
+                            type: number
+                            example: 10500.5
+                          formatted:
+                            type: string
+                            example: R$ 10.500,50
+                      recent_transactions:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/Transaction"
+                        description: Últimas 5 transações
+                      top_categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            amount:
+                              type: number
+                            formatted_amount:
+                              type: string
+                            percentage:
+                              type: number
+                            color:
+                              type: string
+                        description: Top 5 categorias por gasto
+                      monthly_evolution:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            month:
+                              type: string
+                              example: 2025-01
+                            income:
+                              type: number
+                            expenses:
+                              type: number
+                            balance:
+                              type: number
+                            formatted_income:
+                              type: string
+                            formatted_expenses:
+                              type: string
+                            formatted_balance:
+                              type: string
+                        description: Evolução dos últimos 6 meses
+                      budget_status:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            category_name:
+                              type: string
+                            limit:
+                              type: number
+                            spent:
+                              type: number
+                            remaining:
+                              type: number
+                            percentage_used:
+                              type: number
+                            formatted_limit:
+                              type: string
+                            formatted_spent:
+                              type: string
+                            formatted_remaining:
+                              type: string
+                            status:
+                              type: string
+                              enum:
+                              - ok
+                              - warning
+                              - exceeded
+                      goals_progress:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            target_amount:
+                              type: number
+                            current_amount:
+                              type: number
+                            percentage:
+                              type: number
+                            deadline:
+                              type: string
+                              format: date
+                            status:
+                              type: string
+                              enum:
+                              - on_track
+                              - at_risk
+                              - completed
+                      last_updated:
+                        type: string
+                        format: date-time
+                        example: '2025-01-19T10:30:00Z'
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/transactions":
+    get:
+      summary: Listar transações
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      description: Lista todas as transações do usuário autenticado com paginação
+        e filtros.
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: 'Número da página (default: 1)'
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Itens por página (max: 100, default: 20)'
+        schema:
+          type: integer
+      - name: category_id
+        in: query
+        required: false
+        description: Filtrar por categoria
+        schema:
+          type: integer
+      - name: transaction_type
+        in: query
+        enum:
+        - income
+        - expense
+        - transfer
+        required: false
+        schema:
+          type: string
+        description: ":\n * `income` \n * `expense` \n * `transfer` \n "
+      - name: date_from
+        in: query
+        format: date
+        required: false
+        description: Data inicial (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        format: date
+        required: false
+        description: Data final (YYYY-MM-DD)
+        schema:
+          type: string
+      - name: search
+        in: query
+        required: false
+        description: Buscar na descrição
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Lista de transações retornada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/TransactionListResponse"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    post:
+      summary: Criar transação
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      description: Cria uma nova transação (receita, despesa ou transferência).
+      parameters: []
+      responses:
+        '201':
+          description: Transação criada com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Transaction"
+                  message:
+                    type: string
+                    example: Transaction created successfully
+        '422':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TransactionRequest"
+  "/api/v1/transactions/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID da transação
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Exibir transação
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Transação encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Transaction"
+        '404':
+          description: Transação não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    put:
+      summary: Atualizar transação
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '200':
+          description: Transação atualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    "$ref": "#/components/schemas/Transaction"
+                  message:
+                    type: string
+                    example: Transaction updated successfully
+        '404':
+          description: Transação não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/TransactionRequest"
+    delete:
+      summary: Excluir transação
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Transação excluída
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Transaction deleted successfully
+        '404':
+          description: Transação não encontrada
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/transactions/summary":
+    get:
+      summary: Obter resumo de transações
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      description: Retorna resumo financeiro (receitas, despesas, saldo) para um período
+        específico.
+      parameters:
+      - name: start_date
+        in: query
+        format: date
+        required: false
+        description: 'Data inicial (YYYY-MM-DD). Default: início do mês atual'
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        format: date
+        required: false
+        description: 'Data final (YYYY-MM-DD). Default: fim do mês atual'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Resumo calculado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      total_income:
+                        type: number
+                        example: 5000.0
+                      total_expenses:
+                        type: number
+                        example: 3000.0
+                      net_amount:
+                        type: number
+                        example: 2000.0
+                      transactions_count:
+                        type: integer
+                        example: 2
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/transactions/filter_options":
+    get:
+      summary: Obter opções de filtros
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      description: Retorna opções disponíveis para filtros (categorias, contas, tipos).
+      responses:
+        '200':
+          description: Opções de filtros retornadas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            category_type:
+                              type: string
+                      accounts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                            name:
+                              type: string
+                            account_type:
+                              type: string
+                      transaction_types:
+                        type: array
+                        items:
+                          type: string
+                        example:
+                        - income
+                        - expense
+                        - transfer
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+  "/api/v1/transactions/search_suggestions":
+    get:
+      summary: Obter sugestões de busca
+      tags:
+      - Transactions
+      security:
+      - bearerAuth: []
+      description: Retorna sugestões de descrições de transações baseadas no termo
+        de busca.
+      parameters:
+      - name: query
+        in: query
+        required: true
+        description: Termo de busca (mínimo 2 caracteres)
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Query muito curta retorna array vazio
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: string
+                    example:
+                    - Supermercado
+                    - Aluguel
+                    - Salário
+        '401':
+          description: Não autorizado
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+servers:
+- url: http://localhost:3001
+  description: Development server
+- url: https://api.financeapp.com
+  description: Production server
+tags:
+- name: Authentication
+  description: Endpoints de autenticação e gerenciamento de usuários
+- name: Dashboard
+  description: Visão geral financeira
+- name: Transactions
+  description: Gestão de transações (receitas/despesas)
+- name: Categories
+  description: Gestão de categorias
+- name: Accounts
+  description: Gestão de contas bancárias
+- name: Budgets
+  description: Gestão de orçamentos
+- name: Goals
+  description: Gestão de metas financeiras
+- name: Reports
+  description: Relatórios e análises
+- name: Analytics
+  description: Analytics e insights financeiros
+- name: Health
+  description: Health checks do sistema
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtido após autenticação via /api/v1/auth/sign_in
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: Validation failed
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: email
+              message:
+                type: string
+                example: can't be blank
+      required:
+      - success
+      - message
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Success
+        data:
+          type: object
+      required:
+      - success
+      - data
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        total_pages:
+          type: integer
+          example: 10
+        total_count:
+          type: integer
+          example: 100
+        per_page:
+          type: integer
+          example: 20
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        confirmed_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - email
+      - first_name
+      - last_name
+    UserSignUpRequest:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: user@example.com
+            password:
+              type: string
+              format: password
+              example: password123
+            password_confirmation:
+              type: string
+              format: password
+              example: password123
+            first_name:
+              type: string
+              example: John
+            last_name:
+              type: string
+              example: Doe
+          required:
+          - email
+          - password
+          - password_confirmation
+          - first_name
+          - last_name
+      required:
+      - user
+    UserSignInRequest:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: user@example.com
+            password:
+              type: string
+              format: password
+              example: password123
+          required:
+          - email
+          - password
+      required:
+      - user
+    AuthTokensResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              "$ref": "#/components/schemas/User"
+            access_token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            refresh_token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            token_type:
+              type: string
+              example: Bearer
+            expires_in:
+              type: integer
+              example: 86400
+        message:
+          type: string
+          example: Signed in successfully
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: Supermercado Extra
+        amount:
+          type: string
+          example: '150.00'
+        transaction_type:
+          type: string
+          enum:
+          - income
+          - expense
+          - transfer
+          example: expense
+        date:
+          type: string
+          format: date
+          example: '2024-01-15'
+        notes:
+          type: string
+          nullable: true
+          example: Compras da semana
+        category:
+          "$ref": "#/components/schemas/CategorySummary"
+          nullable: true
+        account:
+          "$ref": "#/components/schemas/AccountSummary"
+          nullable: true
+        transfer_account:
+          "$ref": "#/components/schemas/AccountSummary"
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - description
+      - amount
+      - transaction_type
+      - date
+    TransactionRequest:
+      type: object
+      properties:
+        transaction:
+          type: object
+          properties:
+            description:
+              type: string
+              example: Salário Janeiro
+            amount:
+              type: string
+              example: '5500.00'
+            transaction_type:
+              type: string
+              enum:
+              - income
+              - expense
+              - transfer
+              example: income
+            date:
+              type: string
+              format: date
+              example: '2024-01-01'
+            notes:
+              type: string
+              example: Salário do mês
+            category_id:
+              type: integer
+              example: 1
+            account_id:
+              type: integer
+              example: 1
+            transfer_account_id:
+              type: integer
+              nullable: true
+          required:
+          - description
+          - amount
+          - transaction_type
+          - date
+      required:
+      - transaction
+    TransactionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Transaction"
+        meta:
+          type: object
+          properties:
+            pagination:
+              "$ref": "#/components/schemas/PaginationMeta"
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Alimentação
+        color:
+          type: string
+          example: "#ef4444"
+        icon:
+          type: string
+          nullable: true
+          example: utensils
+        category_type:
+          type: string
+          enum:
+          - income
+          - expense
+          example: expense
+        is_default:
+          type: boolean
+          example: false
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - color
+      - category_type
+    CategorySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Alimentação
+        color:
+          type: string
+          example: "#ef4444"
+        icon:
+          type: string
+          nullable: true
+    CategoryRequest:
+      type: object
+      properties:
+        category:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Nova Categoria
+            color:
+              type: string
+              example: "#3b82f6"
+            icon:
+              type: string
+              example: star
+            category_type:
+              type: string
+              enum:
+              - income
+              - expense
+              example: expense
+          required:
+          - name
+          - category_type
+      required:
+      - category
+    CategoryListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            "$ref": "#/components/schemas/Category"
+        meta:
+          type: object
+          properties:
+            pagination:
+              "$ref": "#/components/schemas/PaginationMeta"
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Conta Corrente
+        account_type:
+          type: string
+          enum:
+          - checking
+          - savings
+          - credit_card
+          - investment
+          - cash
+          example: checking
+        initial_balance:
+          type: string
+          example: '1000.00'
+        current_balance:
+          type: string
+          example: '1250.50'
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - account_type
+    AccountSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Conta Corrente
+        account_type:
+          type: string
+          example: checking
+    AccountRequest:
+      type: object
+      properties:
+        account:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Nubank
+            account_type:
+              type: string
+              enum:
+              - checking
+              - savings
+              - credit_card
+              - investment
+              - cash
+              example: checking
+            initial_balance:
+              type: string
+              example: '500.00'
+          required:
+          - name
+          - account_type
+      required:
+      - account
+    Budget:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Orçamento Mensal Alimentação
+        amount:
+          type: string
+          example: '800.00'
+        period:
+          type: string
+          enum:
+          - monthly
+          - quarterly
+          - yearly
+          example: monthly
+        category:
+          "$ref": "#/components/schemas/CategorySummary"
+        start_date:
+          type: string
+          format: date
+          example: '2024-01-01'
+        end_date:
+          type: string
+          format: date
+          example: '2024-01-31'
+        spent:
+          type: string
+          example: '650.00'
+        remaining:
+          type: string
+          example: '150.00'
+        percentage_used:
+          type: number
+          format: float
+          example: 81.25
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - amount
+      - period
+    BudgetRequest:
+      type: object
+      properties:
+        budget:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Orçamento Alimentação
+            amount:
+              type: string
+              example: '800.00'
+            period:
+              type: string
+              enum:
+              - monthly
+              - quarterly
+              - yearly
+              example: monthly
+            category_id:
+              type: integer
+              example: 1
+            start_date:
+              type: string
+              format: date
+              example: '2024-01-01'
+            end_date:
+              type: string
+              format: date
+              example: '2024-01-31'
+          required:
+          - name
+          - amount
+          - period
+          - category_id
+      required:
+      - budget
+    Goal:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Viagem para Europa
+        description:
+          type: string
+          nullable: true
+          example: Economizar para viagem em julho
+        target_amount:
+          type: string
+          example: '15000.00'
+        current_amount:
+          type: string
+          example: '4500.00'
+        target_date:
+          type: string
+          format: date
+          example: '2024-07-01'
+        status:
+          type: string
+          enum:
+          - active
+          - completed
+          - cancelled
+          example: active
+        progress_percentage:
+          type: number
+          format: float
+          example: 30.0
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - name
+      - target_amount
+      - current_amount
+    GoalRequest:
+      type: object
+      properties:
+        goal:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Comprar Casa
+            description:
+              type: string
+              example: Economizar para entrada
+            target_amount:
+              type: string
+              example: '80000.00'
+            current_amount:
+              type: string
+              example: '0.00'
+            target_date:
+              type: string
+              format: date
+              example: '2025-12-31'
+          required:
+          - name
+          - target_amount
+      required:
+      - goal
+    DashboardSummary:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            monthly_income:
+              type: string
+              example: '5500.00'
+            monthly_expenses:
+              type: string
+              example: '3200.00'
+            monthly_balance:
+              type: string
+              example: '2300.00'
+            total_balance:
+              type: string
+              example: '12500.00'
+            recent_transactions:
+              type: array
+              items:
+                "$ref": "#/components/schemas/Transaction"
+            top_categories:
+              type: array
+              items:
+                type: object
+                properties:
+                  category:
+                    "$ref": "#/components/schemas/CategorySummary"
+                  amount:
+                    type: string
+                    example: '450.00'
+                  transaction_count:
+                    type: integer
+                    example: 12
+    FinancialSummary:
+      type: object
+      properties:
+        period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        summary:
+          type: object
+          properties:
+            total_income:
+              type: string
+            total_expenses:
+              type: string
+            net_balance:
+              type: string
+            transaction_count:
+              type: integer
+        monthly_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              month_name:
+                type: string
+              income:
+                type: string
+              expense:
+                type: string
+              net:
+                type: string
+        category_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              category_name:
+                type: string
+              category_color:
+                type: string
+              amount:
+                type: string
+              transaction_count:
+                type: integer
+security:
+- bearerAuth: []

@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :category do
     user
-    name { "#{Faker::Commerce.department} #{Faker::Number.unique.number(digits: 4)}" }
+    sequence(:name) { |n| "Category #{n}" }
     color { '#6366f1' }
     category_type { 'expense' }
     is_active { true }
