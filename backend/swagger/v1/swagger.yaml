@@ -1371,7 +1371,7 @@ paths:
         required: false
         schema:
           type: string
-        description: ":\n * `income` \n * `expense` \n "
+        description: "Tipo de categoria. Valores possíveis:\n * `income` \n * `expense` \n "
       responses:
         '200':
           description: Estatísticas calculadas com sucesso
