@@ -396,8 +396,7 @@ paths:
         required: false
         schema:
           type: string
-        description: ":\n * `monthly` \n * `quarterly` \n * `yearly` \n * `custom`
-          \n "
+        description: "Tipo de período. Valores possíveis:\n * `monthly` \n * `quarterly` \n * `yearly` \n * `custom`\n"
       - name: start_date
         in: query
         format: date
