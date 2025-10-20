@@ -10,35 +10,35 @@ Category.where(is_default: true).destroy_all
 
 # Default expense categories
 expense_categories = [
-  { name: 'Groceries', icon: '🛒', color: '#10b981', category_type: 'expense' },
-  { name: 'Transportation', icon: '🚗', color: '#3b82f6', category_type: 'expense' },
-  { name: 'Utilities', icon: '💡', color: '#f59e0b', category_type: 'expense' },
-  { name: 'Healthcare', icon: '🏥', color: '#ef4444', category_type: 'expense' },
-  { name: 'Entertainment', icon: '🎬', color: '#8b5cf6', category_type: 'expense' },
-  { name: 'Dining Out', icon: '🍽️', color: '#ec4899', category_type: 'expense' },
-  { name: 'Shopping', icon: '🛍️', color: '#6366f1', category_type: 'expense' },
-  { name: 'Education', icon: '📚', color: '#14b8a6', category_type: 'expense' },
-  { name: 'Insurance', icon: '🛡️', color: '#6b7280', category_type: 'expense' },
-  { name: 'Rent/Mortgage', icon: '🏠', color: '#dc2626', category_type: 'expense' },
-  { name: 'Subscriptions', icon: '📱', color: '#7c3aed', category_type: 'expense' },
-  { name: 'Personal Care', icon: '💇', color: '#f97316', category_type: 'expense' },
-  { name: 'Gifts', icon: '🎁', color: '#ec4899', category_type: 'expense' },
-  { name: 'Travel', icon: '✈️', color: '#0ea5e9', category_type: 'expense' },
-  { name: 'Fitness', icon: '💪', color: '#22c55e', category_type: 'expense' },
-  { name: 'Other Expenses', icon: '📝', color: '#94a3b8', category_type: 'expense' }
+  { name: 'Supermercado', icon: '🛒', color: '#10b981', category_type: 'expense' },
+  { name: 'Transporte', icon: '🚗', color: '#3b82f6', category_type: 'expense' },
+  { name: 'Serviços Públicos', icon: '💡', color: '#f59e0b', category_type: 'expense' },
+  { name: 'Saúde', icon: '🏥', color: '#ef4444', category_type: 'expense' },
+  { name: 'Entretenimento', icon: '🎬', color: '#8b5cf6', category_type: 'expense' },
+  { name: 'Refeições Fora', icon: '🍽️', color: '#ec4899', category_type: 'expense' },
+  { name: 'Compras', icon: '🛍️', color: '#6366f1', category_type: 'expense' },
+  { name: 'Educação', icon: '📚', color: '#14b8a6', category_type: 'expense' },
+  { name: 'Seguro', icon: '🛡️', color: '#6b7280', category_type: 'expense' },
+  { name: 'Aluguel/Hipoteca', icon: '🏠', color: '#dc2626', category_type: 'expense' },
+  { name: 'Assinaturas', icon: '📱', color: '#7c3aed', category_type: 'expense' },
+  { name: 'Cuidados Pessoais', icon: '💇', color: '#f97316', category_type: 'expense' },
+  { name: 'Presentes', icon: '🎁', color: '#ec4899', category_type: 'expense' },
+  { name: 'Viagens', icon: '✈️', color: '#0ea5e9', category_type: 'expense' },
+  { name: 'Academia/Fitness', icon: '💪', color: '#22c55e', category_type: 'expense' },
+  { name: 'Outras Despesas', icon: '📝', color: '#94a3b8', category_type: 'expense' }
 ]
 
 # Default income categories
 income_categories = [
-  { name: 'Salary', icon: '💰', color: '#10b981', category_type: 'income' },
+  { name: 'Salário', icon: '💰', color: '#10b981', category_type: 'income' },
   { name: 'Freelance', icon: '💼', color: '#3b82f6', category_type: 'income' },
-  { name: 'Investment', icon: '📈', color: '#8b5cf6', category_type: 'income' },
-  { name: 'Rental Income', icon: '🏢', color: '#f59e0b', category_type: 'income' },
-  { name: 'Business', icon: '🏪', color: '#ec4899', category_type: 'income' },
-  { name: 'Bonus', icon: '🎯', color: '#14b8a6', category_type: 'income' },
-  { name: 'Gifts Received', icon: '🎁', color: '#f43f5e', category_type: 'income' },
-  { name: 'Refunds', icon: '↩️', color: '#6366f1', category_type: 'income' },
-  { name: 'Other Income', icon: '💵', color: '#22c55e', category_type: 'income' }
+  { name: 'Investimentos', icon: '📈', color: '#8b5cf6', category_type: 'income' },
+  { name: 'Renda de Aluguel', icon: '🏢', color: '#f59e0b', category_type: 'income' },
+  { name: 'Negócio', icon: '🏪', color: '#ec4899', category_type: 'income' },
+  { name: 'Bônus', icon: '🎯', color: '#14b8a6', category_type: 'income' },
+  { name: 'Presentes Recebidos', icon: '🎁', color: '#f43f5e', category_type: 'income' },
+  { name: 'Reembolsos', icon: '↩️', color: '#6366f1', category_type: 'income' },
+  { name: 'Outras Receitas', icon: '💵', color: '#22c55e', category_type: 'income' }
 ]
 
 # Create expense categories
