@@ -1621,7 +1621,7 @@ paths:
         required: false
         schema:
           type: string
-        description: ":\n * `income` \n * `expense` \n * `transfer` \n "
+        description: "Filtrar por tipo de transação. Valores possíveis:\n * `income` \n * `expense` \n * `transfer` \n "
       - name: date_from
         in: query
         format: date
