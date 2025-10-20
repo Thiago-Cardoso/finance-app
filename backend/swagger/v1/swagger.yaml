@@ -544,7 +544,7 @@ paths:
         '401':
           description: Não autorizado
           content:
-            application/pdf:
+            application/json:
               schema:
                 "$ref": "#/components/schemas/Error"
   "/api/v1/analytics/reports":
