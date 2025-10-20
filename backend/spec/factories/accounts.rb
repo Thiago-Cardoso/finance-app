@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :account do
     association :user
-    name { Faker::Bank.name }
+    sequence(:name) { |n| "Account #{n}" }
     account_type { 'checking' }
     initial_balance { 1000.00 }
     current_balance { 1000.00 }
