@@ -116,7 +116,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
 
       post '/api/v1/categories', params: invalid_params, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(json_response['success']).to be false
       expect(json_response['errors']).to be_present
     end
@@ -126,7 +126,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
 
       post '/api/v1/categories', params: invalid_params, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it 'validates category_type' do
@@ -134,7 +134,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
 
       post '/api/v1/categories', params: invalid_params, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it 'requires authentication' do
@@ -170,7 +170,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
       patch "/api/v1/categories/#{default_category.id}", params: update_params, headers: headers
 
       expect(response).to have_http_status(:forbidden)
-      expect(json_response['message']).to include('only modify your own')
+      expect(json_response['message']).to include('Cannot modify default')
     end
 
     it 'prevents updating other users categories' do
@@ -186,7 +186,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
 
       patch "/api/v1/categories/#{user_category.id}", params: invalid_params, headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it 'requires authentication' do
@@ -223,7 +223,7 @@ RSpec.describe 'Api::V1::Categories', type: :request do
 
       delete "/api/v1/categories/#{category.id}", headers: headers
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
       expect(Category.exists?(category.id)).to be_truthy
     end
 

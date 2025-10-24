@@ -5,7 +5,7 @@ FactoryBot.define do
     association :user
     association :category, category_type: 'expense'
 
-    name { "Budget for #{Faker::Commerce.department}" }
+    name { "Budget for #{Faker::Lorem.word.capitalize}" }
     amount { 500.00 }
     spent { 0.00 }
     period { 'monthly' }

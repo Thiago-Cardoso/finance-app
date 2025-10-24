@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :report do
     association :user
-    name { "#{report_type.to_s.titleize} Report" }
+    name { "Financial Summary Report" }
     report_type { :financial_summary }
     period_type { :monthly }
     status { :pending }
