@@ -1,6 +1,9 @@
 import { ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 import { HStack, VStack } from '@/components/ui/Stack'
 import { Divider } from '@/components/ui/Divider'
+import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
 export interface PageHeaderProps {
@@ -10,6 +13,8 @@ export interface PageHeaderProps {
   breadcrumbs?: ReactNode
   className?: string
   divider?: boolean
+  showBackButton?: boolean
+  backTo?: string
 }
 
 export function PageHeader({
@@ -19,10 +24,27 @@ export function PageHeader({
   breadcrumbs,
   className,
   divider = true,
+  showBackButton = true,
+  backTo = '/dashboard',
 }: PageHeaderProps) {
+  const router = useRouter()
+
   return (
     <div className={cn('w-full', className)}>
       <VStack spacing={4}>
+        {showBackButton && (
+          <div>
+            <Button
+              variant="secondary"
+              onClick={() => router.push(backTo)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Button>
+          </div>
+        )}
+
         {breadcrumbs && (
           <div className="text-sm text-gray-600 dark:text-gray-400">
             {breadcrumbs}

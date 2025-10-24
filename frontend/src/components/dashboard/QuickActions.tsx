@@ -1,6 +1,6 @@
 import { useLocale } from '@/contexts/LocaleContext'
 import { Button } from '@/components/ui/Button'
-import { Plus, TrendingUp, TrendingDown, ArrowRightLeft, PieChart, FileText, Tag } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, ArrowRightLeft, PieChart, FileText, Tag, Target } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export function QuickActions() {
@@ -41,6 +41,14 @@ export function QuickActions() {
       onClick: () => router.push('/categories')
     },
     {
+      label: 'Metas',
+      icon: Target,
+      gradient: 'from-green-500 to-emerald-600',
+      hoverGradient: 'hover:from-green-600 hover:to-emerald-700',
+      shadowColor: 'shadow-green-500/50',
+      onClick: () => router.push('/goals')
+    },
+    {
       label: t('dashboard.quickActions.viewTransactions'),
       icon: PieChart,
       gradient: 'from-purple-500 to-violet-600',
@@ -64,7 +72,7 @@ export function QuickActions() {
         <Plus className="w-5 h-5 mr-2 text-gray-600 dark:text-gray-400" />
         {t('dashboard.quickActions.title')}
       </h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {actions.map((action, index) => {
           const Icon = action.icon
           return (

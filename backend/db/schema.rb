@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_24_004618) do
   create_schema "auth"
   create_schema "extensions"
   create_schema "graphql"
@@ -84,8 +84,51 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
     t.index ["user_id"], name: "index_categories_on_user_id"
   end
 
+  create_table "goal_activities", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.string "activity_type", null: false
+    t.text "description"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_type"], name: "index_goal_activities_on_activity_type"
+    t.index ["goal_id", "created_at"], name: "index_goal_activities_on_goal_id_and_created_at"
+    t.index ["goal_id"], name: "index_goal_activities_on_goal_id"
+  end
+
+  create_table "goal_contributions", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.bigint "transaction_id"
+    t.bigint "contributor_id"
+    t.decimal "amount", precision: 12, scale: 2, null: false
+    t.text "description"
+    t.datetime "contributed_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contributed_at"], name: "index_goal_contributions_on_contributed_at"
+    t.index ["contributor_id"], name: "index_goal_contributions_on_contributor_id"
+    t.index ["goal_id", "contributed_at"], name: "index_goal_contributions_on_goal_id_and_contributed_at"
+    t.index ["goal_id"], name: "index_goal_contributions_on_goal_id"
+    t.index ["transaction_id"], name: "index_goal_contributions_on_transaction_id"
+  end
+
+  create_table "goal_milestones", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.string "name", limit: 100, null: false
+    t.decimal "target_percentage", precision: 5, scale: 2, null: false
+    t.integer "reward_points", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "completed_at"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id", "target_percentage"], name: "index_goal_milestones_on_goal_id_and_target_percentage", unique: true
+    t.index ["goal_id"], name: "index_goal_milestones_on_goal_id"
+    t.index ["status"], name: "index_goal_milestones_on_status"
+  end
+
   create_table "goals", force: :cascade do |t|
-    t.string "title", limit: 255, null: false
+    t.string "name", limit: 255, null: false
     t.text "description"
     t.decimal "target_amount", precision: 12, scale: 2, null: false
     t.decimal "current_amount", precision: 12, scale: 2, default: "0.0"
@@ -94,9 +137,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
     t.boolean "is_achieved", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "goal_type", default: 0, null: false
+    t.integer "priority", default: 1, null: false
+    t.integer "status", default: 0, null: false
+    t.bigint "category_id"
+    t.decimal "baseline_amount", precision: 12, scale: 2
+    t.datetime "completed_at"
+    t.boolean "auto_track_progress", default: false
+    t.decimal "last_notification_progress", precision: 5, scale: 2, default: "0.0"
+    t.index ["category_id"], name: "index_goals_on_category_id"
+    t.index ["goal_type"], name: "index_goals_on_goal_type"
     t.index ["is_achieved"], name: "index_goals_on_is_achieved"
+    t.index ["priority"], name: "index_goals_on_priority"
+    t.index ["status"], name: "index_goals_on_status"
     t.index ["target_date"], name: "index_goals_on_target_date"
     t.index ["user_id", "is_achieved", "target_date"], name: "index_goals_on_user_achieved_target"
+    t.index ["user_id", "status"], name: "index_goals_on_user_id_and_status"
     t.index ["user_id"], name: "index_goals_on_user_id"
   end
 
@@ -115,6 +171,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
     t.index ["status"], name: "index_reports_on_status"
     t.index ["user_id", "report_type"], name: "index_reports_on_user_id_and_report_type"
     t.index ["user_id"], name: "index_reports_on_user_id"
+  end
+
+  create_table "shared_goals", force: :cascade do |t|
+    t.bigint "goal_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "can_contribute", default: false
+    t.boolean "can_edit", default: false
+    t.boolean "can_view_details", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["goal_id", "user_id"], name: "index_shared_goals_on_goal_id_and_user_id", unique: true
+    t.index ["goal_id"], name: "index_shared_goals_on_goal_id"
+    t.index ["user_id"], name: "index_shared_goals_on_user_id"
   end
 
   create_table "transactions", force: :cascade do |t|
@@ -146,6 +215,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
     t.index ["user_id"], name: "index_transactions_on_user_id"
   end
 
+  create_table "user_achievements", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.integer "badge_type", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.integer "points_earned", default: 0, null: false
+    t.datetime "earned_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["badge_type"], name: "index_user_achievements_on_badge_type"
+    t.index ["earned_at"], name: "index_user_achievements_on_earned_at"
+    t.index ["user_id", "badge_type"], name: "index_user_achievements_on_user_id_and_badge_type", unique: true
+    t.index ["user_id"], name: "index_user_achievements_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -171,10 +255,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_12_161817) do
   add_foreign_key "budgets", "categories", on_delete: :cascade
   add_foreign_key "budgets", "users", on_delete: :cascade
   add_foreign_key "categories", "users", on_delete: :cascade
+  add_foreign_key "goal_activities", "goals", on_delete: :cascade
+  add_foreign_key "goal_contributions", "goals", on_delete: :cascade
+  add_foreign_key "goal_contributions", "transactions", on_delete: :nullify
+  add_foreign_key "goal_contributions", "users", column: "contributor_id", on_delete: :nullify
+  add_foreign_key "goal_milestones", "goals", on_delete: :cascade
+  add_foreign_key "goals", "categories", on_delete: :nullify
   add_foreign_key "goals", "users", on_delete: :cascade
   add_foreign_key "reports", "users"
+  add_foreign_key "shared_goals", "goals", on_delete: :cascade
+  add_foreign_key "shared_goals", "users", on_delete: :cascade
   add_foreign_key "transactions", "accounts", column: "transfer_account_id", on_delete: :nullify
   add_foreign_key "transactions", "accounts", on_delete: :nullify
   add_foreign_key "transactions", "categories", on_delete: :nullify
   add_foreign_key "transactions", "users", on_delete: :cascade
+  add_foreign_key "user_achievements", "users", on_delete: :cascade
 end

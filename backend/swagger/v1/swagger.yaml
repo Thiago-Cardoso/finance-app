@@ -36,7 +36,7 @@ paths:
           * `credit_card` \n * `investment` \n * `cash` \n "
         schema:
           type: string
-      - name: all
+      - name: include_all
         in: query
         enum:
         - 'true'
@@ -396,7 +396,8 @@ paths:
         required: false
         schema:
           type: string
-        description: "Tipo de período. Valores possíveis:\n * `monthly` \n * `quarterly` \n * `yearly` \n * `custom`\n"
+        description: ":\n * `monthly` \n * `quarterly` \n * `yearly` \n * `custom`
+          \n "
       - name: start_date
         in: query
         format: date
@@ -544,7 +545,7 @@ paths:
         '401':
           description: Não autorizado
           content:
-            application/json:
+            application/pdf:
               schema:
                 "$ref": "#/components/schemas/Error"
   "/api/v1/analytics/reports":
@@ -1371,7 +1372,7 @@ paths:
         required: false
         schema:
           type: string
-        description: "Tipo de categoria. Valores possíveis:\n * `income` \n * `expense` \n "
+        description: ":\n * `income` \n * `expense` \n "
       responses:
         '200':
           description: Estatísticas calculadas com sucesso
@@ -1621,7 +1622,7 @@ paths:
         required: false
         schema:
           type: string
-        description: "Filtrar por tipo de transação. Valores possíveis:\n * `income` \n * `expense` \n * `transfer` \n "
+        description: ":\n * `income` \n * `expense` \n * `transfer` \n "
       - name: date_from
         in: query
         format: date

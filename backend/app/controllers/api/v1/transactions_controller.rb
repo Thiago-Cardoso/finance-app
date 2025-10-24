@@ -13,9 +13,22 @@ module Api
         )
         result = filter_service.call
 
-        @transactions = result[:transactions]
-        
-        paginate @transactions
+        @transactions = result[:transactions].includes(:category, :account, :transfer_account)
+        paginated = @transactions.page(params[:page]).per(params[:per_page] || 10)
+
+        render json: {
+          success: true,
+          data: TransactionSerializer.new(paginated).as_json,
+          meta: {
+            pagination: {
+              current_page: paginated.current_page,
+              next_page: paginated.next_page,
+              prev_page: paginated.prev_page,
+              total_pages: paginated.total_pages,
+              total_count: paginated.total_count
+            }
+          }
+        }
       end
 
       def show
@@ -133,7 +146,7 @@ module Api
       private
 
       def set_transaction
-        @transaction = current_user.transactions.find(params[:id])
+        @transaction = current_user.transactions.includes(:category, :account, :transfer_account).find(params[:id])
       end
 
       def transaction_params

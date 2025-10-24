@@ -1,5 +1,6 @@
 import { formatCurrency } from '@/lib/utils'
-import { Target, Calendar } from 'lucide-react'
+import { Target, Calendar, Plus, ArrowRight } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface Goal {
   goal_id: string
@@ -16,14 +17,41 @@ interface GoalsProgressProps {
 }
 
 export function GoalsProgress({ data }: GoalsProgressProps) {
+  const router = useRouter()
+
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Progresso de Metas
-        </h3>
-        <div className="text-center py-8 text-gray-500">
-          Nenhuma meta ativa
+      <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-gray-100/50 overflow-hidden">
+        {/* Background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/30 via-transparent to-purple-50/30 pointer-events-none" />
+
+        <div className="relative">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              Progresso de Metas
+            </h3>
+            <div className="p-3 rounded-xl shadow-lg" style={{
+              background: 'linear-gradient(135deg, #6366f115, #8b5cf625)'
+            }}>
+              <Target className="w-5 h-5" style={{ color: '#8b5cf6' }} />
+            </div>
+          </div>
+
+          <div className="text-center py-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 mb-4">
+              <Target className="w-8 h-8 text-green-600" />
+            </div>
+            <p className="text-gray-500 mb-6 text-sm">
+              Nenhuma meta ativa.<br/>Comece a planejar seus objetivos!
+            </p>
+            <button
+              onClick={() => router.push('/goals')}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+              Criar Meta
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -46,8 +74,8 @@ export function GoalsProgress({ data }: GoalsProgressProps) {
           </div>
         </div>
 
-        <div className="space-y-4">
-          {data.map((goal) => {
+        <div className="space-y-4 mb-5">
+          {data.slice(0, 3).map((goal) => {
             const progressColors = goal.progress_percentage >= 75
               ? { from: '#10b981', to: '#14b8a6', text: '#059669' }
               : goal.progress_percentage >= 50
@@ -136,6 +164,15 @@ export function GoalsProgress({ data }: GoalsProgressProps) {
             )
           })}
         </div>
+
+        {/* Ver Todas Button */}
+        <button
+          onClick={() => router.push('/goals')}
+          className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:scale-[1.02] flex items-center justify-center gap-2"
+        >
+          Ver Todas as Metas
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   )

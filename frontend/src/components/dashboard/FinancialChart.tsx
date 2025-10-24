@@ -31,12 +31,19 @@ export function FinancialChart({ data }: FinancialChartProps) {
     )
   }
 
-  const chartData = data.map(item => ({
-    month: item.month_name ? item.month_name.split(' ')[0].substring(0, 3) : item.month || '',
-    income: item.income,
-    expenses: item.expenses,
-    balance: item.balance
-  }))
+  const chartData = data.map(item => {
+    // Extrair nome do mês da string month (formato: YYYY-MM)
+    const monthNumber = item.month ? parseInt(item.month.split('-')[1]) : 0
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    const monthLabel = monthNumber > 0 && monthNumber <= 12 ? monthNames[monthNumber - 1] : item.month || ''
+
+    return {
+      month: monthLabel,
+      income: Number(item.income) || 0,
+      expenses: Number(item.expenses) || 0,
+      balance: Number(item.balance) || 0
+    }
+  })
 
   // Custom tooltip with proper typing
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; dataKey: string; color: string }>; label?: string }) => {
