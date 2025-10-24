@@ -8,7 +8,7 @@ class Goal < ApplicationRecord
   # Validations
   validates :title, presence: true, length: { maximum: 255 }
   validates :target_amount, presence: true, numericality: { greater_than: 0 }
-  validates :current_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  validates :current_amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: false
   validate :current_amount_not_greater_than_target
 
   # Scopes
