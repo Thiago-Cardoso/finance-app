@@ -35,7 +35,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
           user: valid_attributes.merge(email: 'invalid-email')
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
         expect(json_response['errors']).to be_present
       end
@@ -45,7 +45,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
           user: valid_attributes.except(:password)
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
       end
     end
@@ -56,7 +56,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
       it 'returns email taken error' do
         post '/api/v1/auth/sign_up', params: { user: valid_attributes }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['errors']).to be_present
       end
     end
@@ -259,7 +259,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
           }
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
       end
     end
@@ -276,7 +276,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
           }
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
       end
     end
@@ -306,7 +306,7 @@ RSpec.describe 'Api::V1::Auth', type: :request do
           confirmation_token: 'invalid-token'
         }
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
       end
     end

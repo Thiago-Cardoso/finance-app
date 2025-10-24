@@ -26,14 +26,14 @@ module Dashboard
 
     def analyze_budget(budget)
       spent = calculate_spent(budget)
-      percentage_used = calculate_percentage(spent, budget.amount_limit)
+      percentage_used = calculate_percentage(spent, budget.amount)
 
       {
         budget_id: budget.id,
         category: format_category(budget.category),
-        limit: budget.amount_limit.to_f,
+        limit: budget.amount.to_f,
         spent: spent.to_f,
-        remaining: (budget.amount_limit - spent).to_f,
+        remaining: (budget.amount - spent).to_f,
         percentage_used: percentage_used,
         status: determine_status(percentage_used)
       }

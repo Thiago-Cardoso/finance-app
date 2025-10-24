@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-FactoryBot.define do
+ FactoryBot.define do
   factory :transaction do
     user
-    category { association :category, :expense, user: user }
     account { association :account, user: user }
 
     sequence(:description) { |n| "Transaction #{n}" }
@@ -13,12 +12,10 @@ FactoryBot.define do
 
     trait :income do
       transaction_type { 'income' }
-      category { association :category, :income, user: user }
     end
 
     trait :expense do
       transaction_type { 'expense' }
-      category { association :category, :expense, user: user }
     end
 
     trait :transfer do

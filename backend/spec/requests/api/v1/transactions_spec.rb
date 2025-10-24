@@ -34,13 +34,18 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
       end
 
       it 'filters transactions by date range' do
+        # Create transactions with specific dates for this test
         old_transaction = create(:transaction, :expense, user: user, category: category, account: account,
                                                 date: 2.months.ago)
         recent_transaction = create(:transaction, :expense, user: user, category: category, account: account,
                                                     date: 1.day.ago)
 
+        # Use a narrower date range that excludes the let! transactions and old_transaction
+        date_from = 2.days.ago.to_date
+        date_to = Date.current
+
         get '/api/v1/transactions',
-            params: { date_from: 1.week.ago.to_date, date_to: Date.current, per_page: 30 },
+            params: { date_from: date_from, date_to: date_to, per_page: 100 },
             headers: auth_headers(user)
 
         expect(response).to have_http_status(:ok)
@@ -212,7 +217,7 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
 
         post '/api/v1/transactions', params: invalid_params, headers: auth_headers(user)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
         expect(json_response['errors']).to be_present
       end
@@ -224,7 +229,7 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
 
         post '/api/v1/transactions', params: future_params, headers: auth_headers(user)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['errors']).to be_present
       end
 
@@ -238,7 +243,7 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
 
         post '/api/v1/transactions', params: transfer_params, headers: auth_headers(user)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
   end
@@ -283,7 +288,7 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
 
         put "/api/v1/transactions/#{transaction.id}", params: update_params, headers: auth_headers(user)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         expect(json_response['success']).to be false
       end
 

@@ -139,7 +139,7 @@ module Reports
 
     # Scoped categories for the user
     def scoped_categories
-      user.categories.active
+      user.available_categories
     end
 
     # Scoped accounts for the user

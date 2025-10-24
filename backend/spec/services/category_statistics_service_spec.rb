@@ -43,8 +43,8 @@ RSpec.describe CategoryStatisticsService, type: :service do
       service = described_class.new(user)
       summary = service.send(:category_summary)
 
-      # Should not count inactive category
-      expect(summary[:total_categories]).not_to include_inactive_categories
+      # Should not count inactive category (total remains 4)
+      expect(summary[:total_categories]).to eq(4) # Still 4 because inactive is filtered out
     end
   end
 
