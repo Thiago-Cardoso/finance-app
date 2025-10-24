@@ -1,3 +1,4 @@
+# app/services/reports/financial_summary_generator.rb
 module Reports
   class FinancialSummaryGenerator < BaseGenerator
     def report_name
@@ -11,8 +12,8 @@ module Reports
     def fetch_data
       {
         transactions: scoped_transactions.includes(:category, :account),
-        accounts: scoped_accounts.includes(:transactions),
-        categories: scoped_categories.includes(:transactions)
+        accounts: scoped_accounts,
+        categories: scoped_categories
       }
     end
 
@@ -78,22 +79,22 @@ module Reports
       income_transactions = transactions.where(transaction_type: 'income')
       total_income = income_transactions.sum(:amount)
 
-      breakdown = income_transactions
+      # Fixed: Use proper grouping without non-aggregated columns
+      breakdown_data = income_transactions
         .group(:category_id)
-        .select('category_id, SUM(amount) as total, COUNT(*) as count')
-        .includes(:category)
-        .map do |record|
-          category = record.category
-          {
-            category_id: category&.id,
-            category_name: category&.name || 'Sem Categoria',
-            total: record.total,
-            total_formatted: format_currency(record.total),
-            count: record.count,
-            percentage: calculate_percentage(record.total, total_income)
-          }
-        end
-        .sort_by { |item| -item[:total] }
+        .sum(:amount)
+
+      breakdown = breakdown_data.map do |category_id, total|
+        category = Category.find_by(id: category_id)
+        {
+          category_id: category_id,
+          category_name: category&.name || 'Sem Categoria',
+          total: total,
+          total_formatted: format_currency(total),
+          count: income_transactions.where(category_id: category_id).count,
+          percentage: calculate_percentage(total, total_income)
+        }
+      end.sort_by { |item| -item[:total] }
 
       {
         total: total_income,
@@ -106,22 +107,22 @@ module Reports
       expense_transactions = transactions.where(transaction_type: 'expense')
       total_expenses = expense_transactions.sum(:amount)
 
-      breakdown = expense_transactions
+      # Fixed: Use proper grouping without non-aggregated columns
+      breakdown_data = expense_transactions
         .group(:category_id)
-        .select('category_id, SUM(amount) as total, COUNT(*) as count')
-        .includes(:category)
-        .map do |record|
-          category = record.category
-          {
-            category_id: category&.id,
-            category_name: category&.name || 'Sem Categoria',
-            total: record.total,
-            total_formatted: format_currency(record.total),
-            count: record.count,
-            percentage: calculate_percentage(record.total, total_expenses)
-          }
-        end
-        .sort_by { |item| -item[:total] }
+        .sum(:amount)
+
+      breakdown = breakdown_data.map do |category_id, total|
+        category = Category.find_by(id: category_id)
+        {
+          category_id: category_id,
+          category_name: category&.name || 'Sem Categoria',
+          total: total,
+          total_formatted: format_currency(total),
+          count: expense_transactions.where(category_id: category_id).count,
+          percentage: calculate_percentage(total, total_expenses)
+        }
+      end.sort_by { |item| -item[:total] }
 
       {
         total: total_expenses,
@@ -131,31 +132,65 @@ module Reports
     end
 
     def calculate_category_analysis(transactions)
-      transactions
-        .group(:category_id, :transaction_type)
-        .select('category_id, transaction_type, SUM(amount) as total, COUNT(*) as count')
-        .includes(:category)
-        .group_by { |record| record.category }
-        .map do |category, records|
-          category_total = records.sum(&:total)
+      # Fixed: Use separate queries for each transaction type
+      categories_data = {}
+      
+      # Get all categories with their transactions
+      Category.where(id: transactions.select(:category_id).distinct).each do |category|
+        category_transactions = transactions.where(category_id: category.id)
+        categories_data[category.id] = {
+          category_id: category.id,
+          category_name: category.name,
+          category_type: category.category_type,
+          total: category_transactions.sum(:amount),
+          transaction_count: category_transactions.count,
+          breakdown: {
+            income: {
+              total: category_transactions.where(transaction_type: 'income').sum(:amount),
+              count: category_transactions.where(transaction_type: 'income').count
+            },
+            expense: {
+              total: category_transactions.where(transaction_type: 'expense').sum(:amount),
+              count: category_transactions.where(transaction_type: 'expense').count
+            }
+          }
+        }
+      end
+
+      # Handle uncategorized transactions
+      uncategorized_transactions = transactions.where(category_id: nil)
+      if uncategorized_transactions.any?
+        categories_data['uncategorized'] = {
+          category_id: nil,
+          category_name: 'Sem Categoria',
+          category_type: 'uncategorized',
+          total: uncategorized_transactions.sum(:amount),
+          transaction_count: uncategorized_transactions.count,
+          breakdown: {
+            income: {
+              total: uncategorized_transactions.where(transaction_type: 'income').sum(:amount),
+              count: uncategorized_transactions.where(transaction_type: 'income').count
+            },
+            expense: {
+              total: uncategorized_transactions.where(transaction_type: 'expense').sum(:amount),
+              count: uncategorized_transactions.where(transaction_type: 'expense').count
+            }
+          }
+        }
+      end
+
+      categories_data.values.map do |data|
+        data[:total_formatted] = format_currency(data[:total])
+        data[:breakdown] = data[:breakdown].map do |transaction_type, breakdown_data|
           {
-            category_id: category&.id,
-            category_name: category&.name || 'Sem Categoria',
-            category_type: category&.category_type,
-            total: category_total,
-            total_formatted: format_currency(category_total),
-            transaction_count: records.sum(&:count),
-            breakdown: records.map do |record|
-              {
-                transaction_type: record.transaction_type,
-                total: record.total,
-                total_formatted: format_currency(record.total),
-                count: record.count
-              }
-            end
+            transaction_type: transaction_type,
+            total: breakdown_data[:total],
+            total_formatted: format_currency(breakdown_data[:total]),
+            count: breakdown_data[:count]
           }
         end
-        .sort_by { |item| -item[:total] }
+        data
+      end.sort_by { |item| -item[:total] }
     end
 
     def calculate_account_balances(accounts)
@@ -173,15 +208,13 @@ module Reports
     end
 
     def calculate_daily_trend(transactions)
-      daily_data = transactions
-        .group("DATE(date)", :transaction_type)
-        .select("DATE(date) as date, transaction_type, SUM(amount) as total")
-        .group_by { |record| record.date }
+      # Fixed: Use separate queries for income and expenses
+      income_by_date = transactions.where(transaction_type: 'income').group("DATE(date)").sum(:amount)
+      expenses_by_date = transactions.where(transaction_type: 'expense').group("DATE(date)").sum(:amount)
 
       (start_date..end_date).map do |date|
-        date_records = daily_data[date] || []
-        income = date_records.find { |r| r.transaction_type == 'income' }&.total || 0
-        expenses = date_records.find { |r| r.transaction_type == 'expense' }&.total || 0
+        income = income_by_date[date] || 0
+        expenses = expenses_by_date[date] || 0
 
         {
           date: date,
@@ -197,7 +230,6 @@ module Reports
     end
 
     def calculate_comparisons(transactions)
-      # Compare with previous period
       period_days = (end_date - start_date).to_i + 1
       previous_start = start_date - period_days.days
       previous_end = start_date - 1.day

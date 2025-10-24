@@ -36,8 +36,8 @@ class TransactionFilterService
     {
       periods: VALID_PERIODS,
       transaction_types: Transaction::TRANSACTION_TYPES,
-      categories: @user.categories.active.select(:id, :name, :category_type, :color, :icon),
-      accounts: @user.accounts.select(:id, :name, :account_type),
+      categories: @user.available_categories.select(:id, :name, :category_type, :color, :icon),
+      accounts: @user.accounts.active.select(:id, :name, :account_type),
       sort_fields: VALID_SORT_FIELDS,
       sort_directions: VALID_SORT_DIRECTIONS
     }
@@ -83,14 +83,14 @@ class TransactionFilterService
 
   def apply_category_filter(scope)
     if @params[:category_id].present?
-      # Validate ownership
-      category = @user.categories.find_by(id: @params[:category_id])
+      # Validate ownership/availability
+      category = @user.available_categories.find_by(id: @params[:category_id])
       return scope unless category
 
       scope.by_category(category)
     elsif @params[:category_ids].present?
-      # Validate ownership - only use categories that belong to user
-      category_ids = @user.categories.where(id: Array(@params[:category_ids])).pluck(:id)
+      # Validate ownership/availability - only use categories available to user
+      category_ids = @user.available_categories.where(id: Array(@params[:category_ids])).pluck(:id)
       return scope if category_ids.empty?
 
       scope.by_categories(category_ids)
