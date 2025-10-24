@@ -15,7 +15,7 @@ RSpec.describe 'api/v1/accounts', type: :request do
       description 'Lista todas as contas financeiras do usuário autenticado. Pode retornar com paginação ou todas as contas (útil para dropdowns).'
 
       parameter name: :account_type, in: :query, type: :string, enum: ['checking', 'savings', 'credit_card', 'investment', 'cash'], required: false, description: 'Filtrar por tipo de conta'
-      parameter name: :all, in: :query, type: :string, enum: ['true', 'false'], required: false, description: 'Retornar todas as contas sem paginação'
+      parameter name: :include_all, in: :query, type: :string, enum: ['true', 'false'], required: false, description: 'Retornar todas as contas sem paginação'
       parameter name: :page, in: :query, type: :integer, required: false
       parameter name: :per_page, in: :query, type: :integer, required: false
 

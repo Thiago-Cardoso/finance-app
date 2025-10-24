@@ -25,17 +25,12 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
 
   config.include FactoryBot::Syntax::Methods
+  config.include ActiveSupport::Testing::TimeHelpers
 
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.allow_remote_database_url = true
     DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.around do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
   end
 
   # Clear ActionMailer deliveries before each test

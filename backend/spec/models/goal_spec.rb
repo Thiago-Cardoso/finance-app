@@ -10,8 +10,7 @@ RSpec.describe Goal, type: :model do
     it { is_expected.to validate_length_of(:title).is_at_most(255) }
     it { is_expected.to validate_presence_of(:target_amount) }
     it { is_expected.to validate_numericality_of(:target_amount).is_greater_than(0) }
-    it { is_expected.to validate_presence_of(:current_amount) }
-    it { is_expected.to validate_numericality_of(:current_amount).is_greater_than_or_equal_to(0) }
+    it { is_expected.to validate_numericality_of(:current_amount).is_greater_than_or_equal_to(0).allow_nil(false) }
 
     context 'when current_amount exceeds target_amount' do
       it 'is invalid' do

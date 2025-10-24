@@ -4,7 +4,7 @@ RSpec.describe Reports::FinancialSummaryGenerator do
   let(:user) { create(:user) }
   let(:category_income) { create(:category, user: user, name: 'Salary', category_type: 'income') }
   let(:category_expense) { create(:category, user: user, name: 'Food', category_type: 'expense') }
-  let(:account) { create(:account, user: user) }
+  let(:account) { create(:account, user: user, current_balance: 3000, initial_balance: 1000) }
 
   let!(:income_transaction) do
     create(:transaction,
@@ -39,6 +39,8 @@ RSpec.describe Reports::FinancialSummaryGenerator do
         expect(result[:summary]).to be_present
         expect(result[:income]).to be_present
         expect(result[:expenses]).to be_present
+        expect(result[:accounts]).to be_present
+        expect(result[:trends]).to be_present
       end
 
       it 'calculates correct summary totals' do
@@ -57,19 +59,22 @@ RSpec.describe Reports::FinancialSummaryGenerator do
 
       it 'marks report as completed' do
         result = subject.generate
-        report = Report.find(result[:report_id])
+        report = Report.find_by(id: result[:report_id])
 
+        expect(report).to be_present
         expect(report.status).to eq('completed')
         expect(report.generated_at).to be_present
       end
     end
 
     context 'with custom date range' do
+      let(:start_date) { 1.week.ago.to_date }
+      let(:end_date) { Date.current }
+      
       let(:filters) do
         {
-          start_date: 1.week.ago.to_date,
-          end_date: Date.current,
-          period_type: 'custom_range'
+          start_date: start_date,
+          end_date: end_date
         }
       end
 
@@ -79,8 +84,8 @@ RSpec.describe Reports::FinancialSummaryGenerator do
         result = subject.generate
         period = result[:period]
 
-        expect(period[:start_date]).to eq(1.week.ago.to_date)
-        expect(period[:end_date]).to eq(Date.current)
+        expect(period[:start_date]).to eq(start_date)
+        expect(period[:end_date]).to eq(end_date)
       end
     end
 
@@ -93,9 +98,12 @@ RSpec.describe Reports::FinancialSummaryGenerator do
 
         expect(income[:total]).to eq(5000)
         expect(income[:breakdown]).to be_an(Array)
-        expect(income[:breakdown].first[:category_name]).to eq('Salary')
-        expect(income[:breakdown].first[:total]).to eq(5000)
-        expect(income[:breakdown].first[:percentage]).to eq(100.0)
+        expect(income[:breakdown]).not_to be_empty
+        
+        salary_breakdown = income[:breakdown].find { |b| b[:category_name] == 'Salary' }
+        expect(salary_breakdown).to be_present
+        expect(salary_breakdown[:total]).to eq(5000)
+        expect(salary_breakdown[:percentage]).to eq(100.0)
       end
     end
 
@@ -108,9 +116,49 @@ RSpec.describe Reports::FinancialSummaryGenerator do
 
         expect(expenses[:total]).to eq(2000)
         expect(expenses[:breakdown]).to be_an(Array)
-        expect(expenses[:breakdown].first[:category_name]).to eq('Food')
-        expect(expenses[:breakdown].first[:total]).to eq(2000)
-        expect(expenses[:breakdown].first[:percentage]).to eq(100.0)
+        expect(expenses[:breakdown]).not_to be_empty
+        
+        food_breakdown = expenses[:breakdown].find { |b| b[:category_name] == 'Food' }
+        expect(food_breakdown).to be_present
+        expect(food_breakdown[:total]).to eq(2000)
+        expect(food_breakdown[:percentage]).to eq(100.0)
+      end
+    end
+
+    context 'with account balances' do
+      subject { described_class.new(user, {}) }
+
+      it 'includes account balances' do
+        result = subject.generate
+        accounts = result[:accounts]
+
+        expect(accounts).to be_an(Array)
+        expect(accounts).not_to be_empty
+        
+        account_data = accounts.find { |a| a[:account_name] == account.name }
+        expect(account_data).to be_present
+        expect(account_data[:current_balance]).to eq(3000)
+        expect(account_data[:initial_balance]).to eq(1000)
+      end
+    end
+
+    context 'with daily trends' do
+      subject { described_class.new(user, {}) }
+
+      it 'includes daily trends data' do
+        result = subject.generate
+        trends = result[:trends]
+
+        expect(trends).to be_an(Array)
+        expect(trends).not_to be_empty
+        
+        today_trend = trends.find { |t| t[:date] == Date.current }
+        expect(today_trend).to be_present
+        
+        # Since both transactions are on the same date, we expect both amounts
+        expect(today_trend[:income]).to eq(5000)
+        expect(today_trend[:expenses]).to eq(2000)
+        expect(today_trend[:net]).to eq(3000)
       end
     end
 
@@ -130,34 +178,126 @@ RSpec.describe Reports::FinancialSummaryGenerator do
     end
 
     context 'when generation fails' do
+      subject { described_class.new(user, {}) }
+
       before do
         allow_any_instance_of(described_class).to receive(:fetch_data).and_raise(StandardError, 'Database error')
       end
 
-      subject { described_class.new(user, {}) }
-
-      it 'marks report as failed' do
+      it 'marks report as failed and raises error' do
         expect { subject.generate }.to raise_error(StandardError)
 
         report = Report.last
+        expect(report).to be_present
         expect(report.status).to eq('failed')
+      end
+    end
+
+    context 'with multiple transactions in different categories' do
+      let(:category_income_2) { create(:category, user: user, name: 'Bonus', category_type: 'income') }
+      let(:category_expense_2) { create(:category, user: user, name: 'Transport', category_type: 'expense') }
+
+      before do
+        create(:transaction,
+               user: user,
+               category: category_income_2,
+               account: account,
+               transaction_type: 'income',
+               amount: 3000,
+               date: Date.current)
+        
+        create(:transaction,
+               user: user,
+               category: category_expense_2,
+               account: account,
+               transaction_type: 'expense',
+               amount: 1000,
+               date: Date.current)
+      end
+
+      subject { described_class.new(user, {}) }
+
+      it 'calculates correct percentages for multiple categories' do
+        result = subject.generate
+        income = result[:income]
+        expenses = result[:expenses]
+
+        expect(income[:total]).to eq(8000) # 5000 + 3000
+        expect(expenses[:total]).to eq(3000) # 2000 + 1000
+
+        salary_breakdown = income[:breakdown].find { |b| b[:category_name] == 'Salary' }
+        bonus_breakdown = income[:breakdown].find { |b| b[:category_name] == 'Bonus' }
+        
+        expect(salary_breakdown[:percentage]).to eq(62.5) # 5000/8000 * 100
+        expect(bonus_breakdown[:percentage]).to eq(37.5) # 3000/8000 * 100
       end
     end
   end
 
-  describe '#report_name' do
+  describe 'protected methods' do
     subject { described_class.new(user, {}) }
 
-    it 'returns a descriptive name' do
-      expect(subject.send(:report_name)).to include('Resumo Financeiro')
+    describe '#report_name' do
+      it 'returns a descriptive name' do
+        name = subject.send(:report_name)
+        expect(name).to include('Resumo Financeiro')
+        expect(name).to include('a') # contains date range
+      end
+    end
+
+    describe '#report_type' do
+      it 'returns financial_summary' do
+        expect(subject.send(:report_type)).to eq(:financial_summary)
+      end
     end
   end
 
-  describe '#report_type' do
+  describe 'BaseGenerator helpers' do
     subject { described_class.new(user, {}) }
 
-    it 'returns financial_summary' do
-      expect(subject.send(:report_type)).to eq(:financial_summary)
+    describe '#calculate_percentage' do
+      it 'calculates percentage correctly' do
+        expect(subject.send(:calculate_percentage, 50, 100)).to eq(50.0)
+        expect(subject.send(:calculate_percentage, 25, 100)).to eq(25.0)
+        expect(subject.send(:calculate_percentage, 0, 100)).to eq(0.0)
+        expect(subject.send(:calculate_percentage, 100, 0)).to eq(0.0)
+        expect(subject.send(:calculate_percentage, 33.333, 100)).to eq(33.33)
+      end
+    end
+
+    describe '#format_currency' do
+      it 'formats currency correctly' do
+        formatted = subject.send(:format_currency, 1234.56)
+        expect(formatted).to be_a(String)
+        expect(formatted).to include('R$')
+      end
+    end
+  end
+
+  describe 'date range calculations' do
+    context 'with monthly period type' do
+      let(:filters) { { period_type: 'monthly' } }
+      subject { described_class.new(user, filters) }
+
+      it 'sets correct start and end dates' do
+        subject.send(:parse_start_date)
+        subject.send(:parse_end_date)
+
+        expect(subject.send(:start_date)).to eq(Date.current.beginning_of_month)
+        expect(subject.send(:end_date)).to eq(Date.current.end_of_month)
+      end
+    end
+
+    context 'with custom dates' do
+      let(:custom_start) { Date.new(2024, 1, 1) }
+      let(:custom_end) { Date.new(2024, 1, 31) }
+      let(:filters) { { start_date: custom_start, end_date: custom_end } }
+      subject { described_class.new(user, filters) }
+
+      it 'uses custom dates' do
+        expect(subject.send(:start_date)).to eq(custom_start)
+        expect(subject.send(:end_date)).to eq(custom_end)
+      end
     end
   end
 end
