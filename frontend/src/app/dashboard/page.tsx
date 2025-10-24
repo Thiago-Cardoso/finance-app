@@ -71,6 +71,7 @@ export default function DashboardPage() {
         <PageHeader
           title={t('dashboard.title')}
           subtitle={t('dashboard.summary.title')}
+          showBackButton={false}
           actions={
             <HStack spacing={4}>
               <LanguageSelector />

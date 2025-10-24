@@ -137,7 +137,7 @@ export function TopCategories({ data }: TopCategoriesProps) {
                       color: categoryColor
                     }}
                   >
-                    {category.percentage.toFixed(1)}%
+                    {typeof category.percentage === 'number' ? category.percentage.toFixed(1) : Number(category.percentage || 0).toFixed(1)}%
                   </div>
                 </div>
               </div>

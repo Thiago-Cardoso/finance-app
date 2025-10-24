@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, BarChart3, AlertCircle } from 'lucide-react'
+import { Plus, BarChart3, AlertCircle, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useLocale } from '@/contexts/LocaleContext'
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory, useCategoryStatistics } from '@/hooks/useCategories'
@@ -133,6 +133,16 @@ export default function CategoriesPage() {
         <div className="mb-4 flex justify-end">
           <LanguageSelector />
         </div>
+            <div className="flex items-center gap-3 mb-4">
+        <Button
+          variant="secondary"
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Button>
+      </div>
 
         {/* Header */}
         <div className="mb-8">

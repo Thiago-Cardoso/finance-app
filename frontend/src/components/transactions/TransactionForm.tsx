@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -51,12 +51,13 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors, isSubmitting }
   } = useForm<TransactionFormData>({
     resolver: zodResolver(createTransactionFormSchema(t)),
     defaultValues: transaction ? {
       description: transaction.description || '',
-      amount: transaction.raw_amount?.toString() || '',
+      amount: transaction.raw_amount?.toString() || transaction.amount?.toString() || '',
       transaction_type: transaction.transaction_type || 'expense',
       date: transaction.date || getTodayDate(),
       category_id: transaction.category?.id?.toString() || '',
@@ -70,6 +71,22 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
       amount: '',
     }
   })
+
+  // Reset form when transaction changes (for editing)
+  useEffect(() => {
+    if (transaction) {
+      reset({
+        description: transaction.description || '',
+        amount: transaction.raw_amount?.toString() || transaction.amount?.toString() || '',
+        transaction_type: transaction.transaction_type || 'expense',
+        date: transaction.date || getTodayDate(),
+        category_id: transaction.category?.id?.toString() || '',
+        account_id: transaction.account?.id?.toString() || '',
+        transfer_account_id: transaction.transfer_account?.id?.toString() || '',
+        notes: transaction.notes || '',
+      })
+    }
+  }, [transaction, reset])
 
   const transactionType = watch('transaction_type')
 
@@ -136,12 +153,27 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
       {/* Amount */}
       <Input
         label={t('transactions.fields.amount')}
-        type="number"
-        step="0.01"
+        type="text"
+        inputMode="decimal"
         {...register('amount')}
         error={errors.amount?.message}
-        placeholder="0.00"
+        placeholder="0,00"
         required
+        onChange={(e) => {
+          // Remove tudo exceto números e vírgula/ponto
+          let value = e.target.value.replace(/[^\d,\.]/g, '')
+          // Substitui vírgula por ponto
+          value = value.replace(',', '.')
+          // Limita a 2 casas decimais
+          const parts = value.split('.')
+          if (parts.length > 2) {
+            value = parts[0] + '.' + parts.slice(1).join('')
+          }
+          if (parts[1]?.length > 2) {
+            value = parts[0] + '.' + parts[1].substring(0, 2)
+          }
+          setValue('amount', value)
+        }}
       />
 
       {/* Date */}

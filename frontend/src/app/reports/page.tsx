@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ReportFilters } from '@/components/reports/ReportFilters/ReportFilters'
 import { FinancialSummaryDashboard } from '@/components/reports/FinancialSummaryDashboard/FinancialSummaryDashboard'
 import { BudgetPerformanceDashboard } from '@/components/reports/BudgetPerformanceDashboard/BudgetPerformanceDashboard'
@@ -9,11 +10,12 @@ import { useFinancialSummaryData, useBudgetPerformanceData, useExportReport } fr
 import { AnalyticsFilters } from '@/types/analytics'
 import { useLocale } from '@/contexts/LocaleContext'
 import { cn } from '@/lib/utils'
-import { FileText, PieChart, TrendingUp, Settings, Download } from 'lucide-react'
+import { FileText, PieChart, TrendingUp, Settings, Download, ArrowLeft } from 'lucide-react'
 
 type ReportTab = 'financial' | 'budget' | 'trends' | 'custom'
 
 export default function ReportsPage() {
+  const router = useRouter()
   const { t } = useLocale()
   const [activeTab, setActiveTab] = useState<ReportTab>('financial')
   const [filters, setFilters] = useState<AnalyticsFilters>({})
@@ -56,6 +58,16 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
+          <div className="mb-4">
+            <Button
+              variant="secondary"
+              onClick={() => router.push('/dashboard')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </Button>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
             {t('reports.title')}
           </h1>
