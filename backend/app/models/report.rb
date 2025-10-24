@@ -38,7 +38,7 @@ class Report < ApplicationRecord
   validates :status, presence: true
 
   # Scopes
-  scope :recent, -> { order(generated_at: :desc) }
+  scope :recent, -> { order(Arel.sql('generated_at DESC NULLS LAST, created_at DESC')) }
   scope :by_type, ->(type) { where(report_type: type) }
   scope :completed_reports, -> { where(status: :completed) }
   scope :pending_reports, -> { where(status: :pending) }
