@@ -51,12 +51,18 @@ module Api
       end
 
       def destroy
-        @category.destroy
-
-        render json: {
-          success: true,
-          message: 'Category deleted successfully'
-        }
+        if @category.destroy
+          render json: {
+            success: true,
+            message: 'Category deleted successfully'
+          }, status: :no_content
+        else
+          render_error('Failed to delete category', format_errors(@category.errors), :unprocessable_entity)
+        end
+      rescue ActiveRecord::DeleteRestrictionError => e
+        render_error('Cannot delete category with associated records',
+                     [{ field: 'base', message: 'Category has transactions or budgets and cannot be deleted' }],
+                     :unprocessable_entity)
       end
 
       def transactions
@@ -92,6 +98,12 @@ module Api
       end
 
       def authorize_category
+        # Prevent modification of default categories
+        if @category.is_default?
+          render_error('Cannot modify default categories', [], :forbidden)
+          return
+        end
+
         return if @category.user_id == current_user.id
 
         render_error('You can only modify your own categories', [], :forbidden)
