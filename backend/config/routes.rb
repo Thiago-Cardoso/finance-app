@@ -71,6 +71,7 @@ Rails.application.routes.draw do
       resources :goals do
         member do
           patch :update_progress
+          post :contributions, to: 'goals#add_contribution'
         end
       end
 

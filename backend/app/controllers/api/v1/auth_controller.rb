@@ -30,7 +30,8 @@ module Api
         user = User.find_for_database_authentication(email: sign_in_params[:email])
 
         if user&.valid_password?(sign_in_params[:password])
-          if user.confirmed?
+          # Skip email confirmation check in development
+          if Rails.env.development? || user.confirmed?
             tokens = JwtService.generate_tokens(user)
 
             render_success({
