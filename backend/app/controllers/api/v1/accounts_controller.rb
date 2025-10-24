@@ -17,7 +17,7 @@ module Api
         @accounts = @accounts.by_type(params[:account_type]) if params[:account_type].present?
 
         # Return all accounts without pagination (useful for dropdowns)
-        if params[:all] == 'true'
+        if params[:include_all] == 'true'
           render json: @accounts.map { |account|
             {
               id: account.id,
