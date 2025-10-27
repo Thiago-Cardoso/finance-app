@@ -41,7 +41,7 @@ class Rack::Attack
 
   # Throttle password reset attempts
   Rack::Attack.throttle('password reset attempts', limit: 5, period: 1.hour) do |request|
-    if request.path.match?(/\/api\/v1\/auth\/password/) && (request.post? || request.put?)
+    if request.path.match?(/\/api\/v1\/auth\/password/) && request.post?
       request.ip
     end
   end
