@@ -16,27 +16,23 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
 
-  // Formata número para exibição (1234.56 -> 1.234,56)
+
   const formatCurrency = (value: string | number): string => {
-    // Converte para string e remove tudo exceto números
     const stringValue = typeof value === 'number' ? (value * 100).toString() : value;
     const numbers = stringValue.replace(/\D/g, '');
     if (!numbers) return '';
 
-    // Converte para número com centavos (divide por 100)
     const amount = parseInt(numbers) / 100;
 
-    // Formata com separadores
     return amount.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
   };
 
-  // Converte valor formatado para número (1.234,56 -> 1234.56)
   const parseCurrency = (value: string): number => {
     if (!value) return 0;
-    // Remove pontos de milhar e substitui vírgula por ponto
+
     const numericValue = value.replace(/\./g, '').replace(',', '.');
     return parseFloat(numericValue) || 0;
   };
@@ -53,7 +49,6 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
     auto_track_progress: false,
   });
 
-  // Estado para armazenar valores formatados
   const [displayValues, setDisplayValues] = useState({
     target_amount: '',
     baseline_amount: '',
@@ -139,13 +134,11 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
         [name]: (e.target as HTMLInputElement).checked,
       }));
     } else if (name === 'target_amount' || name === 'baseline_amount') {
-      // Para campos monetários, formata o valor
       const formatted = formatCurrency(value);
       setDisplayValues((prev) => ({
         ...prev,
         [name]: formatted,
       }));
-      // Armazena o valor numérico no formData
       setFormData((prev) => ({
         ...prev,
         [name]: parseCurrency(formatted),
