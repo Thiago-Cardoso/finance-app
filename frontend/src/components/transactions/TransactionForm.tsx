@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Transaction, Account } from '@/types/transaction'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { useCategories } from '@/hooks/useCategories'
@@ -46,6 +45,28 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     return `${year}-${month}-${day}`
   }
 
+  // Formata número para exibição (1234.56 -> 1.234,56)
+  const formatCurrency = (value: string): string => {
+    // Remove tudo exceto números
+    const numbers = value.replace(/\D/g, '')
+    if (!numbers) return ''
+
+    // Converte para número com centavos (divide por 100)
+    const amount = parseInt(numbers) / 100
+
+    // Formata com separadores
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
+
+  // Converte valor formatado para número (1.234,56 -> 1234.56)
+  const parseCurrency = (value: string): string => {
+    // Remove pontos de milhar e substitui vírgula por ponto
+    return value.replace(/\./g, '').replace(',', '.')
+  }
+
   const {
     register,
     handleSubmit,
@@ -57,7 +78,11 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     resolver: zodResolver(createTransactionFormSchema(t)),
     defaultValues: transaction ? {
       description: transaction.description || '',
-      amount: transaction.raw_amount?.toString() || transaction.amount?.toString() || '',
+      amount: transaction.raw_amount
+        ? formatCurrency((transaction.raw_amount * 100).toString())
+        : transaction.amount
+          ? formatCurrency((parseFloat(transaction.amount) * 100).toString())
+          : '',
       transaction_type: transaction.transaction_type || 'expense',
       date: transaction.date || getTodayDate(),
       category_id: transaction.category?.id?.toString() || '',
@@ -77,7 +102,11 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     if (transaction) {
       reset({
         description: transaction.description || '',
-        amount: transaction.raw_amount?.toString() || transaction.amount?.toString() || '',
+        amount: transaction.raw_amount
+          ? formatCurrency((transaction.raw_amount * 100).toString())
+          : transaction.amount
+            ? formatCurrency((parseFloat(transaction.amount) * 100).toString())
+            : '',
         transaction_type: transaction.transaction_type || 'expense',
         date: transaction.date || getTodayDate(),
         category_id: transaction.category?.id?.toString() || '',
@@ -93,9 +122,12 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
   const onSubmit = async (data: TransactionFormData) => {
     setFormError(null)
     try {
+      // Converte o valor formatado (1.234,56) para número (1234.56)
+      const numericAmount = parseFloat(parseCurrency(data.amount))
+
       const payload = {
         description: data.description,
-        amount: parseFloat(data.amount),
+        amount: numericAmount,
         transaction_type: data.transaction_type,
         date: data.date,
         notes: data.notes || undefined,
@@ -160,19 +192,8 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
         placeholder="0,00"
         required
         onChange={(e) => {
-          // Remove tudo exceto números e vírgula/ponto
-          let value = e.target.value.replace(/[^\d,\.]/g, '')
-          // Substitui vírgula por ponto
-          value = value.replace(',', '.')
-          // Limita a 2 casas decimais
-          const parts = value.split('.')
-          if (parts.length > 2) {
-            value = parts[0] + '.' + parts.slice(1).join('')
-          }
-          if (parts[1]?.length > 2) {
-            value = parts[0] + '.' + parts[1].substring(0, 2)
-          }
-          setValue('amount', value)
+          const formatted = formatCurrency(e.target.value)
+          setValue('amount', formatted)
         }}
       />
 
