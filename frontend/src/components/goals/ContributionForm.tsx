@@ -14,7 +14,6 @@ export function ContributionForm({ goalId, onSuccess }: ContributionFormProps) {
 
   const addContribution = useAddContribution();
 
-  // Formata número para exibição (1234.56 -> 1.234,56)
   const formatCurrency = (value: string): string => {
     const numbers = value.replace(/\D/g, '');
     if (!numbers) return '';
@@ -25,7 +24,6 @@ export function ContributionForm({ goalId, onSuccess }: ContributionFormProps) {
     });
   };
 
-  // Converte valor formatado para número (1.234,56 -> 1234.56)
   const parseCurrency = (value: string): number => {
     if (!value) return 0;
     const numericValue = value.replace(/\./g, '').replace(',', '.');

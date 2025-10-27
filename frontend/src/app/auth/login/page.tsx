@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Redireciona automaticamente quando o usuário faz login com sucesso
   useEffect(() => {
     if (user) {
       router.push('/dashboard')
@@ -34,7 +33,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       toast.success('Login realizado com sucesso!')
-      // O redirecionamento será feito pelo useEffect acima quando user mudar
+
     } catch (err) {
       setError(err instanceof Error ? err.message : t('auth.login.error'))
       toast.error(err instanceof Error ? err.message : t('auth.login.error'))
