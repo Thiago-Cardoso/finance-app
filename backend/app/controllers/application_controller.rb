@@ -83,11 +83,9 @@ class ApplicationController < ActionController::API
   def format_validation_errors(record)
     return [] unless record&.errors
 
-    record.errors.full_messages.map do |message|
+    record.errors.map do |attribute, message|
       {
-        field: record.errors.details.find { |_, details|
-          details.any? { |detail| message.include?(detail[:error].to_s) }
-        }&.first,
+        field: attribute,
         message: message
       }
     end
