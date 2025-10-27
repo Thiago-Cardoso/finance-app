@@ -28,6 +28,7 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
 
   const isIncome = transaction.transaction_type === 'income'
   const isExpense = transaction.transaction_type === 'expense'
+  const isTransfer = transaction.transaction_type === 'transfer'
 
   // Get amount value with fallback
   const getAmountValue = () => {
@@ -45,6 +46,13 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
 
   const amountValue = getAmountValue()
 
+  // Get indicator color based on transaction type
+  const getIndicatorColor = () => {
+    if (isExpense) return '#ef4444' // red-600
+    if (isTransfer) return '#8b5cf6' // purple-600
+    return transaction.category?.color || '#10b981' // green-600 for income
+  }
+
   return (
     <div
       className="px-6 py-4 hover:bg-gray-50 transition-colors"
@@ -56,7 +64,7 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
           {/* Category Color Indicator */}
           <div
             className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ backgroundColor: transaction.category?.color || '#6b7280' }}
+            style={{ backgroundColor: getIndicatorColor() }}
           />
 
           <div className="flex-1 min-w-0">
@@ -88,8 +96,8 @@ export function TransactionItem({ transaction, onEdit }: TransactionItemProps) {
               className={cn(
                 'text-lg font-semibold',
                 isIncome && 'text-green-600',
-                isExpense && 'text-red-600',
-                transaction.transaction_type === 'transfer' && 'text-blue-600'
+                isExpense && 'text-red-600 dark:text-red-500',
+                isTransfer && 'text-purple-600 dark:text-purple-500'
               )}
             >
               {isIncome && '+'}
