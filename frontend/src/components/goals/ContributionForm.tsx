@@ -14,16 +14,35 @@ export function ContributionForm({ goalId, onSuccess }: ContributionFormProps) {
 
   const addContribution = useAddContribution();
 
+  // Formata número para exibição (1234.56 -> 1.234,56)
+  const formatCurrency = (value: string): string => {
+    const numbers = value.replace(/\D/g, '');
+    if (!numbers) return '';
+    const amount = parseInt(numbers) / 100;
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  // Converte valor formatado para número (1.234,56 -> 1234.56)
+  const parseCurrency = (value: string): number => {
+    if (!value) return 0;
+    const numericValue = value.replace(/\./g, '').replace(',', '.');
+    return parseFloat(numericValue) || 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!amount || parseFloat(amount) <= 0) return;
+    const numericAmount = parseCurrency(amount);
+    if (!amount || numericAmount <= 0) return;
 
     try {
       await addContribution.mutateAsync({
         goalId,
         data: {
-          amount: parseFloat(amount),
+          amount: numericAmount,
           description: description || undefined,
         },
       });
@@ -44,15 +63,17 @@ export function ContributionForm({ goalId, onSuccess }: ContributionFormProps) {
             Valor (R$) *
           </label>
           <input
-            type="number"
+            type="text"
             id="amount"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => {
+              const formatted = formatCurrency(e.target.value);
+              setAmount(formatted);
+            }}
             required
-            min="0.01"
-            step="0.01"
+            inputMode="decimal"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="100.00"
+            placeholder="0,00"
           />
         </div>
 
