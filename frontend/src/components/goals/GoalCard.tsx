@@ -16,19 +16,27 @@ interface GoalCardProps {
 export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
   const progress = typeof goal.progress_percentage === 'string'
     ? parseFloat(goal.progress_percentage)
-    : goal.progress_percentage;
+    : (goal.progress_percentage || 0);
 
-  const currentAmount = typeof goal.current_amount === 'string'
-    ? parseFloat(goal.current_amount)
-    : goal.current_amount;
+  // Calcula current_amount como baseline_amount + soma das contribuições
+  const baselineAmount = typeof goal.baseline_amount === 'string'
+    ? parseFloat(goal.baseline_amount || '0')
+    : (goal.baseline_amount || 0);
+
+  const contributionsTotal = (goal.goal_contributions || []).reduce((sum, contribution) => {
+    const amount = typeof contribution.amount === 'string'
+      ? parseFloat(contribution.amount)
+      : contribution.amount;
+    return sum + amount;
+  }, 0);
+
+  const currentAmount = baselineAmount + contributionsTotal;
 
   const targetAmount = typeof goal.target_amount === 'string'
     ? parseFloat(goal.target_amount)
     : goal.target_amount;
 
-  const remainingAmount = typeof goal.remaining_amount === 'string'
-    ? parseFloat(goal.remaining_amount)
-    : goal.remaining_amount;
+  const remainingAmount = targetAmount - currentAmount;
 
   const isOverdue = goal['is_overdue?'];
   const isOnTrack = goal['is_on_track?'];
