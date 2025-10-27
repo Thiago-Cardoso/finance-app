@@ -16,6 +16,31 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
   const createGoal = useCreateGoal();
   const updateGoal = useUpdateGoal();
 
+  // Formata número para exibição (1234.56 -> 1.234,56)
+  const formatCurrency = (value: string | number): string => {
+    // Converte para string e remove tudo exceto números
+    const stringValue = typeof value === 'number' ? (value * 100).toString() : value;
+    const numbers = stringValue.replace(/\D/g, '');
+    if (!numbers) return '';
+
+    // Converte para número com centavos (divide por 100)
+    const amount = parseInt(numbers) / 100;
+
+    // Formata com separadores
+    return amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  // Converte valor formatado para número (1.234,56 -> 1234.56)
+  const parseCurrency = (value: string): number => {
+    if (!value) return 0;
+    // Remove pontos de milhar e substitui vírgula por ponto
+    const numericValue = value.replace(/\./g, '').replace(',', '.');
+    return parseFloat(numericValue) || 0;
+  };
+
   const [formData, setFormData] = useState<CreateGoalData>({
     name: '',
     description: '',
@@ -28,24 +53,40 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
     auto_track_progress: false,
   });
 
+  // Estado para armazenar valores formatados
+  const [displayValues, setDisplayValues] = useState({
+    target_amount: '',
+    baseline_amount: '',
+  });
+
   useEffect(() => {
     if (goal) {
+      const targetAmount = typeof goal.target_amount === 'string'
+        ? parseFloat(goal.target_amount)
+        : goal.target_amount;
+
+      const baselineAmount = goal.baseline_amount
+        ? typeof goal.baseline_amount === 'string'
+          ? parseFloat(goal.baseline_amount)
+          : goal.baseline_amount
+        : 0;
+
       setFormData({
         name: goal.name,
         description: goal.description || '',
-        target_amount: typeof goal.target_amount === 'string'
-          ? parseFloat(goal.target_amount)
-          : goal.target_amount,
+        target_amount: targetAmount,
         target_date: goal.target_date,
         goal_type: goal.goal_type,
         priority: goal.priority,
         category_id: goal.category_id || undefined,
-        baseline_amount: goal.baseline_amount
-          ? typeof goal.baseline_amount === 'string'
-            ? parseFloat(goal.baseline_amount)
-            : goal.baseline_amount
-          : 0,
+        baseline_amount: baselineAmount,
         auto_track_progress: goal.auto_track_progress,
+      });
+
+      // Formata os valores para exibição
+      setDisplayValues({
+        target_amount: formatCurrency(targetAmount),
+        baseline_amount: formatCurrency(baselineAmount),
       });
     } else {
       // Reset form for new goal
@@ -60,6 +101,11 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
         baseline_amount: 0,
         auto_track_progress: false,
       });
+
+      setDisplayValues({
+        target_amount: '',
+        baseline_amount: '',
+      });
     }
   }, [goal, isOpen]);
 
@@ -67,7 +113,7 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
     e.preventDefault();
 
     try {
-      if (isEditing) {
+      if (isEditing && goal) {
         await updateGoal.mutateAsync({
           id: goal.id,
           data: formData,
@@ -92,10 +138,17 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
         ...prev,
         [name]: (e.target as HTMLInputElement).checked,
       }));
-    } else if (type === 'number') {
+    } else if (name === 'target_amount' || name === 'baseline_amount') {
+      // Para campos monetários, formata o valor
+      const formatted = formatCurrency(value);
+      setDisplayValues((prev) => ({
+        ...prev,
+        [name]: formatted,
+      }));
+      // Armazena o valor numérico no formData
       setFormData((prev) => ({
         ...prev,
-        [name]: value === '' ? 0 : parseFloat(value),
+        [name]: parseCurrency(formatted),
       }));
     } else {
       setFormData((prev) => ({
@@ -200,16 +253,15 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
                 R$
               </span>
               <input
-                type="number"
+                type="text"
                 id="target_amount"
                 name="target_amount"
-                value={formData.target_amount}
+                value={displayValues.target_amount}
                 onChange={handleChange}
                 required
-                min="0"
-                step="0.01"
+                inputMode="decimal"
                 className="w-full pl-12 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                placeholder="5000.00"
+                placeholder="0,00"
               />
             </div>
           </div>
@@ -240,15 +292,14 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
                 R$
               </span>
               <input
-                type="number"
+                type="text"
                 id="baseline_amount"
                 name="baseline_amount"
-                value={formData.baseline_amount}
+                value={displayValues.baseline_amount}
                 onChange={handleChange}
-                min="0"
-                step="0.01"
+                inputMode="decimal"
                 className="w-full pl-12 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                placeholder="0.00"
+                placeholder="0,00"
               />
             </div>
           </div>

@@ -40,7 +40,7 @@ class GoalsService {
   }
 
   async updateGoal(id: number, data: UpdateGoalData): Promise<Goal> {
-    const response = await api.patch<GoalResponse>(`${this.basePath}/${id}`, { goal: data });
+    const response = await api.put<GoalResponse>(`${this.basePath}/${id}`, { goal: data });
     return response.data.data;
   }
 
@@ -57,7 +57,7 @@ class GoalsService {
   }
 
   async updateProgress(goalId: number): Promise<Goal> {
-    const response = await api.patch<GoalResponse>(`${this.basePath}/${goalId}/update_progress`);
+    const response = await api.put<GoalResponse>(`${this.basePath}/${goalId}/update_progress`, {});
     return response.data.data;
   }
 }
