@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
@@ -8,15 +8,23 @@ import { useLocale } from '@/contexts/LocaleContext'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { LanguageSelector } from '@/components/ui/LanguageSelector'
+import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
   const { t } = useLocale()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Redireciona automaticamente quando o usuário faz login com sucesso
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard')
+    }
+  }, [user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,9 +33,11 @@ export default function LoginPage() {
 
     try {
       await login(email, password)
-      router.push('/dashboard')
+      toast.success('Login realizado com sucesso!')
+      // O redirecionamento será feito pelo useEffect acima quando user mudar
     } catch (err) {
       setError(err instanceof Error ? err.message : t('auth.login.error'))
+      toast.error(err instanceof Error ? err.message : t('auth.login.error'))
     } finally {
       setLoading(false)
     }

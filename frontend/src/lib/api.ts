@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
 
 class ApiClient {
@@ -21,6 +23,21 @@ class ApiClient {
     }
 
     const response = await fetch(url, config)
+
+    // Se o token expirou (401), limpa o localStorage e redireciona para login
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+        // Redireciona para login apenas se não estiver em uma página de auth
+        if (!window.location.pathname.startsWith('/auth/')) {
+          toast.error('Sua sessão expirou. Por favor, faça login novamente.')
+          setTimeout(() => {
+            window.location.href = '/auth/login'
+          }, 1000)
+        }
+      }
+      throw new Error('Token expirado ou inválido')
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
@@ -82,6 +99,20 @@ class ApiClient {
         ...(token && { Authorization: `Bearer ${token}` }),
       },
     })
+
+    // Se o token expirou (401), limpa o localStorage e redireciona para login
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+        if (!window.location.pathname.startsWith('/auth/')) {
+          toast.error('Sua sessão expirou. Por favor, faça login novamente.')
+          setTimeout(() => {
+            window.location.href = '/auth/login'
+          }, 1000)
+        }
+      }
+      throw new Error('Token expirado ou inválido')
+    }
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)

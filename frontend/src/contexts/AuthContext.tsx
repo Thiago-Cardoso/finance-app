@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { User, RegisterData } from '@/types/auth'
 import { parseApiError } from '@/lib/errorUtils'
 import { useLocale } from '@/contexts/LocaleContext'
+import toast from 'react-hot-toast'
 
 interface AuthContextType {
   user: User | null
@@ -26,15 +27,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Only access localStorage in the browser
-    if (typeof window !== 'undefined') {
-      const storedToken = localStorage.getItem('token')
-      if (storedToken) {
-        setToken(storedToken)
-        // TODO: Validate token and get user data
-        // For now, we just set the token
+    const initAuth = async () => {
+      if (typeof window !== 'undefined') {
+        const storedToken = localStorage.getItem('token')
+        if (storedToken) {
+          try {
+            // Validar token e buscar dados do usuário
+            const response = await fetch(`${API_BASE_URL}/auth/validate`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${storedToken}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response.ok) {
+              const result = await response.json()
+              setToken(storedToken)
+              setUser(result.data.user || null)
+            } else {
+              // Token inválido ou expirado, limpa o storage e redireciona
+              console.log('Token inválido ou expirado. Fazendo logout...')
+              localStorage.removeItem('token')
+              setToken(null)
+              setUser(null)
+              // Redireciona para login se não estiver em página de auth
+              if (!window.location.pathname.startsWith('/auth/')) {
+                toast.error('Sua sessão expirou. Por favor, faça login novamente.')
+                setTimeout(() => {
+                  window.location.href = '/auth/login'
+                }, 1000)
+              }
+            }
+          } catch (error) {
+            console.error('Error validating token:', error)
+            // Em caso de erro, limpa o token e redireciona
+            localStorage.removeItem('token')
+            setToken(null)
+            setUser(null)
+            if (!window.location.pathname.startsWith('/auth/')) {
+              toast.error('Sua sessão expirou. Por favor, faça login novamente.')
+              setTimeout(() => {
+                window.location.href = '/auth/login'
+              }, 1000)
+            }
+          }
+        }
       }
+      setLoading(false)
     }
-    setLoading(false)
+
+    initAuth()
   }, [])
 
   const login = async (email: string, password: string) => {
