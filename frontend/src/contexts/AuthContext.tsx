@@ -32,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const storedToken = localStorage.getItem('token')
         if (storedToken) {
           try {
-            // Validar token e buscar dados do usuário
             const response = await fetch(`${API_BASE_URL}/auth/validate`, {
               method: 'GET',
               headers: {
@@ -46,12 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               setToken(storedToken)
               setUser(result.data.user || null)
             } else {
-              // Token inválido ou expirado, limpa o storage e redireciona
               console.log('Token inválido ou expirado. Fazendo logout...')
               localStorage.removeItem('token')
               setToken(null)
               setUser(null)
-              // Redireciona para login se não estiver em página de auth
               if (!window.location.pathname.startsWith('/auth/')) {
                 toast.error('Sua sessão expirou. Por favor, faça login novamente.')
                 setTimeout(() => {
@@ -61,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
           } catch (error) {
             console.error('Error validating token:', error)
-            // Em caso de erro, limpa o token e redireciona
             localStorage.removeItem('token')
             setToken(null)
             setUser(null)

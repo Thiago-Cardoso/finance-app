@@ -18,7 +18,6 @@ export function GoalCard({ goal, onEdit, onDelete }: GoalCardProps) {
     ? parseFloat(goal.progress_percentage)
     : (goal.progress_percentage || 0);
 
-  // Calcula current_amount como baseline_amount + soma das contribuições
   const baselineAmount = typeof goal.baseline_amount === 'string'
     ? parseFloat(goal.baseline_amount || '0')
     : (goal.baseline_amount || 0);

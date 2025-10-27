@@ -24,11 +24,9 @@ class ApiClient {
 
     const response = await fetch(url, config)
 
-    // Se o token expirou (401), limpa o localStorage e redireciona para login
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token')
-        // Redireciona para login apenas se não estiver em uma página de auth
         if (!window.location.pathname.startsWith('/auth/')) {
           toast.error('Sua sessão expirou. Por favor, faça login novamente.')
           setTimeout(() => {
@@ -100,7 +98,6 @@ class ApiClient {
       },
     })
 
-    // Se o token expirou (401), limpa o localStorage e redireciona para login
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token')

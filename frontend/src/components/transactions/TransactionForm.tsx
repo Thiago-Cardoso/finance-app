@@ -45,25 +45,21 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
     return `${year}-${month}-${day}`
   }
 
-  // Formata número para exibição (1234.56 -> 1.234,56)
+
   const formatCurrency = (value: string): string => {
-    // Remove tudo exceto números
     const numbers = value.replace(/\D/g, '')
     if (!numbers) return ''
 
-    // Converte para número com centavos (divide por 100)
+
     const amount = parseInt(numbers) / 100
 
-    // Formata com separadores
     return amount.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })
   }
 
-  // Converte valor formatado para número (1.234,56 -> 1234.56)
   const parseCurrency = (value: string): string => {
-    // Remove pontos de milhar e substitui vírgula por ponto
     return value.replace(/\./g, '').replace(',', '.')
   }
 
@@ -122,7 +118,6 @@ export function TransactionForm({ transaction, initialType, onSuccess, onCancel 
   const onSubmit = async (data: TransactionFormData) => {
     setFormError(null)
     try {
-      // Converte o valor formatado (1.234,56) para número (1234.56)
       const numericAmount = parseFloat(parseCurrency(data.amount))
 
       const payload = {
