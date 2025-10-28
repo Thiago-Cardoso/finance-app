@@ -14,10 +14,10 @@ class Goal < ApplicationRecord
   # Validations
   validates :name, presence: true, length: { minimum: 2, maximum: 100 }
   validates :target_amount, presence: true, numericality: { greater_than: 0 }
+  validates :current_amount, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :goal_type, presence: true
   validates :target_date, presence: true
   validates :status, presence: true
-  validate :target_date_in_future, on: :create
   validate :current_amount_not_greater_than_target
 
   # Enums
@@ -27,22 +27,24 @@ class Goal < ApplicationRecord
 
   # Scopes
   scope :for_user, ->(user) { where(user: user) }
-  scope :by_type, ->(type) { where(goal_type: type) }
-  scope :by_priority, ->(priority) { where(priority: priority) }
+  scope :completed, -> { where(status: :completed) }
+  scope :active, -> { where(status: [:active, :paused]) }
   scope :by_deadline, -> { order(target_date: :asc) }
-  scope :deadline_approaching, -> { where('target_date <= ?', 30.days.from_now) }
   scope :overdue, -> { where('target_date < ? AND status = ?', Date.current, statuses[:active]) }
 
   # Callbacks
-  before_create :set_default_values
-  after_create :create_initial_milestones
-  after_update :check_completion_status
-  after_update :update_milestones_if_needed
+  before_validation :set_default_values
+  after_save :check_completion_status
+
+  def status=(val)
+    @status_explicitly_assigned = true
+    super(val)
+  end
 
   def progress_percentage
-    return 0 if target_amount.zero?
+    return 0.0 if target_amount.zero?
 
-    [(current_amount / target_amount * 100).round(2), 100].min
+    [((current_amount.to_f / target_amount.to_f) * 100).round(2), 100.0].min
   end
 
   def remaining_amount
@@ -50,204 +52,90 @@ class Goal < ApplicationRecord
   end
 
   def days_remaining
-    return 0 if target_date < Date.current
+    return 0 if target_date.nil? || target_date < Date.current
 
     (target_date - Date.current).to_i
   end
 
   def is_overdue?
+    return false if target_date.nil?
     target_date < Date.current && active?
   end
 
-  def days_since_start
-    (Date.current - created_at.to_date).to_i
+  def mark_as_achieved!
+    update!(status: :completed, completed_at: Time.current)
   end
 
-  def expected_progress_percentage
-    return 100 if days_remaining <= 0
+  def add_contribution(amount)
+    return if amount <= 0
 
-    total_days = (target_date - created_at.to_date).to_i
-    elapsed_days = days_since_start
-    return 100 if total_days <= 0
-
-    [(elapsed_days.to_f / total_days * 100).round(2), 100].min
-  end
-
-  def is_on_track?
-    progress_percentage >= expected_progress_percentage
+    new_current_amount = current_amount + amount
+    final_amount = [new_current_amount, target_amount].min
+    
+    update!(current_amount: final_amount)
+    
+    if final_amount >= target_amount && active?
+      mark_as_achieved!
+    end
   end
 
   def monthly_target
-    return 0 if months_remaining <= 0
+    months_remaining_value = months_remaining
+    return 0 if months_remaining_value <= 0
 
-    remaining_amount / months_remaining
+    (remaining_amount / months_remaining_value).round(2)
   end
 
-  def months_remaining
-    return 0 if target_date < Date.current
-
-    ((target_date.year - Date.current.year) * 12 + target_date.month - Date.current.month).to_f
+  def completed?
+    status == 'completed'
   end
 
-  def next_milestone
-    goal_milestones.where(status: :pending).order(:target_percentage).first
+  def active?
+    status == 'active'
   end
 
-  def completed_milestones_count
-    goal_milestones.where(status: :completed).count
-  end
+  def is_on_track?
+    return true if days_remaining.nil? || days_remaining <= 0
+    return true if progress_percentage >= 100
 
-  def total_milestones_count
-    goal_milestones.count
-  end
+    # Calculate expected progress based on time elapsed
+    total_days = target_date.nil? ? 1 : (target_date - created_at.to_date).to_i
+    days_elapsed = total_days - days_remaining
+    expected_progress = total_days.zero? ? 0 : (days_elapsed.to_f / total_days * 100)
 
-  def add_contribution(amount, description = nil, transaction_id = nil)
-    contribution = goal_contributions.create!(
-      amount: amount,
-      description: description,
-      transaction_id: transaction_id,
-      contributed_at: Time.current
-    )
-
-    update_current_amount!
-    check_milestones_completion
-    contribution
-  end
-
-  def update_current_amount!
-    new_amount = calculate_current_amount
-    update!(current_amount: new_amount)
-  end
-
-  def can_be_shared?
-    active? && !shared_goals.exists?
-  end
-
-  def share_with_users(user_ids, permissions = {})
-    return false unless can_be_shared?
-
-    user_ids.each do |user_id|
-      shared_goals.create!(
-        user_id: user_id,
-        can_contribute: permissions[:can_contribute] || false,
-        can_edit: permissions[:can_edit] || false,
-        can_view_details: permissions[:can_view_details] || true
-      )
-    end
-
-    true
-  end
-
-  def calculate_points_earned
-    base_points = (progress_percentage * 10).to_i
-    bonus_points = 0
-
-    # Bonus for completing on time
-    bonus_points += 100 if completed? && !is_overdue?
-
-    # Bonus for high priority goals
-    bonus_points += 50 if urgent?
-    bonus_points += 25 if high?
-
-    # Bonus for large amounts
-    bonus_points += 50 if target_amount >= 10_000
-    bonus_points += 25 if target_amount >= 5000
-
-    base_points + bonus_points
+    # Goal is on track if actual progress is within 10% of expected progress
+    progress_percentage >= (expected_progress - 10)
   end
 
   private
 
-  def target_date_in_future
-    return unless target_date.present?
-
-    errors.add(:target_date, 'deve ser uma data futura') if target_date <= Date.current
-  end
-
   def current_amount_not_greater_than_target
     return unless current_amount.present? && target_amount.present?
 
-    errors.add(:current_amount, 'não pode ser maior que o valor alvo') if current_amount > target_amount
+    if current_amount > target_amount
+      errors.add(:current_amount, 'não pode ser maior que o valor alvo')
+    end
   end
 
   def set_default_values
     self.current_amount ||= 0
-    self.status ||= :active
+    # Only apply default status when it was not explicitly assigned by caller.
+    unless instance_variable_defined?(:@status_explicitly_assigned) && @status_explicitly_assigned
+      self.status ||= :active
+    end
     self.priority ||= :medium
   end
 
-  def create_initial_milestones
-    # Will be implemented by GoalMilestoneCreatorService
-    # GoalMilestoneCreatorService.new(self).call
-  end
-
   def check_completion_status
-    if current_amount >= target_amount && !completed?
-      complete_goal!
-    elsif current_amount < target_amount && completed?
-      reactivate_goal!
+    if current_amount >= target_amount && active?
+      mark_as_achieved!
     end
   end
 
-  def complete_goal!
-    update!(status: :completed, completed_at: Time.current)
-    create_completion_activity
-    # send_completion_notification
-    # award_completion_points
-  end
+  def months_remaining
+    return 0 if target_date.nil? || target_date <= Date.current
 
-  def reactivate_goal!
-    update!(status: :active, completed_at: nil)
-  end
-
-  def update_milestones_if_needed
-    return unless saved_change_to_target_amount? || saved_change_to_target_date?
-
-    goal_milestones.destroy_all
-    create_initial_milestones
-  end
-
-  def calculate_current_amount
-    case goal_type
-    when 'savings', 'debt_payoff', 'investment'
-      goal_contributions.sum(:amount)
-    when 'expense_reduction'
-      calculate_expense_reduction_progress
-    else
-      goal_contributions.sum(:amount)
-    end
-  end
-
-  def calculate_expense_reduction_progress
-    return 0 unless category_id.present?
-
-    baseline_amount = self.baseline_amount || 0
-    current_period_expenses = user.transactions
-                                  .where(transaction_type: :expense)
-                                  .where(category_id: category_id)
-                                  .where(date: Date.current.beginning_of_month..Date.current.end_of_month)
-                                  .sum(:amount)
-
-    saved_amount = [baseline_amount - current_period_expenses, 0].max
-    [saved_amount, target_amount].min
-  end
-
-  def check_milestones_completion
-    goal_milestones.where(status: :pending).each do |milestone|
-      milestone.complete! if progress_percentage >= milestone.target_percentage
-    end
-  end
-
-  def create_completion_activity
-    goal_activities.create!(
-      activity_type: 'goal_completed',
-      description: "Meta '#{name}' foi concluída!",
-      metadata: {
-        target_amount: target_amount,
-        final_amount: current_amount,
-        days_taken: days_since_start,
-        points_earned: calculate_points_earned
-      }
-    )
+    today = Date.current
+    (target_date.year * 12 + target_date.month) - (today.year * 12 + today.month)
   end
 end

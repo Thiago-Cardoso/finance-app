@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 
 interface Goal {
   goal_id: string
-  title: string
+  name: string
   target_amount: number
   current_amount: number
   progress_percentage: number
@@ -95,7 +95,7 @@ export function GoalsProgress({ data }: GoalsProgressProps) {
                       className="w-1.5 h-1.5 rounded-full mr-2 shadow-sm"
                       style={{ backgroundColor: progressColors.text }}
                     />
-                    {goal.title}
+                    {goal.name}
                   </h4>
                   <span
                     className="text-base font-black px-3 py-1.5 rounded-xl shadow-sm"
@@ -105,7 +105,7 @@ export function GoalsProgress({ data }: GoalsProgressProps) {
                       border: `1px solid ${progressColors.text}30`
                     }}
                   >
-                    {goal.progress_percentage.toFixed(0)}%
+                   {Number(goal.progress_percentage).toFixed(0)}%
                   </span>
                 </div>
 
