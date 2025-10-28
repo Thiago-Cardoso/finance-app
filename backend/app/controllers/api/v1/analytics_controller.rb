@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class AnalyticsController < BaseController
@@ -13,15 +15,11 @@ module Api
           generator.generate
         end
 
-        render json: {
-          success: true,
-          data: result
-        }, status: :ok
+        render_success(result)
+      rescue ArgumentError => e
+        render_error(e.message, [], :unprocessable_entity)
       rescue StandardError => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        render_internal_server_error(e)
       end
 
       # GET /api/v1/analytics/budget_performance
@@ -34,15 +32,11 @@ module Api
           generator.generate
         end
 
-        render json: {
-          success: true,
-          data: result
-        }, status: :ok
+        render_success(result)
+      rescue ArgumentError => e
+        render_error(e.message, [], :unprocessable_entity)
       rescue StandardError => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        render_internal_server_error(e)
       end
 
       # GET /api/v1/analytics/export
@@ -51,20 +45,13 @@ module Api
         format_type = params[:format] || 'pdf'
 
         unless %w[financial_summary budget_performance].include?(report_type)
-          return render json: {
-            success: false,
-            error: 'Invalid report type'
-          }, status: :bad_request
+          return render_error('Invalid report type', [], :bad_request)
         end
 
         unless %w[pdf excel].include?(format_type)
-          return render json: {
-            success: false,
-            error: 'Invalid format type'
-          }, status: :bad_request
+          return render_error('Invalid format type', [], :bad_request)
         end
 
-        # Generate report data
         generator_class = case report_type
                           when 'financial_summary'
                             Reports::FinancialSummaryGenerator
@@ -76,14 +63,12 @@ module Api
         generator = generator_class.new(current_user, filters)
         report_data = generator.generate
 
-        # Export to requested format
         exported_data = if format_type == 'pdf'
                           Exporters::PdfExporter.new(report_data, report_type).export
                         else
                           Exporters::ExcelExporter.new(report_data, report_type).export
                         end
 
-        # Send file
         filename = "#{report_type}_#{Time.current.strftime('%Y%m%d_%H%M%S')}.#{format_type == 'pdf' ? 'pdf' : 'xlsx'}"
         content_type = format_type == 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
@@ -91,11 +76,10 @@ module Api
                   filename: filename,
                   type: content_type,
                   disposition: 'attachment'
+      rescue ArgumentError => e
+        render_error(e.message, [], :unprocessable_entity)
       rescue StandardError => e
-        render json: {
-          success: false,
-          error: e.message
-        }, status: :unprocessable_entity
+        render_internal_server_error(e)
       end
 
       # GET /api/v1/analytics/reports
@@ -106,38 +90,32 @@ module Api
           success: true,
           data: reports.map { |report| report_json(report) },
           pagination: pagination_meta(reports)
-        }, status: :ok
+        }
+      rescue ArgumentError => e
+        render_error(e.message, [], :unprocessable_entity)
+      rescue StandardError => e
+        render_internal_server_error(e)
       end
 
       # GET /api/v1/analytics/reports/:id
       def show_report
-        report = current_user.reports.find(params[:id])
+        report = current_user.reports.find_by(id: params[:id])
+        return render_not_found unless report
 
-        render json: {
-          success: true,
-          data: report_json(report)
-        }, status: :ok
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          success: false,
-          error: 'Report not found'
-        }, status: :not_found
+        render_success(report_json(report))
+      rescue StandardError => e
+        render_internal_server_error(e)
       end
 
       # DELETE /api/v1/analytics/reports/:id
       def destroy_report
-        report = current_user.reports.find(params[:id])
-        report.destroy
+        report = current_user.reports.find_by(id: params[:id])
+        return render_not_found unless report
 
-        render json: {
-          success: true,
-          message: 'Report deleted successfully'
-        }, status: :ok
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          success: false,
-          error: 'Report not found'
-        }, status: :not_found
+        report.destroy
+        render_success({}, 'Report deleted successfully')
+      rescue StandardError => e
+        render_internal_server_error(e)
       end
 
       private
