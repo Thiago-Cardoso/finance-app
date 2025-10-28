@@ -5,8 +5,9 @@ class CategoryStatisticsService
   def initialize(user, params = {})
     @user = user
     @params = params
-    @start_date = parse_date(@params[:start_date]) || 6.months.ago.beginning_of_month
-    @end_date = parse_date(@params[:end_date]) || Date.current.end_of_month
+    # Correctly handle default dates and ensure they are Date objects
+    @start_date = parse_date(@params[:start_date]) || 6.months.ago.beginning_of_month.to_date
+    @end_date = parse_date(@params[:end_date]) || Date.current.end_of_month.to_date
   end
 
   def call
@@ -21,36 +22,34 @@ class CategoryStatisticsService
   private
 
   def category_summary
-    # Get all available categories without joins to avoid ambiguity
-    all_categories = Category.where('categories.user_id = ? OR categories.is_default = true', @user.id)
-                             .where(is_active: true)
+    # Correctly scope categories to user or default, and ensure they are active
+    active_categories = Category.where(is_active: true)
+                                .where(user: @user)
+                                .or(Category.where(is_active: true, is_default: true))
 
-    # Categories that have transactions for this user
-    categories_with_trans = Category.joins(:transactions)
-                                    .where('categories.user_id = ? OR categories.is_default = true', @user.id)
-                                    .where('categories.is_active = true')
-                                    .where('transactions.user_id = ?', @user.id)
-                                    .distinct
-                                    .count
+    # Use a single query to get used category IDs for the current user
+    used_category_ids = @user.transactions.distinct.pluck(:category_id)
 
-    # Categories without any transactions for this user
-    used_category_ids = Transaction.where(user: @user).distinct.pluck(:category_id)
-    unused_count = all_categories.where.not(id: used_category_ids).count
+    categories_with_trans_count = active_categories.where(id: used_category_ids).count
+    unused_categories_count = active_categories.where.not(id: used_category_ids).count
 
     {
-      total_categories: all_categories.count,
-      active_categories: all_categories.count, # Already filtered by is_active
-      categories_with_transactions: categories_with_trans,
-      unused_categories: unused_count
+      total_categories: active_categories.count,
+      active_categories: active_categories.count,
+      categories_with_transactions: categories_with_trans_count,
+      unused_categories: unused_categories_count
     }
   end
 
   def top_categories_by_amount
+    # Pre-calculate transaction counts for efficiency
+    counts = transaction_counts_by_category
+
     @user.transactions
          .joins(:category)
          .where(date: @start_date..@end_date)
          .group('categories.id', 'categories.name', 'categories.color', 'categories.category_type')
-         .sum(:amount)
+         .sum('ABS(transactions.amount)')
          .map do |category_info, amount|
            category_id = category_info[0]
            {
@@ -58,8 +57,8 @@ class CategoryStatisticsService
              name: category_info[1],
              color: category_info[2],
              category_type: category_info[3],
-             total_amount: amount.abs,
-             transactions_count: transaction_counts_by_category[category_id] || 0
+             total_amount: amount.to_f, # Ensure it's a float
+             transactions_count: counts[category_id] || 0
            }
          end
          .sort_by { |cat| -cat[:total_amount] }
@@ -67,55 +66,59 @@ class CategoryStatisticsService
   end
 
   def monthly_breakdown
-    # Group transactions by category and month using Ruby (database-agnostic)
-    transactions = @user.transactions
-                        .joins(:category)
-                        .where(date: @start_date..@end_date)
-                        .select('categories.id as category_id', 'categories.name as category_name',
-                                'transactions.date', 'transactions.amount')
+    # More efficient grouping using ActiveRecord
+    breakdown = @user.transactions
+                     .joins(:category)
+                     .where(date: @start_date..@end_date)
+                     .group('categories.id', 'categories.name', "DATE_TRUNC('month', transactions.date)")
+                     .sum('ABS(transactions.amount)')
 
-    # Group by category and month in Ruby
-    grouped = transactions.each_with_object({}) do |transaction, hash|
-      month = transaction.date.strftime('%Y-%m')
-      cat_name = transaction.category_name
-      cat_id = transaction.category_id
+    # Restructure the data for the expected output format
+    breakdown.each_with_object({}) do |(group_keys, total), result|
+      cat_id, cat_name, month_date = group_keys
+      month_str = month_date.strftime('%Y-%m')
 
-      hash[cat_name] ||= { id: cat_id, months: {} }
-      hash[cat_name][:months][month] ||= 0
-      hash[cat_name][:months][month] += transaction.amount.abs
+      result[cat_name] ||= { id: cat_id, months: {} }
+      result[cat_name][:months][month_str] = total.to_f
     end
-
-    grouped
   end
 
   def category_trends
-    current_period = @user.transactions
-                          .joins(:category)
-                          .where(date: (@end_date - 1.month)..@end_date)
-                          .group('categories.name', 'categories.id')
-                          .sum(:amount)
+    # Define periods more clearly: last full month vs. previous full month
+    last_month_start = 1.month.ago.beginning_of_month
+    last_month_end = 1.month.ago.end_of_month
+    prev_month_start = 2.months.ago.beginning_of_month
+    prev_month_end = 2.months.ago.end_of_month
 
-    previous_period = @user.transactions
-                           .joins(:category)
-                           .where(date: (@end_date - 2.months)..(@end_date - 1.month))
-                           .group('categories.name', 'categories.id')
-                           .sum(:amount)
+    current_period_data = @user.transactions
+                               .joins(:category)
+                               .where(date: last_month_start..last_month_end)
+                               .group('categories.name', 'categories.id')
+                               .sum('ABS(transactions.amount)')
+
+    previous_period_data = @user.transactions
+                                .joins(:category)
+                                .where(date: prev_month_start..prev_month_end)
+                                .group('categories.name', 'categories.id')
+                                .sum('ABS(transactions.amount)')
+
+    all_category_keys = (current_period_data.keys + previous_period_data.keys).uniq
 
     trends = {}
-    current_period.each do |(cat_name, cat_id), current_amount|
-      previous_key = previous_period.keys.find { |key| key[1] == cat_id }
-      previous_amount = previous_key ? previous_period[previous_key] : 0
+    all_category_keys.each do |cat_name, cat_id|
+      current_amount = current_period_data[[cat_name, cat_id]] || 0
+      previous_amount = previous_period_data[[cat_name, cat_id]] || 0
 
-      change_percent = if previous_amount.abs > 0
-                         ((current_amount.abs - previous_amount.abs) / previous_amount.abs * 100).round(1)
+      change_percent = if previous_amount > 0
+                         ((current_amount - previous_amount) / previous_amount * 100).round(1)
                        else
-                         current_amount.abs > 0 ? 100.0 : 0.0
+                         current_amount > 0 ? 100.0 : 0.0
                        end
 
       trends[cat_name] = {
         id: cat_id,
-        current_amount: current_amount.abs,
-        previous_amount: previous_amount.abs,
+        current_amount: current_amount.to_f,
+        previous_amount: previous_amount.to_f,
         change_percent: change_percent,
         trend: determine_trend(change_percent)
       }
@@ -142,6 +145,7 @@ class CategoryStatisticsService
   end
 
   def parse_date(date_string)
+    # Return Date object on success, nil on failure
     Date.parse(date_string) if date_string.present?
   rescue Date::Error, ArgumentError
     nil
