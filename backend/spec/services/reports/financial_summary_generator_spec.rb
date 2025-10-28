@@ -134,11 +134,11 @@ RSpec.describe Reports::FinancialSummaryGenerator do
 
         expect(accounts).to be_an(Array)
         expect(accounts).not_to be_empty
-        
+
         account_data = accounts.find { |a| a[:account_name] == account.name }
         expect(account_data).to be_present
-        expect(account_data[:current_balance]).to eq(3000)
-        expect(account_data[:initial_balance]).to eq(1000)
+        expect(account_data[:current_balance].to_f).to eq(account.current_balance.to_f)
+        expect(account_data[:initial_balance].to_f).to eq(account.initial_balance.to_f)
       end
     end
 

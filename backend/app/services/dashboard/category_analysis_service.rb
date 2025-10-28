@@ -36,9 +36,9 @@ module Dashboard
 
     def calculate_percentage(amount)
       total = total_expenses
-      return 0 if total.zero?
+      return 0.0 if total.zero?
 
-      ((amount / total) * 100).round(2)
+      ((amount.to_f / total.to_f) * 100).round(2)
     end
 
     def total_expenses
