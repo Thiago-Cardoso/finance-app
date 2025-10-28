@@ -4,25 +4,44 @@
 module Authenticable
   extend ActiveSupport::Concern
 
-  included do
-    before_action :authenticate_user!
-  end
-
   private
 
   # Authenticate user from JWT token
   def authenticate_user!
     token = extract_token_from_header
-    return render_unauthorized unless token
 
-    payload = JwtService.decode(token)
-    @current_user = User.find_by(id: payload[:user_id], jti: payload[:jti])
+    unless token
+      return render_error(
+        'Authentication required',
+        [{ field: 'authorization', message: 'Token not provided' }],
+        :unauthorized
+      )
+    end
 
-    render_unauthorized unless @current_user
-  rescue JwtService::TokenExpiredError => e
-    render_token_expired(e)
-  rescue JwtService::TokenInvalidError => e
-    render_unauthorized(e)
+    begin
+      payload = JwtService.decode(token)
+      @current_user = User.find_by(id: payload[:user_id], jti: payload[:jti])
+
+      unless @current_user
+        return render_error(
+          'Authentication failed',
+          [{ field: 'authorization', message: 'Invalid or revoked token' }],
+          :unauthorized
+        )
+      end
+    rescue JwtService::TokenExpiredError => e
+      render_error(
+        'Token expired',
+        [{ field: 'authorization', message: e.message }],
+        :unauthorized
+      )
+    rescue JwtService::TokenInvalidError => e
+      render_error(
+        'Invalid token',
+        [{ field: 'authorization', message: e.message }],
+        :unauthorized
+      )
+    end
   end
 
   # Get current authenticated user
@@ -36,23 +55,5 @@ module Authenticable
     return nil unless header
 
     header.split.last if header.start_with?('Bearer ')
-  end
-
-  # Render unauthorized error
-  def render_unauthorized(_exception = nil)
-    render json: {
-      success: false,
-      message: 'Unauthorized',
-      errors: [{ field: 'authorization', message: 'Invalid or missing token' }]
-    }, status: :unauthorized
-  end
-
-  # Render token expired error
-  def render_token_expired(_exception)
-    render json: {
-      success: false,
-      message: 'Token expired',
-      errors: [{ field: 'authorization', message: 'Token has expired' }]
-    }, status: :unauthorized
   end
 end
