@@ -32,11 +32,10 @@ class Transaction < ApplicationRecord
   scope :by_categories, ->(category_ids) { where(category_id: category_ids) }
   scope :by_account, ->(account) { where(account: account) }
 
-  # Text search scope using pg_trgm similarity operator for better performance
+  # Text search scope using ILIKE for partial matching
   scope :search_description, lambda { |query|
     return all if query.blank?
-    # Use pg_trgm similarity operator for fuzzy matching with trigram index
-    where('description % ?', query)
+    where('description ILIKE ?', "%#{query}%")
   }
 
   # Date period scopes
