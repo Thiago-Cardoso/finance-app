@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Dashboard', type: :request do
   let(:user) { create(:user) }
-  let(:auth_headers) { { 'Authorization' => "Bearer #{generate_jwt_token(user)}" } }
+  let(:token) { jwt_token(user) }
+  let(:auth_headers) { { 'Authorization' => "Bearer #{token}" } }
 
   before do
     # Setup test data
@@ -114,7 +115,7 @@ RSpec.describe 'Api::V1::Dashboard', type: :request do
         budget = create(:budget,
                        user: user,
                        category: @category_expense,
-                       amount_limit: 1000,
+                       amount: 1000,
                        start_date: Date.current.beginning_of_month,
                        end_date: Date.current.end_of_month,
                        is_active: true)
@@ -135,11 +136,11 @@ RSpec.describe 'Api::V1::Dashboard', type: :request do
       it 'returns goals progress' do
         goal = create(:goal,
                      user: user,
-                     title: 'Save for vacation',
+                     name: 'Save for vacation',
                      target_amount: 5000,
                      current_amount: 2000,
                      target_date: 3.months.from_now,
-                     is_achieved: false)
+                     status: :active)
 
         get '/api/v1/dashboard', headers: auth_headers
 

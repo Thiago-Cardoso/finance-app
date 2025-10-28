@@ -9,7 +9,7 @@ module Dashboard
 
     def call
       @user.goals
-           .where(is_achieved: false)
+           .active
            .order(:target_date)
            .limit(3)
            .map { |goal| analyze_goal(goal) }
@@ -20,11 +20,11 @@ module Dashboard
     def analyze_goal(goal)
       {
         goal_id: goal.id,
-        title: goal.title,
+        title: goal.name,
         target_amount: goal.target_amount.to_f,
         current_amount: goal.current_amount.to_f,
-        progress_percentage: calculate_progress(goal),
-        days_remaining: calculate_days_remaining(goal.target_date),
+        progress_percentage: goal.progress_percentage,
+        days_remaining: goal.days_remaining,
         target_date: goal.target_date&.strftime('%Y-%m-%d')
       }
     end

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'rails_helper'
 
 RSpec.describe Budget, type: :model do
@@ -88,8 +86,7 @@ RSpec.describe Budget, type: :model do
       let(:account) { create(:account, user: user) }
 
       before do
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 100,
-                                       date: Date.current)
+        create(:transaction, :expense, user: user, category: category, account: account, amount: 100, date: Date.current)
         create(:transaction, :expense, user: user, category: category, account: account, amount: 50, date: Date.current)
       end
 
@@ -155,15 +152,49 @@ RSpec.describe Budget, type: :model do
       let(:user) { create(:user) }
       let(:category) { create(:category, :expense) }
       let(:account) { create(:account, user: user) }
-      let(:budget) { create(:budget, user: user, category: category, spent: 0) }
+      
+      let(:budget_start_date) { Date.current - 20.days }
+      let(:budget_end_date) { Date.current - 10.days }
+      
+      let(:budget) do 
+        create(:budget, 
+               user: user, 
+               category: category, 
+               spent: 0,
+               start_date: budget_start_date,
+               end_date: budget_end_date)
+      end
 
       before do
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 100,
-                                       date: budget.start_date)
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 50,
-                                       date: budget.start_date + 1.day)
-        create(:transaction, :expense, user: user, category: category, account: account, amount: 75,
-                                       date: budget.end_date + 1.day)
+        create(:transaction, :expense, 
+               user: user, 
+               category: category, 
+               account: account, 
+               amount: 100,
+               date: budget_start_date)
+        
+        create(:transaction, :expense, 
+               user: user, 
+               category: category, 
+               account: account, 
+               amount: 50,
+               date: budget_start_date + 5.days)
+        
+        transaction_before = create(:transaction, :expense,
+               user: user,
+               category: category,
+               account: account,
+               amount: 75,
+               date: budget_start_date)
+        transaction_before.update_column(:date, budget_start_date - 1.day)
+
+        transaction_after = create(:transaction, :expense,
+               user: user,
+               category: category,
+               account: account,
+               amount: 25,
+               date: budget_end_date)
+        transaction_after.update_column(:date, budget_end_date + 1.day)
       end
 
       it 'calculates spent amount within date range' do
@@ -173,7 +204,8 @@ RSpec.describe Budget, type: :model do
 
       it 'does not include transactions outside date range' do
         budget.calculate_spent_amount
-        expect(budget.reload.spent).not_to eq(225)
+        expect(budget.reload.spent).not_to eq(250)
+        expect(budget.reload.spent).to eq(150)
       end
     end
   end

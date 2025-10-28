@@ -301,20 +301,11 @@ RSpec.describe 'api/v1/categories', type: :request do
       description 'Exclui uma categoria personalizada do usuário. Categorias padrão do sistema não podem ser excluídas.'
 
 
-      response '200', 'Categoria excluída' do
-        schema type: :object,
-               properties: {
-                 success: { type: :boolean, example: true },
-                 message: { type: :string, example: 'Category deleted successfully' }
-               }
-
+      response '204', 'Categoria excluída' do
         let!(:category) { create(:category, :custom, user: user) }
         let(:id) { category.id }
 
-        run_test! do |response|
-          data = JSON.parse(response.body)
-          expect(data['success']).to eq(true)
-        end
+        run_test!
       end
 
       response '403', 'Proibido - não pode excluir categorias padrão' do

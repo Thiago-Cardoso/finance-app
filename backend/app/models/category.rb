@@ -7,7 +7,7 @@ class Category < ApplicationRecord
 
   # Associations
   belongs_to :user, optional: true
-  has_many :transactions, dependent: :nullify
+  has_many :transactions, dependent: :restrict_with_error
   has_many :budgets, dependent: :restrict_with_error
 
   # Validations

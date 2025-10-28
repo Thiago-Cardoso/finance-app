@@ -4,11 +4,11 @@ class ApplicationController < ActionController::API
   respond_to :json
 
   # Global error handling
-  rescue_from StandardError, with: :handle_internal_server_error
   rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   rescue_from ActiveRecord::RecordInvalid, with: :handle_unprocessable_entity
   rescue_from ActionController::ParameterMissing, with: :handle_bad_request
   rescue_from ActiveRecord::RecordNotUnique, with: :handle_conflict
+  rescue_from StandardError, with: :handle_internal_server_error
 
   private
 
