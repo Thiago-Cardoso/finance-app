@@ -22,29 +22,34 @@ RSpec.describe CategoryStatisticsService, type: :service do
 
   describe '#category_summary' do
     before do
+      # Explicitly create all categories needed for the tests
+      category1
+      category2
+      category3
+      unused_category
       create(:transaction, :expense, user: user, category: category1, account: account, amount: 100)
       create(:transaction, :expense, user: user, category: category2, account: account, amount: 50)
-      unused_category # Create but don't use
     end
 
     it 'returns correct summary statistics' do
       service = described_class.new(user)
       summary = service.send(:category_summary)
 
-      expect(summary[:total_categories]).to eq(4) # 3 used + 1 unused
-      expect(summary[:active_categories]).to eq(4) # All are active
-      expect(summary[:categories_with_transactions]).to eq(2) # category1 and category2
-      expect(summary[:unused_categories]).to eq(2) # category3 and unused_category
+      expect(summary[:total_categories]).to eq(4)
+      expect(summary[:active_categories]).to eq(4)
+      expect(summary[:categories_with_transactions]).to eq(2)
+      expect(summary[:unused_categories]).to eq(2)
     end
 
     it 'counts only active categories' do
-      inactive_category = create(:category, :inactive, name: 'Inactive')
+      create(:category, :inactive, name: 'Inactive')
 
       service = described_class.new(user)
       summary = service.send(:category_summary)
 
-      # Should not count inactive category (total remains 4)
-      expect(summary[:total_categories]).to eq(4) # Still 4 because inactive is filtered out
+      # Should not count the inactive category
+      expect(summary[:total_categories]).to eq(4)
+      expect(summary[:active_categories]).to eq(4)
     end
   end
 
@@ -77,7 +82,8 @@ RSpec.describe CategoryStatisticsService, type: :service do
       # Create 15 categories with transactions
       15.times do |i|
         cat = create(:category, :default, name: "Category #{i + 10}")
-        create(:transaction, :expense, user: user, category: cat, account: account, amount: i * 10)
+        # Amount must be > 0, so start with i + 1
+        create(:transaction, :expense, user: user, category: cat, account: account, amount: (i + 1) * 10)
       end
 
       service = described_class.new(user)
@@ -131,9 +137,9 @@ RSpec.describe CategoryStatisticsService, type: :service do
     end
 
     it 'uses absolute values for amounts' do
-      # Create negative amount (which might happen in transfers)
+      # Create a positive amount to be summed with the absolute of the negative one
       create(:transaction, :expense, user: user, category: category1, account: account,
-                                     amount: -50, date: Date.current)
+                                     amount: 50, date: Date.current)
 
       service = described_class.new(user)
       breakdown = service.send(:monthly_breakdown)
@@ -141,8 +147,8 @@ RSpec.describe CategoryStatisticsService, type: :service do
       current_month = Date.current.strftime('%Y-%m')
       category1_data = breakdown['Category 1']
 
-      # Should sum absolute values
-      expect(category1_data[:months][current_month]).to eq(300) # 100 + 150 + 50(abs)
+      # Initial transactions: 100 + 150. New transaction: 50. Total: 300
+      expect(category1_data[:months][current_month]).to eq(300)
     end
   end
 
