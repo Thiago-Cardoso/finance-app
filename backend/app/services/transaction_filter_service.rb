@@ -36,8 +36,8 @@ class TransactionFilterService
     {
       periods: VALID_PERIODS,
       transaction_types: Transaction::TRANSACTION_TYPES,
-      categories: @user.available_categories.select(:id, :name, :category_type, :color, :icon),
-      accounts: @user.accounts.active.select(:id, :name, :account_type),
+      categories: @user.available_categories.select(:id, :name, :category_type, :color, :icon).to_a,
+      accounts: @user.accounts.active.select(:id, :name, :account_type).to_a,
       sort_fields: VALID_SORT_FIELDS,
       sort_directions: VALID_SORT_DIRECTIONS
     }
