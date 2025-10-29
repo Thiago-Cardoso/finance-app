@@ -31,7 +31,7 @@ class GoalsService {
 
   async getGoal(id: number): Promise<Goal> {
     const response = await api.get<GoalResponse>(`${this.basePath}/${id}`);
-    return response.data.data;
+    return response.data;
   }
 
   async createGoal(data: CreateGoalData): Promise<Goal> {

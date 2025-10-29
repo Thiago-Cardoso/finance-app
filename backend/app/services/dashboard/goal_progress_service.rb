@@ -20,7 +20,7 @@ module Dashboard
     def analyze_goal(goal)
       {
         goal_id: goal.id,
-        title: goal.name,
+        name: goal.name,
         target_amount: goal.target_amount.to_f,
         current_amount: goal.current_amount.to_f,
         progress_percentage: goal.progress_percentage,
