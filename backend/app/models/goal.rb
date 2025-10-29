@@ -107,6 +107,12 @@ class Goal < ApplicationRecord
     progress_percentage >= (expected_progress - 10)
   end
 
+  # Recalculate current_amount based on all contributions
+  def update_current_amount!
+    total_contributions = goal_contributions.sum(:amount)
+    update!(current_amount: [total_contributions, target_amount].min)
+  end
+
   private
 
   def current_amount_not_greater_than_target

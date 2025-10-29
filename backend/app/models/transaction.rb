@@ -9,6 +9,7 @@ class Transaction < ApplicationRecord
   belongs_to :category, optional: true
   belongs_to :account, optional: true
   belongs_to :transfer_account, class_name: 'Account', optional: true
+  has_one :goal_contribution, dependent: :nullify
 
   # Validations
   validates :description, presence: true, length: { maximum: 255 }
@@ -75,6 +76,7 @@ class Transaction < ApplicationRecord
 
   # Callbacks
   after_create :update_account_balance
+  after_create :create_goal_contribution_if_applicable
   after_update :update_account_balance_on_change
   after_destroy :revert_account_balance
 
@@ -284,5 +286,43 @@ class Transaction < ApplicationRecord
 
     account.save!
     transfer_account&.save! if transfer?
+  end
+
+  def create_goal_contribution_if_applicable
+    return unless category_id.present?
+    return if transfer? # Transfers don't count as goal contributions
+
+    # Find active goals with auto-tracking enabled for this category
+    goals = user.goals
+                .active
+                .where(category_id: category_id, auto_track_progress: true)
+
+    goals.each do |goal|
+      # Only create contribution if transaction type matches goal expectations
+      # For savings/investment goals: count income
+      # For debt payoff/expense reduction: count expense reductions
+      should_contribute = case goal.goal_type
+                          when 'savings', 'investment', 'general'
+                            income?
+                          when 'debt_payoff', 'expense_reduction'
+                            expense?
+                          else
+                            false
+                          end
+
+      next unless should_contribute
+
+      GoalContribution.create!(
+        goal: goal,
+        transaction_id: id,
+        contributor_id: user_id,
+        amount: amount,
+        description: "Auto-contribuição: #{description}",
+        contributed_at: date
+      )
+    end
+  rescue StandardError => e
+    Rails.logger.error("Failed to create goal contribution: #{e.message}")
+    # Don't raise the error to avoid breaking transaction creation
   end
 end
