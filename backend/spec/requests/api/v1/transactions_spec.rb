@@ -34,13 +34,15 @@ RSpec.describe 'Api::V1::Transactions', type: :request do
       end
 
       it 'filters transactions by date range' do
-        # Create transactions with specific dates for this test
-        old_transaction = create(:transaction, :expense, user: user, category: category, account: account,
-                                                date: 2.months.ago)
+        # Create transaction outside the date range
+        old_transaction = create(:transaction, :expense, user: user, category: category, account: account)
+        old_transaction.update_column(:date, 2.months.ago)
+
+        # Create transaction inside the date range
         recent_transaction = create(:transaction, :expense, user: user, category: category, account: account,
                                                     date: 1.day.ago)
 
-        # Use a narrower date range that excludes the let! transactions and old_transaction
+        # Use a date range that should only include recent transaction and let! transactions
         date_from = 2.days.ago.to_date
         date_to = Date.current
 

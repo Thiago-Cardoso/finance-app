@@ -48,9 +48,9 @@ module Dashboard
     end
 
     def calculate_percentage(spent, limit)
-      return 0 if limit.zero?
+      return 0.0 if limit.zero?
 
-      (spent / limit * 100).round(2)
+      ((spent.to_f / limit.to_f) * 100).round(2)
     end
 
     def format_category(category)

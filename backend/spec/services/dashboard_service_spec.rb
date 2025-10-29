@@ -85,12 +85,13 @@ RSpec.describe DashboardService, type: :service do
 
   describe '#total_balance' do
     it 'sums only active accounts' do
+      create(:account, user: user, current_balance: 1000, is_active: true)
       create(:account, user: user, current_balance: 500, is_active: true)
       create(:account, user: user, current_balance: 200, is_active: false)
 
       result = service.send(:total_balance)
 
-      expect(result).to eq(1500.0) # 1000 + 500 (excluding inactive)
+      expect(result).to eq(1500.0) # 1000 + 500 (excluding inactive 200)
     end
   end
 
@@ -209,7 +210,7 @@ RSpec.describe DashboardService, type: :service do
       budget = create(:budget,
                      user: user,
                      category: category_expense,
-                     amount_limit: 1000,
+                     amount: 1000,
                      start_date: Date.current.beginning_of_month,
                      end_date: Date.current.end_of_month,
                      is_active: true)
@@ -224,7 +225,7 @@ RSpec.describe DashboardService, type: :service do
       budget = create(:budget,
                      user: user,
                      category: category_expense,
-                     amount_limit: 1000,
+                     amount: 1000,
                      start_date: Date.current.beginning_of_month,
                      end_date: Date.current.end_of_month,
                      is_active: true)
@@ -243,7 +244,7 @@ RSpec.describe DashboardService, type: :service do
       budget = create(:budget,
                      user: user,
                      category: category_expense,
-                     amount_limit: 1000,
+                     amount: 1000,
                      start_date: Date.current.beginning_of_month,
                      end_date: Date.current.end_of_month,
                      is_active: true)
@@ -285,7 +286,7 @@ RSpec.describe DashboardService, type: :service do
 
   describe '#goals_progress' do
     it 'returns up to 3 unachieved goals' do
-      create_list(:goal, 5, user: user, is_achieved: false, target_date: 3.months.from_now)
+      create_list(:goal, 5, user: user, status: :active, target_date: 3.months.from_now)
 
       result = service.send(:goals_progress)
 
@@ -297,7 +298,7 @@ RSpec.describe DashboardService, type: :service do
                    user: user,
                    target_amount: 5000,
                    current_amount: 2000,
-                   is_achieved: false,
+                   status: :active,
                    target_date: 3.months.from_now)
 
       result = service.send(:goals_progress)
@@ -310,7 +311,7 @@ RSpec.describe DashboardService, type: :service do
       goal = create(:goal,
                    user: user,
                    target_date: target_date,
-                   is_achieved: false)
+                   status: :active)
 
       result = service.send(:goals_progress)
 
@@ -318,13 +319,13 @@ RSpec.describe DashboardService, type: :service do
     end
 
     it 'excludes achieved goals' do
-      create(:goal, user: user, is_achieved: true)
-      create(:goal, user: user, is_achieved: false)
+      create(:goal, user: user, status: :completed)
+      create(:goal, user: user, status: :active)
 
       result = service.send(:goals_progress)
 
       expect(result.length).to eq(1)
-      expect(result.first[:goal_id]).not_to eq(Goal.find_by(is_achieved: true).id)
+      expect(result.first[:goal_id]).not_to eq(Goal.find_by(status: :completed).id)
     end
 
     it 'handles zero target amount' do
@@ -332,7 +333,7 @@ RSpec.describe DashboardService, type: :service do
                    user: user,
                    target_amount: 0,
                    current_amount: 100,
-                   is_achieved: false)
+                   status: :active)
 
       result = service.send(:goals_progress)
 
