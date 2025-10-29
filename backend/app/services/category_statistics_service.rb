@@ -45,7 +45,7 @@ class CategoryStatisticsService
     # Pre-calculate transaction counts for efficiency
     counts = transaction_counts_by_category
 
-    @user.transactions
+    top_categories = @user.transactions
          .joins(:category)
          .where(date: @start_date..@end_date)
          .group('categories.id', 'categories.name', 'categories.color', 'categories.category_type')
@@ -63,6 +63,8 @@ class CategoryStatisticsService
          end
          .sort_by { |cat| -cat[:total_amount] }
          .first(10)
+
+    top_categories || []
   end
 
   def monthly_breakdown
@@ -74,13 +76,15 @@ class CategoryStatisticsService
                      .sum('ABS(transactions.amount)')
 
     # Restructure the data for the expected output format
-    breakdown.each_with_object({}) do |(group_keys, total), result|
+    result = breakdown.each_with_object({}) do |(group_keys, total), result_hash|
       cat_id, cat_name, month_date = group_keys
       month_str = month_date.strftime('%Y-%m')
 
-      result[cat_name] ||= { id: cat_id, months: {} }
-      result[cat_name][:months][month_str] = total.to_f
+      result_hash[cat_name] ||= { id: cat_id, months: {} }
+      result_hash[cat_name][:months][month_str] = total.to_f
     end
+
+    result || {}
   end
 
   def category_trends

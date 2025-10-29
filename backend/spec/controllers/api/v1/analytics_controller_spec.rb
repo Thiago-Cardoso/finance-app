@@ -168,15 +168,15 @@ RSpec.describe Api::V1::AnalyticsController, type: :controller do
 
       expect(response).to have_http_status(:ok)
       json_response = JSON.parse(response.body)
-      expect(json_response['data']['reports'].length).to eq(2)
-      expect(json_response['data']['pagination']).to be_present
+      expect(json_response['data'].length).to eq(2)
+      expect(json_response['pagination']).to be_present
     end
 
     it 'orders reports by most recent first' do
       get :reports
 
       json_response = JSON.parse(response.body)
-      report_ids = json_response['data']['reports'].map { |r| r['id'] }
+      report_ids = json_response['data'].map { |r| r['id'] }
       expect(report_ids).to eq([report2.id, report1.id])
     end
 
@@ -184,7 +184,7 @@ RSpec.describe Api::V1::AnalyticsController, type: :controller do
       get :reports
 
       json_response = JSON.parse(response.body)
-      report_ids = json_response['data']['reports'].map { |r| r['id'] }
+      report_ids = json_response['data'].map { |r| r['id'] }
       expect(report_ids).not_to include(other_user_report.id)
     end
 
@@ -192,8 +192,8 @@ RSpec.describe Api::V1::AnalyticsController, type: :controller do
       get :reports, params: { page: 1, per_page: 1 }
 
       json_response = JSON.parse(response.body)
-      expect(json_response['data']['reports'].length).to eq(1)
-      expect(json_response['data']['pagination']['total_count']).to eq(2)
+      expect(json_response['data'].length).to eq(1)
+      expect(json_response['pagination']['total_count']).to eq(2)
     end
   end
 

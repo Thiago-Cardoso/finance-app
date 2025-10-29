@@ -85,9 +85,9 @@ RSpec.describe DashboardService, type: :service do
 
   describe '#total_balance' do
     it 'sums only active accounts' do
-      create(:account, user: user, current_balance: 1000, is_active: true)
-      create(:account, user: user, current_balance: 500, is_active: true)
-      create(:account, user: user, current_balance: 200, is_active: false)
+      create(:account, user: user, initial_balance: 1000, current_balance: 1000, is_active: true)
+      create(:account, user: user, initial_balance: 500, current_balance: 500, is_active: true)
+      create(:account, user: user, initial_balance: 200, current_balance: 200, is_active: false)
 
       result = service.send(:total_balance)
 
@@ -329,11 +329,13 @@ RSpec.describe DashboardService, type: :service do
     end
 
     it 'handles zero target amount' do
+      # Create a goal with valid amounts, then update target to 0 to bypass validation
       goal = create(:goal,
                    user: user,
-                   target_amount: 0,
+                   target_amount: 1000,
                    current_amount: 100,
                    status: :active)
+      goal.update_column(:target_amount, 0)
 
       result = service.send(:goals_progress)
 

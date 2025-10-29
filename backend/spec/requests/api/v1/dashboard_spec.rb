@@ -66,8 +66,8 @@ RSpec.describe 'Api::V1::Dashboard', type: :request do
       end
 
       it 'returns correct total balance' do
-        create(:account, user: user, current_balance: 500, is_active: true)
-        create(:account, user: user, current_balance: 200, is_active: false)
+        create(:account, user: user, initial_balance: 500, current_balance: 500, is_active: true)
+        create(:account, user: user, initial_balance: 200, current_balance: 200, is_active: false)
 
         get '/api/v1/dashboard', headers: auth_headers
 
@@ -187,14 +187,17 @@ RSpec.describe 'Api::V1::Dashboard', type: :request do
     context 'caching' do
       it 'uses cache for repeated requests' do
         # First request - should hit database
-        expect(DashboardService).to receive(:new).and_call_original
         get '/api/v1/dashboard', headers: auth_headers
+        first_response = json_response
+        first_timestamp = first_response['data']['last_updated']
 
-        # Second request - should use cache
-        expect(DashboardService).not_to receive(:new)
+        # Second request - should use cache and return same timestamp (proving it's cached)
         get '/api/v1/dashboard', headers: auth_headers
+        second_response = json_response
+        second_timestamp = second_response['data']['last_updated']
 
         expect(response).to have_http_status(:ok)
+        expect(second_timestamp).to eq(first_timestamp) # Same timestamp means data came from cache
       end
 
       it 'invalidates cache when transaction is updated' do

@@ -6,7 +6,11 @@ module Api
       before_action :authenticate_user!
 
       def show
-        @dashboard_data = DashboardService.new(current_user, dashboard_params).call
+        cache_key = "dashboard/#{current_user.id}/#{dashboard_params.to_h.to_json}"
+
+        @dashboard_data = Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
+          DashboardService.new(current_user, dashboard_params).call
+        end
 
         render json: {
           success: true,
