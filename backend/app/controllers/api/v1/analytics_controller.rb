@@ -48,7 +48,7 @@ module Api
           return render_error('Invalid report type', [], :bad_request)
         end
 
-        unless %w[pdf excel].include?(format_type)
+        unless %w[pdf excel xlsx csv].include?(format_type)
           return render_error('Invalid format type', [], :bad_request)
         end
 
@@ -63,14 +63,28 @@ module Api
         generator = generator_class.new(current_user, filters)
         report_data = generator.generate
 
-        exported_data = if format_type == 'pdf'
+        exported_data = case format_type
+                        when 'pdf'
                           Exporters::PdfExporter.new(report_data, report_type).export
-                        else
+                        when 'csv'
+                          Exporters::CsvExporter.new(report_data, report_type).export
+                        when 'excel', 'xlsx'
                           Exporters::ExcelExporter.new(report_data, report_type).export
                         end
 
-        filename = "#{report_type}_#{Time.current.strftime('%Y%m%d_%H%M%S')}.#{format_type == 'pdf' ? 'pdf' : 'xlsx'}"
-        content_type = format_type == 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        file_extension = case format_type
+                         when 'pdf' then 'pdf'
+                         when 'csv' then 'csv'
+                         else 'xlsx'
+                         end
+
+        content_type = case format_type
+                       when 'pdf' then 'application/pdf'
+                       when 'csv' then 'text/csv'
+                       else 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                       end
+
+        filename = "#{report_type}_#{Time.current.strftime('%Y%m%d_%H%M%S')}.#{file_extension}"
 
         send_data exported_data,
                   filename: filename,
