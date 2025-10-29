@@ -84,9 +84,14 @@ export function useAddContribution() {
   return useMutation({
     mutationFn: ({ goalId, data }: { goalId: number; data: CreateContributionData }) =>
       goalsService.addContribution(goalId, data),
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: [GOALS_QUERY_KEY] });
-      queryClient.setQueryData([GOALS_QUERY_KEY, result.goal.id], result.goal);
+      if (result?.goal) {
+        queryClient.setQueryData([GOALS_QUERY_KEY, result.goal.id], result.goal);
+      } else {
+        // If goal is not in the response, invalidate the specific goal query
+        queryClient.invalidateQueries({ queryKey: [GOALS_QUERY_KEY, variables.goalId] });
+      }
       toast.success('Contribuição adicionada com sucesso!');
     },
     onError: (error: any) => {

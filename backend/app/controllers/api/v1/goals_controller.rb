@@ -96,11 +96,12 @@ module Api
           contribution_params[:description]
         )
 
-        if contribution.persisted?
+        if contribution&.persisted?
+          @goal.reload
           render json: {
             success: true,
             data: {
-              contribution: contribution,
+              contribution: contribution.as_json(methods: [:contributor_name]),
               goal: @goal.as_json(methods: %i[progress_percentage remaining_amount])
             },
             message: 'Contribuição adicionada com sucesso'
@@ -109,7 +110,7 @@ module Api
           render json: {
             success: false,
             message: 'Erro ao adicionar contribuição',
-            errors: contribution.errors.full_messages
+            errors: contribution&.errors&.full_messages || ['Valor inválido']
           }, status: :unprocessable_entity
         end
       end

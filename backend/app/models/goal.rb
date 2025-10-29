@@ -66,17 +66,34 @@ class Goal < ApplicationRecord
     update!(status: :completed, completed_at: Time.current)
   end
 
-  def add_contribution(amount)
-    return if amount <= 0
+  def add_contribution(amount, description = nil)
+    return nil if amount <= 0
 
-    new_current_amount = current_amount + amount
-    final_amount = [new_current_amount, target_amount].min
-    
-    update!(current_amount: final_amount)
-    
-    if final_amount >= target_amount && active?
-      mark_as_achieved!
+    contribution = goal_contributions.create(
+      amount: amount,
+      description: description,
+      contributed_at: Time.current
+    )
+
+    if contribution.persisted?
+      new_current_amount = current_amount + amount
+      final_amount = [new_current_amount, target_amount].min
+
+      update!(current_amount: final_amount)
+
+      if final_amount >= target_amount && active?
+        mark_as_achieved!
+      end
+
+      # Log activity
+      goal_activities.create(
+        activity_type: 'contribution_added',
+        description: "Contribuição de #{ActionController::Base.helpers.number_to_currency(amount, unit: 'R$ ', separator: ',', delimiter: '.')} adicionada",
+        metadata: { contribution_id: contribution.id, amount: amount }
+      )
     end
+
+    contribution
   end
 
   def monthly_target
