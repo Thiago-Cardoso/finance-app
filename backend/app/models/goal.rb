@@ -69,23 +69,28 @@ class Goal < ApplicationRecord
   def add_contribution(amount, description = nil)
     return nil if amount <= 0
 
-    contribution = goal_contributions.create(
+    contribution = goal_contributions.build(
       amount: amount,
       description: description,
       contributed_at: Time.current
     )
+    contribution.skip_callbacks = true
+    contribution.save
 
     if contribution.persisted?
+      # Manually update current_amount by adding the contribution
       new_current_amount = current_amount + amount
       final_amount = [new_current_amount, target_amount].min
 
       update!(current_amount: final_amount)
+      reload
 
+      # Check if goal should be marked as completed
       if final_amount >= target_amount && active?
         mark_as_achieved!
       end
 
-      # Log activity
+      # Manually create activity since we skipped callbacks
       goal_activities.create(
         activity_type: 'contribution_added',
         description: "Contribuição de #{ActionController::Base.helpers.number_to_currency(amount, unit: 'R$ ', separator: ',', delimiter: '.')} adicionada",

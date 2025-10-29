@@ -1242,19 +1242,8 @@ paths:
       description: Exclui uma categoria personalizada do usuário. Categorias padrão
         do sistema não podem ser excluídas.
       responses:
-        '200':
+        '204':
           description: Categoria excluída
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Category deleted successfully
         '403':
           description: Proibido - não pode excluir categorias padrão
           content:
@@ -1964,7 +1953,7 @@ paths:
               schema:
                 "$ref": "#/components/schemas/Error"
 servers:
-- url: http://localhost:3001
+- url: http://localhost:3000
   description: Development server
 - url: https://api.financeapp.com
   description: Production server
