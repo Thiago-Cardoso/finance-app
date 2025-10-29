@@ -17,7 +17,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -31,41 +31,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (typeof window !== 'undefined') {
         const storedToken = localStorage.getItem('token')
         if (storedToken) {
-          try {
-            const response = await fetch(`${API_BASE_URL}/auth/validate`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${storedToken}`,
-                'Content-Type': 'application/json',
-              },
-            })
-
-            if (response.ok) {
-              const result = await response.json()
-              setToken(storedToken)
-              setUser(result.data.user || null)
-            } else {
-              console.log('Token inválido ou expirado. Fazendo logout...')
-              localStorage.removeItem('token')
-              setToken(null)
-              setUser(null)
-              if (!window.location.pathname.startsWith('/auth/')) {
-                toast.error('Sua sessão expirou. Por favor, faça login novamente.')
-                setTimeout(() => {
-                  window.location.href = '/auth/login'
-                }, 1000)
-              }
-            }
-          } catch (error) {
-            console.error('Error validating token:', error)
-            localStorage.removeItem('token')
-            setToken(null)
-            setUser(null)
-            if (!window.location.pathname.startsWith('/auth/')) {
-              toast.error('Sua sessão expirou. Por favor, faça login novamente.')
-              setTimeout(() => {
-                window.location.href = '/auth/login'
-              }, 1000)
+          // Simply restore token and user from localStorage without validation
+          // The token will be validated on first API call
+          setToken(storedToken)
+          // Try to get user data from localStorage
+          const storedUser = localStorage.getItem('user')
+          if (storedUser) {
+            try {
+              setUser(JSON.parse(storedUser))
+            } catch (error) {
+              console.error('Error parsing stored user:', error)
             }
           }
         }
@@ -99,6 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const accessToken = result.data.access_token
 
       localStorage.setItem('token', accessToken)
+      localStorage.setItem('user', JSON.stringify(result.data.user))
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
@@ -127,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const accessToken = result.data.access_token
 
       localStorage.setItem('token', accessToken)
+      localStorage.setItem('user', JSON.stringify(result.data.user))
       setToken(accessToken)
       setUser(result.data.user || null)
     } catch (error) {
@@ -138,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null)
     setToken(null)
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
 
   return (
