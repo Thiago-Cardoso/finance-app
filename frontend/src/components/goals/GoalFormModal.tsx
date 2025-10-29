@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useCreateGoal, useUpdateGoal } from '@/hooks/useGoals';
 import { Goal, CreateGoalData } from '@/types/goal';
 import { Modal } from '@/components/ui/Modal/Modal';
+import { Select } from '@/components/ui/Select';
 
 interface GoalFormModalProps {
   goal: Goal | null;
@@ -153,6 +154,21 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
 
   const isSubmitting = createGoal.isPending || updateGoal.isPending;
 
+  const goalTypeOptions = [
+    { value: 'savings', label: '💰 Poupança' },
+    { value: 'debt_payoff', label: '💳 Pagamento de Dívida' },
+    { value: 'investment', label: '📈 Investimento' },
+    { value: 'expense_reduction', label: '📉 Redução de Gastos' },
+    { value: 'general', label: '🎯 Geral' },
+  ];
+
+  const priorityOptions = [
+    { value: 'low', label: '🟢 Baixa' },
+    { value: 'medium', label: '🟡 Média' },
+    { value: 'high', label: '🟠 Alta' },
+    { value: 'urgent', label: '🔴 Urgente' },
+  ];
+
   return (
     <Modal
       isOpen={isOpen}
@@ -196,45 +212,26 @@ export function GoalFormModal({ goal, isOpen, onClose }: GoalFormModalProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Goal Type */}
-          <div>
-            <label htmlFor="goal_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tipo de Meta *
-            </label>
-            <select
-              id="goal_type"
-              name="goal_type"
-              value={formData.goal_type}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            >
-              <option value="savings">💰 Poupança</option>
-              <option value="debt_payoff">💳 Pagamento de Dívida</option>
-              <option value="investment">📈 Investimento</option>
-              <option value="expense_reduction">📉 Redução de Gastos</option>
-              <option value="general">🎯 Geral</option>
-            </select>
-          </div>
+          <Select
+            id="goal_type"
+            name="goal_type"
+            label="Tipo de Meta"
+            value={formData.goal_type}
+            onChange={handleChange}
+            options={goalTypeOptions}
+            required
+          />
 
           {/* Priority */}
-          <div>
-            <label htmlFor="priority" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Prioridade *
-            </label>
-            <select
-              id="priority"
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-              required
-              className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-            >
-              <option value="low">🟢 Baixa</option>
-              <option value="medium">🟡 Média</option>
-              <option value="high">🟠 Alta</option>
-              <option value="urgent">🔴 Urgente</option>
-            </select>
-          </div>
+          <Select
+            id="priority"
+            name="priority"
+            label="Prioridade"
+            value={formData.priority}
+            onChange={handleChange}
+            options={priorityOptions}
+            required
+          />
 
           {/* Target Amount */}
           <div>

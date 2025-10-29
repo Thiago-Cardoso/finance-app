@@ -1,6 +1,9 @@
 'use client';
 
 import { GoalFilters as GoalFiltersType, GoalStatus, GoalType, GoalPriority } from '@/types/goal';
+import { Select } from '@/components/ui/Select';
+import { Button } from '@/components/ui/Button';
+import { X } from 'lucide-react';
 
 interface GoalFiltersProps {
   filters: GoalFiltersType;
@@ -24,61 +27,75 @@ export function GoalFilters({ filters, onFiltersChange }: GoalFiltersProps) {
 
   const hasActiveFilters = Object.keys(filters).length > 0;
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mt-6">
-      <div className="flex flex-wrap items-center gap-4">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Filtros:</h3>
+  const statusOptions = [
+    { value: '', label: 'Todos os Status' },
+    { value: 'active', label: 'Ativa' },
+    { value: 'paused', label: 'Pausada' },
+    { value: 'completed', label: 'Concluída' },
+    { value: 'failed', label: 'Falhou' },
+    { value: 'cancelled', label: 'Cancelada' },
+  ];
 
+  const typeOptions = [
+    { value: '', label: 'Todos os Tipos' },
+    { value: 'savings', label: 'Poupança' },
+    { value: 'debt_payoff', label: 'Pagamento de Dívida' },
+    { value: 'investment', label: 'Investimento' },
+    { value: 'expense_reduction', label: 'Redução de Gastos' },
+    { value: 'general', label: 'Geral' },
+  ];
+
+  const priorityOptions = [
+    { value: '', label: 'Todas as Prioridades' },
+    { value: 'low', label: 'Baixa' },
+    { value: 'medium', label: 'Média' },
+    { value: 'high', label: 'Alta' },
+    { value: 'urgent', label: 'Urgente' },
+  ];
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mt-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+          Filtros
+        </h3>
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearFilters}
+            className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          >
+            <X className="w-4 h-4" />
+            <span>Limpar Filtros</span>
+          </Button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Status Filter */}
-        <select
+        <Select
           value={filters.status || ''}
           onChange={(e) => handleFilterChange('status', e.target.value as GoalStatus)}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os Status</option>
-          <option value="active">Ativa</option>
-          <option value="paused">Pausada</option>
-          <option value="completed">Concluída</option>
-          <option value="failed">Falhou</option>
-          <option value="cancelled">Cancelada</option>
-        </select>
+          options={statusOptions}
+          className="text-sm"
+        />
 
         {/* Goal Type Filter */}
-        <select
+        <Select
           value={filters.goal_type || ''}
           onChange={(e) => handleFilterChange('goal_type', e.target.value as GoalType)}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todos os Tipos</option>
-          <option value="savings">Poupança</option>
-          <option value="debt_payoff">Pagamento de Dívida</option>
-          <option value="investment">Investimento</option>
-          <option value="expense_reduction">Redução de Gastos</option>
-          <option value="general">Geral</option>
-        </select>
+          options={typeOptions}
+          className="text-sm"
+        />
 
         {/* Priority Filter */}
-        <select
+        <Select
           value={filters.priority || ''}
           onChange={(e) => handleFilterChange('priority', e.target.value as GoalPriority)}
-          className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">Todas as Prioridades</option>
-          <option value="low">Baixa</option>
-          <option value="medium">Média</option>
-          <option value="high">Alta</option>
-          <option value="urgent">Urgente</option>
-        </select>
-
-        {/* Clear Filters Button */}
-        {hasActiveFilters && (
-          <button
-            onClick={handleClearFilters}
-            className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-          >
-            Limpar Filtros
-          </button>
-        )}
+          options={priorityOptions}
+          className="text-sm"
+        />
       </div>
     </div>
   );

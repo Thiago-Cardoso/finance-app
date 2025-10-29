@@ -12,9 +12,10 @@ class GoalContribution < ApplicationRecord
   scope :recent, -> { order(contributed_at: :desc) }
   scope :by_contributor, ->(user) { where(contributor: user) }
 
-  after_create :update_goal_progress
-  after_create :create_activity
-  after_destroy :update_goal_progress
+  after_create :create_activity, unless: :skip_callbacks
+  after_destroy :update_goal_progress, unless: :skip_callbacks
+
+  attr_accessor :skip_callbacks
 
   def contributor_name
     contributor&.full_name || goal.user.full_name

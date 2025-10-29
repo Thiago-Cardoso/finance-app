@@ -68,7 +68,7 @@ class DashboardService
   end
 
   def total_balance
-    @user.accounts.where(is_active: true).sum(:current_balance).to_f
+    @user.accounts.active.sum(:current_balance).to_f
   end
 
   def recent_transactions

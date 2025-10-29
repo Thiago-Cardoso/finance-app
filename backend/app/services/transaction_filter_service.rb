@@ -102,10 +102,11 @@ class TransactionFilterService
   def apply_date_filter(scope)
     if @params[:period].present? && VALID_PERIODS.include?(@params[:period])
       apply_period_filter(scope, @params[:period])
-    elsif @params[:start_date].present? && @params[:end_date].present?
+    elsif has_date_range_params?
       begin
-        start_date = Date.parse(@params[:start_date].to_s)
-        end_date = Date.parse(@params[:end_date].to_s)
+        # Support both date_from/date_to and start_date/end_date for backward compatibility
+        start_date = Date.parse((@params[:date_from] || @params[:start_date]).to_s)
+        end_date = Date.parse((@params[:date_to] || @params[:end_date]).to_s)
         scope.by_date_range(start_date, end_date)
       rescue ArgumentError
         scope # Invalid date format, return unfiltered
@@ -113,6 +114,11 @@ class TransactionFilterService
     else
       scope
     end
+  end
+
+  def has_date_range_params?
+    (@params[:start_date].present? && @params[:end_date].present?) ||
+    (@params[:date_from].present? && @params[:date_to].present?)
   end
 
   def apply_period_filter(scope, period)
@@ -164,10 +170,12 @@ class TransactionFilterService
     filters[:account_id] = @params[:account_id] if @params[:account_id].present?
     filters[:period] = @params[:period] if @params[:period].present?
 
-    if @params[:start_date].present? && @params[:end_date].present?
+    # Support both date_from/date_to and start_date/end_date
+    if (@params[:start_date].present? && @params[:end_date].present?) ||
+       (@params[:date_from].present? && @params[:date_to].present?)
       filters[:date_range] = {
-        start: @params[:start_date],
-        end: @params[:end_date]
+        start: @params[:date_from] || @params[:start_date],
+        end: @params[:date_to] || @params[:end_date]
       }
     end
 

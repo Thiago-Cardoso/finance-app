@@ -45,7 +45,7 @@ RSpec.describe Category, type: :model do
 
   describe 'associations' do
     it { is_expected.to belong_to(:user).optional }
-    it { is_expected.to have_many(:transactions).dependent(:nullify) }
+    it { is_expected.to have_many(:transactions).dependent(:restrict_with_error) }
     it { is_expected.to have_many(:budgets).dependent(:restrict_with_error) }
   end
 
