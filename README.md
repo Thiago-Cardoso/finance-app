@@ -487,7 +487,7 @@ Clean and modern authentication interface featuring:
 
 ### Registration Page
 
-![Registration Page](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/pagina-registro.png)
+![Registration Page](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_640/v1761786421/pagina-registro_kionsf.png)
 
 User-friendly registration process with:
 - First name, last name, email, and password fields
@@ -499,7 +499,7 @@ User-friendly registration process with:
 
 ### Dashboard - Main View
 
-![Dashboard After Registration](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-after-register.png)
+![Dashboard After Registration](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_640/v1761786421/dashboard-after-register_arrdyt.png)
 
 Comprehensive financial overview displaying:
 - **Quick Actions Panel**: Fast access to create transactions, budgets, and goals
@@ -515,7 +515,7 @@ Comprehensive financial overview displaying:
 
 ### Dashboard - Goals Widget
 
-![Dashboard Goals Fixed](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-goal-fixed.png)
+![Dashboard Goals Fixed](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786423/dashboard-goal-issue_lizvrb.png)
 
 Enhanced goals section featuring:
 - Progress bars with percentage completion
@@ -528,7 +528,7 @@ Enhanced goals section featuring:
 
 ### Dashboard - Chart View
 
-![Dashboard Chart Fixed](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-chart-fixed.png)
+![Dashboard Chart Fixed](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786421/dashboard-chart-fixed_xslk2o.png)
 
 Interactive analytics visualization:
 - Responsive Recharts implementation
@@ -541,7 +541,7 @@ Interactive analytics visualization:
 
 ### Transactions Page - Filters
 
-![Transactions Page with Filters](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/transactions-selects-after-reload.png)
+![Transactions Page with Filters](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786421/transactions-selects-after-reload_rmrs1t.png)
 
 Advanced transaction management interface:
 - **Filter Options**:
@@ -561,7 +561,7 @@ Advanced transaction management interface:
 
 ### Reports Page - Combobox Filters
 
-![Reports Page Combobox](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/reports-page-combobox.png)
+![Reports Page Combobox](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786422/reports-page-combobox_rovggv.png)
 
 Sophisticated reporting interface with:
 - Custom styled Select components using Tailwind CSS
@@ -577,7 +577,7 @@ Sophisticated reporting interface with:
 
 ### Swagger API Documentation
 
-![Swagger UI Screenshot](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/swagger-ui-screenshot.png)
+![Swagger UI Screenshot](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786421/swagger-ui-screenshot_ywzlys.png)
 
 Complete interactive API documentation featuring:
 - **Organized Endpoints**: Grouped by functionality (Authentication, Transactions, Categories, etc.)
