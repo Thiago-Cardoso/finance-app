@@ -475,7 +475,7 @@ finance-app/
 
 ### Login Screen
 
-![Login Screen](screen/tela-login.png)
+![Login Screen](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/tela-login.png)
 
 Clean and modern authentication interface featuring:
 - Email and password fields with validation
@@ -487,7 +487,7 @@ Clean and modern authentication interface featuring:
 
 ### Registration Page
 
-![Registration Page](screen/pagina-registro.png)
+![Registration Page](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/pagina-registro.png)
 
 User-friendly registration process with:
 - First name, last name, email, and password fields
@@ -499,7 +499,7 @@ User-friendly registration process with:
 
 ### Dashboard - Main View
 
-![Dashboard After Registration](screen/dashboard-after-register.png)
+![Dashboard After Registration](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-after-register.png)
 
 Comprehensive financial overview displaying:
 - **Quick Actions Panel**: Fast access to create transactions, budgets, and goals
@@ -515,7 +515,7 @@ Comprehensive financial overview displaying:
 
 ### Dashboard - Goals Widget
 
-![Dashboard Goals Fixed](screen/dashboard-goal-fixed.png)
+![Dashboard Goals Fixed](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-goal-fixed.png)
 
 Enhanced goals section featuring:
 - Progress bars with percentage completion
@@ -528,7 +528,7 @@ Enhanced goals section featuring:
 
 ### Dashboard - Chart View
 
-![Dashboard Chart Fixed](screen/dashboard-chart-fixed.png)
+![Dashboard Chart Fixed](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-chart-fixed.png)
 
 Interactive analytics visualization:
 - Responsive Recharts implementation
@@ -541,7 +541,7 @@ Interactive analytics visualization:
 
 ### Transactions Page - Filters
 
-![Transactions Page with Filters](screen/transactions-selects-after-reload.png)
+![Transactions Page with Filters](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/transactions-selects-after-reload.png)
 
 Advanced transaction management interface:
 - **Filter Options**:
@@ -561,7 +561,7 @@ Advanced transaction management interface:
 
 ### Reports Page - Combobox Filters
 
-![Reports Page Combobox](screen/reports-page-combobox.png)
+![Reports Page Combobox](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/reports-page-combobox.png)
 
 Sophisticated reporting interface with:
 - Custom styled Select components using Tailwind CSS
@@ -577,7 +577,7 @@ Sophisticated reporting interface with:
 
 ### Swagger API Documentation
 
-![Swagger UI Screenshot](screen/swagger-ui-screenshot.png)
+![Swagger UI Screenshot](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/swagger-ui-screenshot.png)
 
 Complete interactive API documentation featuring:
 - **Organized Endpoints**: Grouped by functionality (Authentication, Transactions, Categories, etc.)
@@ -595,7 +595,7 @@ Complete interactive API documentation featuring:
 
 #### Dashboard - Goal Issue Resolution
 
-![Dashboard Goal Issue](screen/dashboard-goal-issue.png)
+![Dashboard Goal Issue](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-goal-issue.png)
 
 Example of the AI-assisted debugging process:
 - Real-time issue identification using IDE MCP
