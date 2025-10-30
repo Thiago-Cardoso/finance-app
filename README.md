@@ -27,6 +27,128 @@ A full-stack web application for personal finance management, allowing control o
   - **Recharts** - Charts and visualizations
   - **Axios** - HTTP client
 
+## AI-Powered Development
+
+This project was developed using **Claude Sonnet 4.5** with an advanced AI-driven workflow that leverages specialized agents and Model Context Protocol (MCP) integrations. The development process showcases modern AI-assisted software engineering practices.
+
+### Development Workflow
+
+The project follows a structured AI-assisted development methodology:
+
+1. **Product Requirements Document (PRD)** - Using the `creator-prd` agent
+   - Initial feature conceptualization and requirements gathering
+   - Stakeholder needs analysis
+   - Success criteria definition
+   - User stories and acceptance criteria
+
+2. **Technical Specification** - Using the `creator-techspec` agent
+   - Architectural design decisions
+   - Technology stack selection
+   - Database schema design
+   - API endpoint specifications
+   - Component structure planning
+
+3. **Task Breakdown** - Using the `creator-tasks` agent
+   - Comprehensive task list generation
+   - Identification of sequential dependencies
+   - Maximization of parallel work streams
+   - Priority assignment and time estimation
+
+4. **Task Execution** - Using specialized execution agents
+   - Automated code generation
+   - Test-driven development
+   - Real-time debugging and fixes
+   - Code quality assurance
+
+### AI Agents Architecture
+
+ `.claude/agents/`, the project utilizes specialized agents:
+
+- **creator-prd**: Generates comprehensive Product Requirement Documents using standardized templates
+- **creator-techspec**: Creates detailed Technical Specifications from approved PRDs
+- **creator-tasks**: Analyzes PRD and Tech Spec to generate granular, actionable task lists
+- **github-commit-pr-agent**: Handles Git operations, commit creation, and pull request management
+
+### MCP Integrations
+
+The development process integrates several Model Context Protocol (MCP) servers for enhanced capabilities:
+
+#### Context7 MCP
+- **Purpose**: Real-time access to up-to-date library documentation
+- **Usage**: Ensuring code follows current best practices and latest API specifications
+- **Benefits**: Reduced documentation lookup time, accurate implementation patterns
+
+#### Playwright MCP
+- **Purpose**: Browser automation and end-to-end testing
+- **Usage**: Automated UI testing, screenshot capture, and interaction validation
+- **Benefits**: Comprehensive test coverage, visual regression testing
+
+#### Supabase MCP
+- **Purpose**: Database management and operations
+- **Usage**: Schema migrations, query execution, and data validation
+- **Benefits**: Streamlined database operations, type-safe queries
+
+#### GitHub MCP with Copilot Integration
+- **Purpose**: Code review automation and pull request management
+- **Usage**:
+  - Automated code review with GitHub Copilot
+  - Pull request creation following conventional commits
+  - Code quality checks and suggestions
+  - Automated changelog generation
+- **Benefits**: Consistent code quality, faster review cycles, standardized commit messages
+
+#### IDE MCP
+- **Purpose**: Direct integration with development environment
+- **Usage**: Real-time diagnostics, code navigation, and error detection
+- **Benefits**: Immediate feedback, reduced context switching
+
+### Slash Commands
+
+Custom slash commands (`.claude/commands/`) streamline the development workflow:
+
+- `/creator-prd` - Initialize PRD creation for new features
+- `/creator-techspec` - Generate technical specifications from PRDs
+- `/creator-tasks` - Break down specifications into actionable tasks
+- `/execute-task` - Execute specific tasks from the task list
+- `/review-task` - Review and validate completed tasks
+
+### Development Benefits
+
+This AI-powered approach delivered several key advantages:
+
+1. **Consistency**: Standardized documentation and code patterns across the entire codebase
+2. **Speed**: Rapid prototyping and implementation with automated code generation
+3. **Quality**: Built-in test generation and continuous validation
+4. **Documentation**: Comprehensive, always up-to-date technical documentation
+5. **Best Practices**: Automatic adherence to framework conventions and design patterns
+6. **Testing**: 478 comprehensive tests achieving 100% pass rate
+7. **Collaboration**: Clear task breakdown enabling potential team scaling
+
+### Example Workflow
+
+```
+User Request → PRD Generation → Tech Spec Creation → Task Breakdown
+     ↓              ↓                  ↓                   ↓
+  Context7      Database          API Design        Sequential
+  Research      Schema          Components         & Parallel
+                Design          Structure           Tasks
+                   ↓                  ↓                   ↓
+            Implementation → Testing → Code Review → PR Creation
+                   ↓              ↓          ↓            ↓
+               Playwright     RSpec Tests  GitHub    Conventional
+               E2E Tests      100% Pass    Copilot    Commits
+```
+
+### Learn More
+
+To explore the AI agents and commands used in this project:
+
+- Agent definitions: `.claude/agents/`
+- Slash commands: `.claude/commands/`
+- MCP configuration: `.mcp.json`
+
+This development methodology demonstrates how AI can augment software engineering workflows while maintaining high code quality, comprehensive testing, and proper documentation standards.
+
 ## Features
 
 ### Financial Management
@@ -351,51 +473,141 @@ finance-app/
 
 ## Application Screenshots
 
-### Dashboard
+### Login Screen
 
-The dashboard provides a complete view of your finances with:
+![Login Screen](screen/tela-login.png)
 
-  - Monthly financial summary (income, expenses, balance)
-  - Balance evolution chart for the last 6 months
-  - Top 5 expense categories with a pie chart
-  - Status of active budgets
-  - Progress of financial goals
-  - List of recent transactions
+Clean and modern authentication interface featuring:
+- Email and password fields with validation
+- Remember me functionality
+- Secure JWT token-based authentication
+- Dark mode support
+- Responsive design for all devices
+- Password recovery option
 
-### Transactions Page
+### Registration Page
 
-A complete interface for managing transactions:
+![Registration Page](screen/pagina-registro.png)
 
-  - List of all transactions (income, expenses, transfers)
-  - Filters by type and category
-  - Advanced filters (date, account, amount)
-  - Button to add a new transaction
-  - Detailed view with category and amount
-  - Edit and delete options for each transaction
+User-friendly registration process with:
+- First name, last name, email, and password fields
+- Real-time validation feedback
+- Password strength indicator
+- Terms and conditions acceptance
+- Automatic login after successful registration
+- Clean error handling and user feedback
 
-### Goals Page
+### Dashboard - Main View
 
-Track the progress of your financial goals:
+![Dashboard After Registration](screen/dashboard-after-register.png)
 
-  - Cards with a summary of goals (total, active, completed)
-  - Overall progress percentage
-  - Filters by status, type, and priority
-  - View of each goal with a progress bar
-  - Details of target amount and deadline
-  - Visual status (active, completed, etc.)
+Comprehensive financial overview displaying:
+- **Quick Actions Panel**: Fast access to create transactions, budgets, and goals
+- **Financial Summary Cards**:
+  - Total income for the current month
+  - Total expenses tracked
+  - Current balance with variation indicator
+- **Monthly Trend Chart**: Interactive line chart showing balance evolution over the last 6 months
+- **Top Expense Categories**: Pie chart visualization of spending distribution
+- **Recent Transactions**: Latest financial activities with category tags
+- **Goals Progress Widget**: Visual progress bars for active financial goals
+- **Budget Status**: Real-time tracking of budget utilization
+
+### Dashboard - Goals Widget
+
+![Dashboard Goals Fixed](screen/dashboard-goal-fixed.png)
+
+Enhanced goals section featuring:
+- Progress bars with percentage completion
+- Target amount and current amount display
+- Days remaining until deadline
+- Visual status indicators (active, paused, completed)
+- Quick contribution button
+- Color-coded priority levels
+- Smooth animations and transitions
+
+### Dashboard - Chart View
+
+![Dashboard Chart Fixed](screen/dashboard-chart-fixed.png)
+
+Interactive analytics visualization:
+- Responsive Recharts implementation
+- 6-month balance evolution trend line
+- Hover tooltips with detailed information
+- Smooth animations on data updates
+- Color-coded positive/negative changes
+- Mobile-responsive chart scaling
+- Export capability for reports
+
+### Transactions Page - Filters
+
+![Transactions Page with Filters](screen/transactions-selects-after-reload.png)
+
+Advanced transaction management interface:
+- **Filter Options**:
+  - Transaction type (Income, Expense, Transfer)
+  - Category selection with custom categories
+  - Date range picker
+  - Account filter
+  - Amount range filter
+- **Transaction List**:
+  - Color-coded by type (green for income, red for expense)
+  - Category badges with icons
+  - Account information display
+  - Date and time stamps
+  - Quick edit and delete actions
+- **Search Functionality**: Smart search with suggestions
+- **Pagination**: Efficient handling of large transaction sets
+
+### Reports Page - Combobox Filters
+
+![Reports Page Combobox](screen/reports-page-combobox.png)
+
+Sophisticated reporting interface with:
+- Custom styled Select components using Tailwind CSS
+- Multiple filter dimensions:
+  - Report type (Financial Summary, Budget Performance, etc.)
+  - Period type (Daily, Weekly, Monthly, Quarterly, Yearly)
+  - Date range selection
+  - Category and account filters
+- **Export Options**: PDF, Excel (XLSX), and CSV formats
+- Saved reports list with pagination
+- Report preview capability
+- Scheduled report generation
 
 ### Swagger API Documentation
 
-Complete interactive API documentation:
+![Swagger UI Screenshot](screen/swagger-ui-screenshot.png)
 
-  - All endpoints organized by category
-  - Request and response schemas
-  - "Authorize" button for authentication
-  - Direct testing of endpoints in the interface
-  - Request examples
-  - Detailed description of each endpoint
-  - HTTP status codes
-  - Data models
+Complete interactive API documentation featuring:
+- **Organized Endpoints**: Grouped by functionality (Authentication, Transactions, Categories, etc.)
+- **Interactive Testing**: Try out API calls directly from the interface
+- **Authentication Integration**:
+  - Authorize button for JWT token input
+  - Automatic header injection for authenticated requests
+- **Schema Definitions**: Detailed request/response models
+- **HTTP Status Codes**: Comprehensive error handling documentation
+- **Example Requests**: Pre-filled with sample data
+- **OpenAPI 3.0 Specification**: Industry-standard documentation format
+- **Server Selection**: Toggle between development and production environments
+
+### Development Flow Screenshots
+
+#### Dashboard - Goal Issue Resolution
+
+![Dashboard Goal Issue](screen/dashboard-goal-issue.png)
+
+Example of the AI-assisted debugging process:
+- Real-time issue identification using IDE MCP
+- Visual feedback on component rendering problems
+- Quick iteration and testing cycle
+- Immediate fix validation with Playwright MCP
+
+This screenshot demonstrates how the AI-powered development workflow handles issues:
+1. Issue detected during testing
+2. Automated diagnosis using integrated tools
+3. Fix applied with validation
+4. Visual confirmation of resolution
 
 ## Troubleshooting
 
