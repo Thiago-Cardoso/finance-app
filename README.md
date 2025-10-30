@@ -559,6 +559,39 @@ Advanced transaction management interface:
 - **Search Functionality**: Smart search with suggestions
 - **Pagination**: Efficient handling of large transaction sets
 
+### Goals Management Page
+
+![Goals Page](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761787994/goals-after-refresh_doolgp.png)
+
+Comprehensive financial goals tracking system:
+- **Goals Summary Dashboard**:
+  - Total goals count
+  - Active goals tracking
+  - Completed goals achievements
+  - Overall progress percentage across all goals
+- **Advanced Filtering System**:
+  - Filter by status (active, paused, completed, failed, cancelled)
+  - Filter by goal type (savings, debt payoff, investment, expense reduction, general)
+  - Filter by priority (low, medium, high, urgent)
+  - Clear filters button for quick reset
+- **Goal Cards**:
+  - Visual progress bars with percentage completion
+  - Target amount and current amount display
+  - Deadline date with days remaining calculation
+  - Goal type badge with icon
+  - Priority level indicator
+  - Quick action buttons (edit, delete, add contribution)
+- **Goal Types Supported**:
+  - Savings goals for future purchases
+  - Debt payoff tracking
+  - Investment goals
+  - Expense reduction targets
+  - General financial objectives
+- **Auto-tracking Feature**: Automatically track progress based on transactions
+- **Contribution History**: Track all contributions made towards each goal
+- **Status Management**: Mark goals as paused, completed, or cancelled
+- **Progress Analytics**: Visual representation of goal achievement
+
 ### Reports Page - Combobox Filters
 
 ![Reports Page Combobox](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786422/reports-page-combobox_rovggv.png)
@@ -595,7 +628,7 @@ Complete interactive API documentation featuring:
 
 #### Dashboard - Goal Issue Resolution
 
-![Dashboard Goal Issue](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/dashboard-goal-issue.png)
+![Dashboard Goal Issue](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_860/v1761786423/dashboard-goal-issue_lizvrb.png)
 
 Example of the AI-assisted debugging process:
 - Real-time issue identification using IDE MCP
