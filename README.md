@@ -475,7 +475,7 @@ finance-app/
 
 ### Login Screen
 
-![Login Screen](https://raw.githubusercontent.com/Thiago-Cardoso/finance-app/master/screen/tela-login.png)
+![Login Screen](https://res.cloudinary.com/dzut5oail/image/upload/c_scale,w_640/v1761786421/tela-login_crpho3.png)
 
 Clean and modern authentication interface featuring:
 - Email and password fields with validation
