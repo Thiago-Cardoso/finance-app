@@ -1,11 +1,12 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function NewTransactionPage() {
+function NewTransactionContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const type = searchParams.get('type') as 'income' | 'expense' | 'transfer' | null
@@ -58,5 +59,17 @@ export default function NewTransactionPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function NewTransactionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-gray-600 dark:text-gray-400">Carregando...</div>
+      </div>
+    }>
+      <NewTransactionContent />
+    </Suspense>
   )
 }

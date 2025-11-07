@@ -145,10 +145,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }).format(dateObj)
   }, [locale])
 
-  if (!mounted) {
-    return null
-  }
-
+  // Always render children, just mark as not mounted for initial render
   return (
     <LocaleContext.Provider value={{
       locale,
