@@ -9,9 +9,13 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     # In production, use FRONTEND_URL env variable or default domains
     # In development, allow localhost on multiple ports
-    origins Rails.env.production? ?
-      (ENV['FRONTEND_URL'] || 'https://finance-app.vercel.app').split(',').map(&:strip) :
-      ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:3002']
+    if Rails.env.production?
+      frontend_urls = ENV['FRONTEND_URL']&.split(',')&.map(&:strip) || []
+      # Always include the Vercel URL as fallback
+      origins frontend_urls + ['https://finance-app-lake-one.vercel.app']
+    else
+      origins ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:3002']
+    end
 
     resource '*',
       headers: :any,
