@@ -128,6 +128,7 @@ export default function GoalsPage() {
 
         {/* Goal Form Modal */}
         <GoalFormModal
+          goal={null}
           isOpen={isModalOpen}
           onClose={() => {
             setIsModalOpen(false)
