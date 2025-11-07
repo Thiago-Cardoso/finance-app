@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
-  mount Rswag::Ui::Engine => '/api-docs'
-  mount Rswag::Api::Engine => '/api-docs'
+  # Mount Rswag only in development and test environments
+  if defined?(Rswag)
+    mount Rswag::Ui::Engine => '/api-docs' if defined?(Rswag::Ui::Engine)
+    mount Rswag::Api::Engine => '/api-docs' if defined?(Rswag::Api::Engine)
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Devise routes - skip controllers but keep routes for URL helpers in mailers
@@ -9,6 +13,9 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get 'up' => 'rails/health#show', as: :rails_health_check
+
+  # Simple health check for Render and other monitoring services
+  get 'health' => 'rails/health#show'
 
   # API v1 routes
   namespace :api do
