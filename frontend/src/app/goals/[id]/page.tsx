@@ -169,7 +169,7 @@ export default function GoalDetailPage() {
               {goal.goal_milestones && goal.goal_milestones.length > 0 && (
                 <GoalMilestones
                   milestones={goal.goal_milestones}
-                  currentProgress={progress}
+                  goal={goal}
                 />
               )}
 

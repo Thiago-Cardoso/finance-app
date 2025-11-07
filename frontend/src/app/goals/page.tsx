@@ -96,7 +96,7 @@ export default function GoalsPage() {
         />
 
         {/* Summary */}
-        <GoalsSummary meta={meta} />
+        {meta && <GoalsSummary meta={meta} />}
 
         {/* Filters */}
         <GoalFilters filters={filters} onFiltersChange={setFilters} />
