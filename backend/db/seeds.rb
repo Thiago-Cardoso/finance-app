@@ -5,8 +5,8 @@
 
 puts 'Seeding database...'
 
-# Clear existing default categories
-Category.where(is_default: true).destroy_all
+# Clear existing default categories (only if you want to reset)
+# Category.where(is_default: true).destroy_all
 
 # Default expense categories
 expense_categories = [
@@ -43,30 +43,54 @@ income_categories = [
 
 # Create expense categories
 expense_categories.each do |category_data|
-  Category.create!(
+  category = Category.find_or_initialize_by(
     name: category_data[:name],
-    icon: category_data[:icon],
-    color: category_data[:color],
     category_type: category_data[:category_type],
     is_default: true,
-    is_active: true,
     user_id: nil
   )
-  puts "Created default expense category: #{category_data[:name]}"
+
+  category.assign_attributes(
+    icon: category_data[:icon],
+    color: category_data[:color],
+    is_active: true
+  )
+
+  if category.new_record?
+    category.save!
+    puts "✅ Created default expense category: #{category_data[:name]}"
+  elsif category.changed?
+    category.save!
+    puts "♻️  Updated default expense category: #{category_data[:name]}"
+  else
+    puts "⏭️  Skipped (already exists): #{category_data[:name]}"
+  end
 end
 
 # Create income categories
 income_categories.each do |category_data|
-  Category.create!(
+  category = Category.find_or_initialize_by(
     name: category_data[:name],
-    icon: category_data[:icon],
-    color: category_data[:color],
     category_type: category_data[:category_type],
     is_default: true,
-    is_active: true,
     user_id: nil
   )
-  puts "Created default income category: #{category_data[:name]}"
+
+  category.assign_attributes(
+    icon: category_data[:icon],
+    color: category_data[:color],
+    is_active: true
+  )
+
+  if category.new_record?
+    category.save!
+    puts "✅ Created default income category: #{category_data[:name]}"
+  elsif category.changed?
+    category.save!
+    puts "♻️  Updated default income category: #{category_data[:name]}"
+  else
+    puts "⏭️  Skipped (already exists): #{category_data[:name]}"
+  end
 end
 
 puts "Seed completed! Created #{Category.count} default categories."
