@@ -7,8 +7,10 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
+    # In production, use FRONTEND_URL env variable or default domains
+    # In development, allow localhost on multiple ports
     origins Rails.env.production? ?
-      ['https://finance-app.vercel.app', 'https://finance-app-demo.vercel.app'] :
+      (ENV['FRONTEND_URL'] || 'https://finance-app.vercel.app').split(',').map(&:strip) :
       ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3001', 'http://localhost:3002']
 
     resource '*',
