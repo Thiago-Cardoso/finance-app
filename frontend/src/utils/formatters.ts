@@ -71,3 +71,20 @@ export function formatCompactNumber(value: number | string): string {
     compactDisplay: 'short',
   }).format(numValue);
 }
+
+/**
+ * Format a date in short format (DD MMM - ex: 15 Jan)
+ * Useful for mobile displays and compact date representations
+ */
+export function formatShortDate(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+  }).format(dateObj);
+}
