@@ -1,6 +1,6 @@
 name: Deploy Backend to Render
 
-# Temporariamente desabilitado durante desenvolvimento mobile
+# Deploy apenas quando master for atualizada
 on:
   push:
     branches:
@@ -15,7 +15,6 @@ jobs:
   test:
     name: Run Backend Tests
     runs-on: ubuntu-latest
-    if: false  # Temporariamente desabilitado
 
     services:
       postgres:
@@ -73,7 +72,7 @@ jobs:
     name: Deploy to Render
     needs: test
     runs-on: ubuntu-latest
-    if: false  # Temporariamente desabilitado
+    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout code
