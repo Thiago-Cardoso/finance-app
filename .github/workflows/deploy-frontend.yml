@@ -1,5 +1,6 @@
 name: Deploy Frontend to Vercel
 
+# Temporariamente desabilitado durante desenvolvimento mobile
 on:
   push:
     branches:
@@ -13,6 +14,7 @@ jobs:
   test:
     name: Run Frontend Tests
     runs-on: ubuntu-latest
+    if: false  # Temporariamente desabilitado
 
     steps:
       - name: Checkout code
@@ -51,7 +53,7 @@ jobs:
     name: Deploy to Vercel
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    if: false  # Temporariamente desabilitado
 
     steps:
       - name: Checkout code
