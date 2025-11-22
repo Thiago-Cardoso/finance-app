@@ -5,10 +5,10 @@
  */
 
 import React from 'react';
-import { View, Text, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, RefreshControl, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Tag, Wallet, Target, ChevronRight } from 'lucide-react-native';
+import { Tag, Wallet, Target } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useDashboardViewModel } from '@/viewModels/useDashboard.viewModel';
 import { SummaryCard } from './components/SummaryCard';
@@ -46,7 +46,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
  * Quick Actions Component
  */
 function QuickActions() {
-  const { colors, theme } = useTheme();
+  const { colors } = useTheme();
   const navigation = useNavigation();
 
   const actions = [
@@ -60,13 +60,13 @@ function QuickActions() {
       icon: Wallet,
       label: 'Contas',
       color: '#3B82F6',
-      onPress: () => {}, // TODO: Navigate to Accounts
+      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
     },
     {
       icon: Target,
       label: 'Orçamentos',
       color: '#10B981',
-      onPress: () => {}, // TODO: Navigate to Budgets
+      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
     },
   ];
 

@@ -141,7 +141,7 @@ export function useCategoryViewModel() {
       const category = getCategoryById(id);
       if (!category) return false;
       // Cannot delete if it's a default category or has transactions
-      return !category.is_default && (category.transactions_count ?? 0) === 0;
+      return !category.is_default && (category.usage_stats?.transactions_count ?? 0) === 0;
     },
     [getCategoryById]
   );
