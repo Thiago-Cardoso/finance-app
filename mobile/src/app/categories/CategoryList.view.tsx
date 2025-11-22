@@ -13,7 +13,7 @@ import {
   RefreshControl,
   Alert,
 } from 'react-native';
-import { Plus, Trash2, Tag } from 'lucide-react-native';
+import { Plus, Tag } from 'lucide-react-native';
 import { Screen } from '@/shared/components/ui/Screen';
 import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { FAB } from '@/shared/components/ui/FAB';

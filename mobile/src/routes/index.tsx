@@ -18,6 +18,7 @@ import { AppRoutes } from './app.routes';
 // import { OnboardingView } from '@/app/onboarding/Onboarding.view';
 // import { InitialSetupView } from '@/app/onboarding/InitialSetup.view';
 import { CategoryListView, CategoryFormView } from '@/app/categories';
+import { useCategoriesStore } from '@/shared/stores/categoriesStore';
 import type { RootStackParamList } from './types';
 import type { Category } from '@/shared/models/Category.model';
 
@@ -159,13 +160,19 @@ export function Routes() {
               )}
             </Stack.Screen>
             <Stack.Screen name="CategoryForm">
-              {({ navigation, route }) => (
-                <CategoryFormView
-                  category={undefined} // Will be fetched by categoryId from route params
-                  onSuccess={() => navigation.goBack()}
-                  onCancel={() => navigation.goBack()}
-                />
-              )}
+              {({ navigation, route }) => {
+                const categoryId = route.params?.categoryId;
+                const { getCategoryById } = useCategoriesStore();
+                const category = categoryId ? getCategoryById(categoryId) : undefined;
+                
+                return (
+                  <CategoryFormView
+                    category={category}
+                    onSuccess={() => navigation.goBack()}
+                    onCancel={() => navigation.goBack()}
+                  />
+                );
+              }}
             </Stack.Screen>
           </>
         )}
