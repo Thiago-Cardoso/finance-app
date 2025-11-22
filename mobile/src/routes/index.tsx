@@ -17,7 +17,9 @@ import { AppRoutes } from './app.routes';
 // TEMPORARY: Onboarding disabled due to reanimated incompatibility with Expo Go
 // import { OnboardingView } from '@/app/onboarding/Onboarding.view';
 // import { InitialSetupView } from '@/app/onboarding/InitialSetup.view';
+import { CategoryListView, CategoryFormView } from '@/app/categories';
 import type { RootStackParamList } from './types';
+import type { Category } from '@/shared/models/Category.model';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -47,6 +49,8 @@ const linking = {
       TransactionDetails: 'transactions/:transactionId',
       AccountForm: 'accounts/new',
       BudgetForm: 'budgets/new',
+      CategoryList: 'categories',
+      CategoryForm: 'categories/edit',
     },
   },
 };
@@ -140,7 +144,30 @@ export function Routes() {
         {!isAuthenticated ? (
           <Stack.Screen name="Auth" component={AuthRoutes} />
         ) : (
-          <Stack.Screen name="App" component={AppRoutes} />
+          <>
+            <Stack.Screen name="App" component={AppRoutes} />
+            <Stack.Screen name="CategoryList">
+              {({ navigation }) => (
+                <CategoryListView
+                  onNavigateToForm={(category?: Category) => {
+                    navigation.navigate('CategoryForm', {
+                      categoryId: category?.id,
+                    });
+                  }}
+                  onBack={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="CategoryForm">
+              {({ navigation, route }) => (
+                <CategoryFormView
+                  category={undefined} // Will be fetched by categoryId from route params
+                  onSuccess={() => navigation.goBack()}
+                  onCancel={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
