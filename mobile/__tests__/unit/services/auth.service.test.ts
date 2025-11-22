@@ -28,7 +28,7 @@ describe('Auth Service', () => {
 
       const result = await authService.signIn(signInData);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/login', signInData);
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/v1/auth/sign_in', signInData);
       expect(result).toEqual(mockAuthResponse);
     });
 
@@ -67,7 +67,7 @@ describe('Auth Service', () => {
 
       const result = await authService.signUp(signUpData);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/register', signUpData);
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/v1/auth/sign_up', { user: signUpData });
       expect(result).toEqual(mockAuthResponse);
     });
 
@@ -97,11 +97,11 @@ describe('Auth Service', () => {
 
   describe('signOut', () => {
     it('should sign out successfully', async () => {
-      mockedAxios.post.mockResolvedValue(createSuccessResponse({}));
+      mockedAxios.delete.mockResolvedValue(createSuccessResponse({}));
 
       await authService.signOut();
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/logout');
+      expect(mockedAxios.delete).toHaveBeenCalledWith('/api/v1/auth/sign_out');
     });
   });
 
@@ -113,7 +113,7 @@ describe('Auth Service', () => {
 
       await authService.forgotPassword(email);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/forgot-password', {
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/v1/auth/forgot_password', {
         email,
       });
     });
@@ -142,7 +142,7 @@ describe('Auth Service', () => {
 
       const result = await authService.getCurrentUser();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/auth/me');
+      expect(mockedAxios.get).toHaveBeenCalledWith('/api/v1/auth/me');
       expect(result).toEqual(mockUser);
     });
 
@@ -174,7 +174,7 @@ describe('Auth Service', () => {
 
       const result = await authService.refreshAuthToken(refreshToken);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/refresh', {
+      expect(mockedAxios.post).toHaveBeenCalledWith('/api/v1/auth/refresh', {
         refresh_token: refreshToken,
       });
       expect(result).toEqual(newAuthResponse);

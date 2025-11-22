@@ -17,9 +17,9 @@ jest.mock('@/shared/stores/authStore');
 jest.mock('@/shared/services/api/auth.service');
 
 describe('useAuth ViewModel', () => {
-  const mockSetUser = jest.fn();
-  const mockSetTokens = jest.fn();
-  const mockClearAuth = jest.fn();
+  const mockLogin = jest.fn();
+  const mockLogout = jest.fn();
+  const mockLoadUser = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -28,9 +28,10 @@ describe('useAuth ViewModel', () => {
     (useAuthStore as unknown as jest.Mock).mockReturnValue({
       user: null,
       isAuthenticated: false,
-      setUser: mockSetUser,
-      setTokens: mockSetTokens,
-      clearAuth: mockClearAuth,
+      login: mockLogin,
+      logout: mockLogout,
+      loadUser: mockLoadUser,
+      setLoading: jest.fn(),
     });
   });
 
@@ -42,7 +43,7 @@ describe('useAuth ViewModel', () => {
       const { result } = renderHook(() => useAuthViewModel());
 
       await act(async () => {
-        await result.current.handleSignIn('test@example.com', 'password123');
+        await result.current.handleSignIn({ email: 'test@example.com', password: 'password123' });
       });
 
       expect(mockSignIn).toHaveBeenCalledWith({
@@ -66,15 +67,15 @@ describe('useAuth ViewModel', () => {
       const { result } = renderHook(() => useAuthViewModel());
 
       await act(async () => {
-        await result.current.handleSignIn('test@example.com', 'wrongpassword');
+        await result.current.handleSignIn({ email: 'test@example.com', password: 'wrongpassword' });
       });
 
       await waitFor(() => {
         expect(result.current.error).toBe('Invalid credentials');
       });
 
-      expect(mockSetUser).not.toHaveBeenCalled();
-      expect(mockSetTokens).not.toHaveBeenCalled();
+      expect(mockLogin).not.toHaveBeenCalled();
+      expect(mockLoadUser).not.toHaveBeenCalled();
     });
   });
 
@@ -98,11 +99,8 @@ describe('useAuth ViewModel', () => {
       });
 
       expect(mockSignUp).toHaveBeenCalledWith(signUpData);
-      expect(mockSetUser).toHaveBeenCalledWith(mockUser);
-      expect(mockSetTokens).toHaveBeenCalledWith(
-        'fake-jwt-token',
-        'fake-refresh-token'
-      );
+      expect(mockLogin).toHaveBeenCalledWith(mockAuthResponse);
+      expect(mockLoadUser).toHaveBeenCalledWith(mockUser);
     });
 
     it('should handle sign up error', async () => {
@@ -143,7 +141,7 @@ describe('useAuth ViewModel', () => {
       });
 
       expect(mockSignOut).toHaveBeenCalled();
-      expect(mockClearAuth).toHaveBeenCalled();
+      expect(mockLogout).toHaveBeenCalled();
     });
 
     it('should clear auth even if signOut fails', async () => {
@@ -156,7 +154,7 @@ describe('useAuth ViewModel', () => {
         await result.current.handleSignOut();
       });
 
-      expect(mockClearAuth).toHaveBeenCalled();
+      expect(mockLogout).toHaveBeenCalled();
     });
   });
 
@@ -168,10 +166,10 @@ describe('useAuth ViewModel', () => {
       const { result } = renderHook(() => useAuthViewModel());
 
       await act(async () => {
-        await result.current.handleForgotPassword('test@example.com');
+        await result.current.handleForgotPassword({ email: 'test@example.com' });
       });
 
-      expect(mockForgotPassword).toHaveBeenCalledWith('test@example.com');
+      expect(mockForgotPassword).toHaveBeenCalledWith({ email: 'test@example.com' });
       await waitFor(() => {
         expect(result.current.success).toBeTruthy();
       });
@@ -186,7 +184,7 @@ describe('useAuth ViewModel', () => {
       const { result } = renderHook(() => useAuthViewModel());
 
       await act(async () => {
-        await result.current.handleForgotPassword('nonexistent@example.com');
+        await result.current.handleForgotPassword({ email: 'nonexistent@example.com' });
       });
 
       await waitFor(() => {

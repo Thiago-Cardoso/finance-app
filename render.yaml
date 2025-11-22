@@ -1,0 +1,31 @@
+services:
+  # Backend Rails API
+  - type: web
+    name: finance-app-api
+    runtime: ruby
+    plan: free
+    region: oregon
+    buildCommand: "./bin/render-build.sh"
+    startCommand: "bundle exec rails server -b 0.0.0.0 -p $PORT"
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+      - key: RAILS_MAX_THREADS
+        value: 5
+      - key: DATABASE_URL
+        sync: false # Get this from Supabase Dashboard → Settings → Database
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false # Set this manually in Render dashboard
+    healthCheckPath: /health
+
+# Note: Using Supabase PostgreSQL (external database)
+# No database resource needed in render.yaml
+# Get DATABASE_URL from: Supabase Dashboard → Project Settings → Database → Connection String

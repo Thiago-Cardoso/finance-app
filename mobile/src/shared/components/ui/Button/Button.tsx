@@ -115,7 +115,12 @@ export function Button({
       {...rest}
     >
       {loading ? (
-        <ActivityIndicator color={loaderColors[variant]} size="small" />
+        <ActivityIndicator 
+          color={loaderColors[variant]} 
+          size="small" 
+          testID="button-loading"
+          accessibilityLabel="Loading"
+        />
       ) : (
         <View className="flex-row items-center gap-2">
           {LeftIcon && (

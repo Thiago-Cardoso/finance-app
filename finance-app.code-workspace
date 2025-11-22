@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "finance-app",
+			"path": "."
+		},
+		{
+			"name": "screen",
+			"path": "../screen"
+		}
+	],
+	"settings": {}
+}

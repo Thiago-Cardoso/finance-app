@@ -11,7 +11,7 @@ import { renderWithProviders } from '../../helpers/renderWithProviders';
 
 describe('Button Component', () => {
   it('renders correctly with title', () => {
-    const { getByText } = renderWithProviders(<Button title="Click Me" />);
+    const { getByText } = renderWithProviders(<Button title="Click Me" onPress={() => {}} />);
     expect(getByText('Click Me')).toBeTruthy();
   });
 
@@ -26,8 +26,8 @@ describe('Button Component', () => {
   });
 
   it('shows loading state', () => {
-    const { getByTestId, queryByText } = renderWithProviders(
-      <Button title="Submit" loading />
+    const { queryByText, getByTestId } = renderWithProviders(
+      <Button title="Submit" loading onPress={() => {}} />
     );
 
     expect(getByTestId('button-loading')).toBeTruthy();

@@ -1,0 +1,951 @@
+
+Randomized with seed 47601
+
+api/v1/accounts
+  /api/v1/accounts
+    post
+      Conta criada com sucesso
+        returns a 201 response
+      Dados inválidos
+        returns a 422 response
+      Não autorizado
+        returns a 401 response
+    get
+      Não autorizado
+        returns a 401 response
+      Lista de contas retornada
+        returns a 200 response
+  /api/v1/accounts/{id}
+    delete
+      Conta desativada
+        returns a 204 response
+      Não autorizado
+        returns a 401 response
+      Conta não encontrada
+        returns a 404 response
+    get
+      Conta não encontrada
+        returns a 404 response
+      Não autorizado
+        returns a 401 response
+      Conta encontrada
+        returns a 200 response
+    put
+      Dados inválidos
+        returns a 422 response
+      Conta não encontrada
+        returns a 404 response
+      Conta atualizada
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+
+Budget
+  callbacks
+    after_create
+      calculates spent amount on create
+  associations
+    is expected to belong to category required: true
+    is expected to belong to user required: true
+  scopes
+    .for_user
+      returns budgets for given user
+    .active
+      returns only active budgets
+    .by_period
+      returns budgets for given period
+    .current
+      returns budgets that include current date
+    .over_budget
+      returns budgets where spent exceeds amount
+  validations
+    is expected to validate that :spent looks like a number greater than or equal to 0
+    is expected to validate that :amount cannot be empty/falsy
+    is expected to validate that :end_date cannot be empty/falsy
+    is expected to validate that :start_date cannot be empty/falsy
+    is expected to validate that :spent cannot be empty/falsy
+    is expected to validate that :amount looks like a number greater than 0
+    is expected to validate that :period is either ‹"weekly"›, ‹"monthly"›, or ‹"yearly"›
+    is expected to validate that :name cannot be empty/falsy
+    is expected to validate that the length of :name is at most 100
+    when category is not expense type
+      is invalid
+    when end_date is before start_date
+      is invalid
+  instance methods
+    #is_over_budget?
+      returns false when spent is within amount
+      returns true when spent exceeds amount
+    #percentage_used
+      returns percentage of budget used
+      returns 0 when amount is 0
+    #is_near_limit?
+      returns false when below default threshold
+      returns true when at default threshold (90%)
+      accepts custom threshold
+    #remaining_amount
+      returns remaining budget amount
+    #calculate_spent_amount
+      does not include transactions outside date range
+      calculates spent amount within date range
+
+api/v1/auth
+  /api/v1/auth/update_password
+    put
+      Token inválido ou senha não confere
+        returns a 422 response
+      Senha atualizada com sucesso
+        returns a 200 response
+  /api/v1/auth/reset_password
+    post
+      Instruções enviadas (sempre retorna sucesso por segurança)
+        returns a 200 response
+  /api/v1/auth/sign_in
+    post
+      Login bem-sucedido
+        returns a 200 response
+      Credenciais inválidas
+        returns a 401 response
+  /api/v1/auth/sign_up
+    post
+      Erro de validação
+        returns a 422 response
+      Usuário criado com sucesso
+        returns a 201 response
+  /api/v1/auth/refresh_token
+    post
+      Refresh token inválido
+        returns a 401 response
+      Token renovado com sucesso
+        returns a 200 response
+  /api/v1/auth/sign_out
+    delete
+      Token inválido ou ausente
+        returns a 401 response
+      Logout bem-sucedido
+        returns a 200 response
+  /api/v1/auth/confirm_email
+    post
+      Token de confirmação inválido
+        returns a 422 response
+      Email confirmado com sucesso
+        returns a 200 response
+
+Goal
+  instance methods
+    #mark_as_achieved!
+      marks goal as achieved
+    #add_contribution
+      increases current_amount
+      marks goal as achieved when target is reached
+      does not exceed target amount
+    #monthly_target
+      returns 0 when deadline has passed
+      calculates monthly amount needed
+      returns 0 when months_remaining is 0
+    #progress_percentage
+      returns 0 when target_amount is 0
+      returns percentage of goal achieved
+    #is_overdue?
+      returns false when target_date is nil
+      returns false when achieved
+      returns true when past target_date and not achieved
+    #remaining_amount
+      returns remaining amount to reach goal
+    #days_remaining
+      returns days until target_date
+      returns 0 for overdue goals
+      returns 0 when target_date is nil
+  associations
+    is expected to belong to user required: true
+  scopes
+    .completed
+      returns only achieved goals
+    .active
+      returns only goals not yet achieved
+    .by_deadline
+      orders goals by target_date ascending
+    .overdue
+      returns only overdue goals
+    .for_user
+      returns goals for given user
+  validations
+    is expected to validate that :goal_type cannot be empty/falsy
+    is expected to validate that :target_amount cannot be empty/falsy
+    is expected to validate that :target_amount looks like a number greater than 0
+    is expected to validate that :name cannot be empty/falsy
+    is expected to validate that :status cannot be empty/falsy
+    is expected to validate that the length of :name is at most 100
+    is expected to validate that :current_amount looks like a number greater than or equal to 0
+    is expected to validate that :target_date cannot be empty/falsy
+    when current_amount exceeds target_amount
+      is invalid
+
+Reports::FinancialSummaryGenerator
+  protected methods
+    #report_name
+      returns a descriptive name
+    #report_type
+      returns financial_summary
+  #generate
+    with multiple transactions in different categories
+      calculates correct percentages for multiple categories
+    with custom date range
+      respects the date range filter
+    with daily trends
+      includes daily trends data
+    when generation fails
+      marks report as failed and raises error
+    with expense breakdown
+      includes expense breakdown by category
+    with invalid date range
+      raises an error
+    with income breakdown
+      includes income breakdown by category
+    with default filters (monthly)
+      marks report as completed
+      creates a report record
+      calculates correct summary totals
+      generates a financial summary report
+    with account balances
+      includes account balances
+  date range calculations
+    with custom dates
+      uses custom dates
+    with monthly period type
+      sets correct start and end dates
+  BaseGenerator helpers
+    #format_currency
+      formats currency correctly
+    #calculate_percentage
+      calculates percentage correctly
+
+Account
+  instance methods
+    #update_balance_from_transaction
+      with income transaction
+        increases current_balance
+      with expense transaction
+        decreases current_balance
+      with transfer transaction (target account)
+        increases current_balance of target account
+      with transfer transaction (source account)
+        decreases current_balance of source account
+  callbacks
+    after_create
+      sets current_balance to initial_balance
+  scopes
+    .for_user
+      returns accounts for given user
+    .active
+      returns only active accounts
+    .by_type
+      returns accounts for given type
+  associations
+    is expected to have many transfer_transactions dependent => nullify
+    is expected to have many transactions dependent => nullify
+    is expected to belong to user required: true
+  validations
+    is expected to validate that :name cannot be empty/falsy
+    is expected to validate that :initial_balance cannot be empty/falsy
+    is expected to validate that :account_type is either ‹"checking"›, ‹"savings"›, ‹"credit_card"›, ‹"investment"›, or ‹"cash"›
+    is expected to validate that :initial_balance looks like a number
+    is expected to validate that :current_balance cannot be empty/falsy
+    is expected to validate that the length of :name is at most 100
+    is expected to validate that :current_balance looks like a number
+
+api/v1/dashboard
+  /api/v1/dashboard
+    get
+      Não autorizado
+        returns a 401 response
+      Dashboard retornado com sucesso
+        returns a 200 response
+
+User
+  instance methods
+    #current_month_summary
+      does not include transactions from other months
+      returns income, expenses and balance for current month
+    #full_name
+      returns first name and last name combined
+  Devise modules
+    includes registerable
+    includes confirmable
+    includes database_authenticatable
+    includes validatable
+    includes recoverable
+    includes rememberable
+  associations
+    is expected to have many goals dependent => destroy
+    is expected to have many transactions dependent => destroy
+    is expected to have many categories dependent => destroy
+    is expected to have many accounts dependent => destroy
+    is expected to have many budgets dependent => destroy
+  validations
+    requires password on create
+    validates email format
+    is expected to validate that :last_name cannot be empty/falsy
+    is expected to validate that :email is case-insensitively unique
+    is expected to validate that :email cannot be empty/falsy
+    is expected to validate that the length of :last_name is at most 100
+    is expected to validate that :first_name cannot be empty/falsy
+    is expected to validate that the length of :first_name is at most 100
+  callbacks
+    #generate_jti
+      does not regenerate JTI on update
+      generates JTI before validation on create
+
+Report
+  associations
+    is expected to belong to user required: true
+  instance methods
+    #mark_as_processing!
+      updates status to processing
+    #mark_as_completed!
+      updates status to completed and sets generated_at
+    status predicate methods
+      returns correct status
+    #mark_as_failed!
+      updates status to failed
+  callbacks
+    before_create
+      sets default status to pending
+  enums
+    is expected to define :report_type as an enum backed by an integer with values ‹{financial_summary: 0, expense_breakdown: 1, income_analysis: 2, budget_performance: 3, category_analysis: 4, monthly_comparison: 5, yearly_overview: 6, cash_flow: 7, custom: 8}›, prefix: :report_type
+    is expected to define :period_type as an enum backed by an integer with values ‹{daily: 0, weekly: 1, monthly: 2, quarterly: 3, yearly: 4, custom_range: 5, all_time: 6}›, prefix: :period_type
+    is expected to define :status as an enum backed by an integer with values ‹{pending: 0, processing: 1, completed: 2, failed: 3}›, prefix: :status
+  validations
+    is expected to validate that :status cannot be empty/falsy
+    is expected to validate that the length of :name is between 2 and 100
+    is expected to validate that :report_type cannot be empty/falsy
+    is expected to validate that :name cannot be empty/falsy
+    is expected to validate that :period_type cannot be empty/falsy
+  scopes
+    .recent
+      orders reports by generated_at desc
+    .completed_reports
+      returns only completed reports
+    .by_type
+      filters reports by type
+    .pending_reports
+      returns only pending reports
+
+TransactionFilterService
+  #search_suggestions
+    returns empty array for blank query
+    returns matching descriptions
+    limits results to 10
+    returns empty array for query less than 2 characters
+  #filter_options
+    returns available filter options
+    returns user accounts
+    returns user categories
+  #call
+    with date period filters
+      filters by this_month
+      filters by last_month
+    with sorting
+      sorts by date descending by default
+      sorts by amount descending
+      sorts by amount ascending
+    with transaction type filter
+      filters by income
+      filters by expense
+    with combined filters
+      applies multiple filters together
+    without filters
+      returns all user transactions
+      calculates correct meta
+    with category filter
+      filters by single category
+      filters by multiple categories
+    with text search
+      performs case-insensitive search
+      filters by description
+    with custom date range
+      filters by date range
+    with amount range filter
+      filters by minimum amount
+      filters by amount range
+      filters by maximum amount
+    with meta
+      includes active filters in meta
+
+api/v1/analytics
+  /api/v1/analytics/reports/{id}
+    get
+      Não autorizado
+        returns a 401 response
+      Relatório encontrado
+        returns a 200 response
+      Relatório não encontrado
+        returns a 404 response
+    delete
+      Relatório não encontrado
+        returns a 404 response
+      Não autorizado
+        returns a 401 response
+      Relatório excluído
+        returns a 200 response
+  /api/v1/analytics/financial_summary
+    get
+      Parâmetros inválidos
+        returns a 422 response
+      Resumo financeiro gerado com sucesso
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+  /api/v1/analytics/reports
+    get
+      Não autorizado
+        returns a 401 response
+      Lista de relatórios retornada
+        returns a 200 response
+  /api/v1/analytics/export
+    get
+      Tipo de relatório ou formato inválido
+        returns a 400 response
+      Não autorizado
+        returns a 401 response
+      Arquivo exportado com sucesso
+PDF's built-in fonts have very limited support for internationalized text.
+If you need full UTF-8 support, consider using an external font instead.
+
+To disable this warning, add the following line to your code:
+Prawn::Fonts::AFM.hide_m17n_warning = true
+        returns a 200 response
+      Erro ao gerar relatório
+        returns a 422 response
+  /api/v1/analytics/budget_performance
+    get
+      Parâmetros inválidos
+        returns a 422 response
+      Não autorizado
+        returns a 401 response
+      Performance de orçamentos calculada
+        returns a 200 response
+
+Api::V1::Categories
+  GET /api/v1/categories
+    filters by category type (income)
+    returns user available categories (default + user custom)
+    filters by category type (expense)
+    requires authentication
+  DELETE /api/v1/categories/:id
+    requires authentication
+    prevents deleting other users categories
+    prevents deletion of categories with transactions
+    deletes user category without transactions
+    prevents deletion of default categories
+  PATCH /api/v1/categories/:id
+    prevents updating default categories
+    requires authentication
+    prevents updating other users categories
+    updates category
+    validates update params
+  GET /api/v1/categories/:id/transactions
+    requires authentication
+    returns transactions for category (only user transactions)
+    includes pagination meta
+    supports pagination
+  GET /api/v1/categories/:id
+    returns category details
+    requires authentication
+    returns usage_stats in response
+    returns 404 for non-existent category
+  POST /api/v1/categories
+    creates a new category
+    validates category_type
+    validates color format
+    validates required fields
+    requires authentication
+  GET /api/v1/categories/statistics
+    requires authentication
+    includes summary statistics
+    returns category statistics
+    includes category trends
+    includes top categories
+    supports date range filters
+    includes monthly breakdown
+
+Api::V1::Dashboard
+  GET /api/v1/dashboard
+    when user is authenticated
+      calculates financial summary correctly
+      returns correct total balance
+      calculates variation correctly
+      returns top categories
+      returns budget status
+      returns recent transactions
+      returns monthly evolution for last 6 months
+      returns goals progress
+      returns dashboard data successfully
+      with custom date range
+        accepts custom start_date and end_date
+      with invalid date range
+        handles invalid dates gracefully
+    when user is not authenticated
+      returns unauthorized
+    caching
+      invalidates cache when transaction is updated
+      uses cache for repeated requests
+
+DashboardService
+  #call
+    caches the result
+    returns dashboard data hash
+  #goals_progress
+    calculates progress percentage correctly
+    excludes achieved goals
+    handles zero target amount
+    returns up to 3 unachieved goals
+    calculates days remaining
+  #monthly_evolution
+    calculates balance correctly for each month
+    includes month name and formatted date
+    returns data for last 6 months
+  #recent_transactions
+    orders by date and created_at descending
+    returns last 10 transactions
+    includes category and account data
+  #financial_summary
+    calculates current month summary correctly
+    calculates previous month summary
+    handles zero previous balance
+    calculates variation percentage correctly
+  custom date range
+    accepts custom start_date and end_date
+    handles invalid dates gracefully
+  #budget_status
+    returns current active budgets
+    determines budget status correctly
+    excludes inactive budgets
+    calculates spent amount correctly
+  #total_balance
+    sums only active accounts
+  #top_categories
+    includes only current month expenses
+    returns top 5 expense categories by amount
+    calculates percentage correctly
+
+Api::V1::AnalyticsController
+  GET #reports
+    orders reports by most recent first
+    supports pagination
+    returns user reports
+    does not return other users reports
+  GET #show_report
+    returns the report details
+    when report belongs to another user
+      returns not found error
+    when report does not exist
+      returns not found error
+  GET #export
+    with invalid format
+      returns bad request error
+    with invalid report type
+      returns bad request error
+    with valid parameters
+      exports financial_summary as PDF
+      defaults to PDF format if not specified
+      exports budget_performance as Excel
+  GET #budget_performance
+    when authenticated
+      returns budget performance data
+      caches the result
+  GET #financial_summary
+    when authenticated
+      accepts filter parameters
+      caches the result
+      returns financial summary data
+    when generation fails
+      returns error response
+  DELETE #destroy_report
+    deletes the report
+    when report does not exist
+      returns not found error
+    when report belongs to another user
+      does not delete the report
+
+CurrencyFormatter
+  .format
+    formats large amounts with proper thousands separators
+    handles nil amount
+    formats positive amounts correctly
+    formats small amounts correctly
+    formats amounts with no decimal places
+    formats negative amounts correctly
+    handles zero amount
+  .format_with_raw
+    returns both raw and formatted values
+    handles zero amounts in raw format
+
+api/v1/categories
+  /api/v1/categories/{id}
+    get
+      Categoria não encontrada
+        returns a 404 response
+      Categoria encontrada
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+    put
+      Categoria atualizada
+        returns a 200 response
+      Proibido - não pode modificar categorias padrão
+        returns a 403 response
+      Categoria não encontrada
+        returns a 404 response
+      Não autorizado
+        returns a 401 response
+    delete
+      Categoria não encontrada
+        returns a 404 response
+      Proibido - não pode excluir categorias padrão
+        returns a 403 response
+      Não autorizado
+        returns a 401 response
+      Categoria excluída
+        returns a 204 response
+  /api/v1/categories/{id}/transactions
+    get
+      Transações da categoria retornadas
+        returns a 200 response
+      Categoria não encontrada
+        returns a 404 response
+      Não autorizado
+        returns a 401 response
+  /api/v1/categories/statistics
+    get
+      Estatísticas calculadas com sucesso
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+  /api/v1/categories
+    post
+      Não autorizado
+        returns a 401 response
+      Dados inválidos
+        returns a 422 response
+      Categoria criada com sucesso
+        returns a 201 response
+    get
+      Não autorizado
+        returns a 401 response
+      Lista de categorias retornada
+        returns a 200 response
+
+CategoryStatisticsService
+  #call
+    returns statistics hash with all sections
+  #category_summary
+    counts only active categories
+    returns correct summary statistics
+  #category_trends
+    handles categories with no previous data
+    identifies decreasing trends
+    identifies stable trends
+    calculates trends comparing current vs previous period
+  #parse_date
+    returns nil for empty strings
+    returns nil for invalid dates
+    parses valid date strings
+    returns nil for nil input
+  initialization with custom date range
+    handles invalid date strings gracefully
+    uses defaults when no dates provided
+    uses provided start and end dates
+  #monthly_breakdown
+    uses absolute values for amounts
+    groups transactions by category and month
+  #top_categories_by_amount
+    respects date range
+    returns categories sorted by total amount
+    limits results to top 10
+
+api/v1/transactions
+  /api/v1/transactions/search_suggestions
+    get
+      Não autorizado
+        returns a 401 response
+      Sugestões retornadas
+        returns a 200 response
+      Query muito curta retorna array vazio
+        returns a 200 response
+  /api/v1/transactions/{id}
+    delete
+      Não autorizado
+        returns a 401 response
+      Transação não encontrada
+        returns a 404 response
+      Transação excluída
+        returns a 200 response
+    put
+      Transação não encontrada
+        returns a 404 response
+      Transação atualizada
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+    get
+      Transação não encontrada
+        returns a 404 response
+      Transação encontrada
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+  /api/v1/transactions/filter_options
+    get
+      Não autorizado
+        returns a 401 response
+      Opções de filtros retornadas
+        returns a 200 response
+  /api/v1/transactions
+    get
+      Lista de transações retornada
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+    post
+      Dados inválidos
+        returns a 422 response
+      Transação criada com sucesso
+        returns a 201 response
+      Não autorizado
+        returns a 401 response
+  /api/v1/transactions/summary
+    get
+      Resumo calculado com sucesso
+        returns a 200 response
+      Não autorizado
+        returns a 401 response
+
+Transaction
+  instance methods
+    #transfer?
+      returns true for transfer transactions
+      returns false for non-transfer transactions
+    #expense?
+      returns false for non-expense transactions
+      returns true for expense transactions
+    #income?
+      returns false for non-income transactions
+      returns true for income transactions
+  scopes
+    .recent
+      returns transactions ordered by date descending
+    .for_user
+      returns transactions for given user
+    .by_type
+      returns transactions of given type
+    .by_date_range
+      returns transactions within date range
+    .this_month
+      returns only current month transactions
+    .this_year
+      returns only current year transactions
+  class methods
+    .monthly_summary
+      does not include transactions from other months
+      returns summary for current month
+  callbacks
+    after_destroy
+      reverts account balance for income
+      reverts account balance for expense
+    after_create
+      updates account balance for expense
+      updates account balance for income
+  associations
+    is expected to belong to account optional: true
+    is expected to belong to user required: true
+    is expected to belong to category optional: true
+    is expected to belong to transfer_account optional: true
+  validations
+    is expected to validate that :amount looks like a number greater than 0
+    is expected to validate that :date cannot be empty/falsy
+    is expected to validate that :transaction_type is either ‹"income"›, ‹"expense"›, or ‹"transfer"›
+    is expected to validate that :description cannot be empty/falsy
+    is expected to validate that :amount cannot be empty/falsy
+    is expected to validate that the length of :description is at most 255
+    when transaction is a transfer
+      requires transfer_account_id
+    when category type does not match transaction type
+      is invalid
+
+Api::V1::Transactions
+  GET /api/v1/transactions
+    when not authenticated
+      returns unauthorized
+    when authenticated
+      filters transactions by category
+      only returns transactions for current user
+      filters transactions by date range
+      returns paginated transactions
+      filters transactions by transaction type
+      searches transactions by description
+  POST /api/v1/transactions
+    when authenticated
+      validates transfer requires transfer_account
+      returns error for invalid data
+      updates account balance correctly for expense
+      validates future date
+      updates account balance correctly for income
+      creates a transfer and updates both accounts
+      creates a transaction successfully
+  DELETE /api/v1/transactions/:id
+    when authenticated
+      reverts account balance when deleted
+      cannot delete other user transactions
+      deletes transaction successfully
+  PUT /api/v1/transactions/:id
+    when authenticated
+      cannot update other user transactions
+      updates transaction successfully
+      returns error for invalid update
+      updates account balance correctly when amount changes
+  GET /api/v1/transactions/:id
+    when authenticated
+      returns 404 for non-existent transaction
+      cannot access other user transactions
+      returns the transaction
+  GET /api/v1/transactions/summary
+    when authenticated
+      returns summary for current month by default
+      returns summary for custom date range
+
+Category
+  instance methods
+    #total_spent_this_month
+      returns total spent in current month
+      returns 0 when user is nil
+      does not include transactions from other months
+  class methods
+    .available_for_user
+      returns default categories
+      does not return inactive categories
+      does not return other users categories
+      returns user custom categories
+  associations
+    is expected to belong to user optional: true
+    is expected to have many transactions dependent => restrict_with_error
+    is expected to have many budgets dependent => restrict_with_error
+  scopes
+    .custom
+      returns only custom categories
+    .for_type
+      returns categories for given type
+    .active
+      returns only active categories
+    .defaults
+      returns only default categories
+    .for_user
+      returns categories for given user
+  validations
+    is expected to validate that :category_type is either ‹"income"› or ‹"expense"›
+    accepts valid hex color
+    is expected to validate that the length of :name is at most 100
+    is expected to validate that :name cannot be empty/falsy
+    validates color format
+    when category has a user
+      allows same name for different users
+      validates uniqueness of name scoped to user
+
+Api::V1::Auth
+  POST /api/v1/auth/sign_up
+    with invalid parameters
+      returns validation errors for missing password
+      returns validation errors for invalid email
+    with duplicate email
+      returns email taken error
+    with valid parameters
+      creates a new user and returns tokens
+  POST /api/v1/auth/confirm_email
+    with invalid confirmation token
+      returns validation errors
+    with valid confirmation token
+      confirms email and returns tokens
+  POST /api/v1/auth/refresh_token
+    with revoked token
+      returns error when user jti has changed
+    with valid refresh token
+      returns new access token
+    with invalid refresh token
+      returns error with access token instead of refresh token
+      returns error with invalid token
+  POST /api/v1/auth/sign_in
+    with unconfirmed email
+      returns error for unconfirmed email
+    with valid credentials
+      returns access token and user data
+    with invalid credentials
+      returns unauthorized error for non-existent email
+      returns unauthorized error for wrong password
+  PUT /api/v1/auth/update_password
+    with mismatched passwords
+      returns validation errors
+    with valid reset token
+      updates password and returns tokens
+    with invalid reset token
+      returns validation errors
+  DELETE /api/v1/auth/sign_out
+    returns unauthorized with invalid token
+    invalidates the token by updating jti
+    returns unauthorized without token
+  POST /api/v1/auth/reset_password
+    does not reveal if email does not exist
+    sends reset password instructions
+
+Top 10 slowest examples (1.22 seconds, 21.4% of total time):
+  api/v1/accounts /api/v1/accounts post Conta criada com sucesso returns a 201 response
+    0.63943 seconds 
+  Api::V1::Transactions GET /api/v1/transactions when authenticated only returns transactions for current user
+    0.08359 seconds ./spec/requests/api/v1/transactions_spec.rb:89
+  Api::V1::Transactions GET /api/v1/transactions when authenticated filters transactions by category
+    0.06613 seconds ./spec/requests/api/v1/transactions_spec.rb:27
+  Api::V1::Transactions GET /api/v1/transactions when authenticated filters transactions by date range
+    0.06532 seconds ./spec/requests/api/v1/transactions_spec.rb:36
+  api/v1/auth /api/v1/auth/confirm_email post Email confirmado com sucesso returns a 200 response
+    0.06244 seconds 
+  Reports::FinancialSummaryGenerator#generate with multiple transactions in different categories calculates correct percentages for multiple categories
+    0.06124 seconds ./spec/services/reports/financial_summary_generator_spec.rb:220
+  Api::V1::Transactions GET /api/v1/transactions when authenticated filters transactions by transaction type
+    0.06058 seconds ./spec/requests/api/v1/transactions_spec.rb:59
+  Api::V1::Transactions GET /api/v1/transactions when not authenticated returns unauthorized
+    0.06033 seconds ./spec/requests/api/v1/transactions_spec.rb:101
+  Api::V1::Transactions GET /api/v1/transactions when authenticated searches transactions by description
+    0.05892 seconds ./spec/requests/api/v1/transactions_spec.rb:73
+  Api::V1::Transactions GET /api/v1/transactions when authenticated returns paginated transactions
+    0.05768 seconds ./spec/requests/api/v1/transactions_spec.rb:17
+
+Top 10 slowest example groups:
+  api/v1/accounts
+    0.04913 seconds average (0.73697 seconds / 15 examples) ./spec/requests/api/v1/swagger/accounts_spec.rb:5
+  Reports::FinancialSummaryGenerator
+    0.02686 seconds average (0.48344 seconds / 18 examples) ./spec/services/reports/financial_summary_generator_spec.rb:3
+  Api::V1::Transactions
+    0.02515 seconds average (0.65379 seconds / 26 examples) ./spec/requests/api/v1/transactions_spec.rb:5
+  Api::V1::Dashboard
+    0.02236 seconds average (0.31298 seconds / 14 examples) ./spec/requests/api/v1/dashboard_spec.rb:5
+  TransactionFilterService
+    0.01741 seconds average (0.45274 seconds / 26 examples) ./spec/services/transaction_filter_service_spec.rb:5
+  api/v1/dashboard
+    0.01353 seconds average (0.02706 seconds / 2 examples) ./spec/requests/api/v1/swagger/dashboard_spec.rb:5
+  api/v1/auth
+    0.01307 seconds average (0.16987 seconds / 13 examples) ./spec/requests/api/v1/swagger/auth_spec.rb:5
+  Budget
+    0.01173 seconds average (0.34028 seconds / 29 examples) ./spec/models/budget_spec.rb:3
+  CategoryStatisticsService
+    0.01171 seconds average (0.22248 seconds / 19 examples) ./spec/services/category_statistics_service_spec.rb:5
+  Api::V1::Categories
+    0.01157 seconds average (0.39347 seconds / 34 examples) ./spec/requests/api/v1/categories_spec.rb:5
+
+Finished in 5.68 seconds (files took 2.63 seconds to load)
+478 examples, 0 failures
+
+Randomized with seed 47601
+
+Coverage report generated for RSpec to /Users/thiagocardoso/Documents/finance-app/backend/coverage.
+Line Coverage: 71.92% (420 / 584)
+Line coverage (71.91%) is below the expected minimum coverage (90.00%).
+SimpleCov failed with exit 2 due to a coverage related error
