@@ -1,4 +1,12 @@
 /**
+ * Shared Formatters Module
+ *
+ * Note: This file is a symlink to the frontend formatters (../../../../frontend/src/utils/formatters.ts)
+ * to share formatting utilities between mobile and web applications.
+ * This ensures consistent data formatting across all platforms.
+ */
+
+/**
  * Format a number as currency in BRL (Brazilian Real)
  */
 export function formatCurrency(value: number | string): string {
@@ -70,4 +78,21 @@ export function formatCompactNumber(value: number | string): string {
     notation: 'compact',
     compactDisplay: 'short',
   }).format(numValue);
+}
+
+/**
+ * Format a date in short format (DD MMM - ex: 15 Jan)
+ * Useful for mobile displays and compact date representations
+ */
+export function formatShortDate(date: string | Date): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+
+  if (isNaN(dateObj.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+  }).format(dateObj);
 }
