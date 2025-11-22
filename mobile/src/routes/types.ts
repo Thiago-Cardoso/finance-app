@@ -40,6 +40,7 @@ export type RootStackParamList = {
   TransactionDetails: { transactionId: string };
   AccountForm: { accountId?: string };
   BudgetForm: { budgetId?: string };
+  CategoryList: undefined;
   CategoryForm: { categoryId?: string };
 };
 
