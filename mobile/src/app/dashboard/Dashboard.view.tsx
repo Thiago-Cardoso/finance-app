@@ -5,8 +5,10 @@
  */
 
 import React from 'react';
-import { View, Text, RefreshControl, ScrollView } from 'react-native';
+import { View, Text, RefreshControl, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { Tag, Wallet, Target } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useDashboardViewModel } from '@/viewModels/useDashboard.viewModel';
 import { SummaryCard } from './components/SummaryCard';
@@ -35,6 +37,63 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
         <Text className="text-base font-semibold" style={{ color: '#FFFFFF' }}>
           Try again
         </Text>
+      </View>
+    </View>
+  );
+}
+
+/**
+ * Quick Actions Component
+ */
+function QuickActions() {
+  const { colors } = useTheme();
+  const navigation = useNavigation();
+
+  const actions = [
+    {
+      icon: Tag,
+      label: 'Categorias',
+      color: '#8B5CF6',
+      onPress: () => navigation.navigate('CategoryList'),
+    },
+    {
+      icon: Wallet,
+      label: 'Contas',
+      color: '#3B82F6',
+      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
+    },
+    {
+      icon: Target,
+      label: 'Orçamentos',
+      color: '#10B981',
+      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
+    },
+  ];
+
+  return (
+    <View className="px-6 mb-4">
+      <Text className="text-base font-semibold mb-3" style={{ color: colors.text.primary }}>
+        Atalhos
+      </Text>
+      <View className="flex-row justify-between">
+        {actions.map((action, index) => (
+          <TouchableOpacity
+            key={index}
+            onPress={action.onPress}
+            className="flex-1 items-center p-4 rounded-xl mx-1"
+            style={{ backgroundColor: colors.background.secondary }}
+          >
+            <View
+              className="w-12 h-12 rounded-full items-center justify-center mb-2"
+              style={{ backgroundColor: action.color + '20' }}
+            >
+              <action.icon size={24} color={action.color} />
+            </View>
+            <Text className="text-sm font-medium" style={{ color: colors.text.primary }}>
+              {action.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -83,6 +142,9 @@ export function DashboardView() {
           />
         }
       >
+        {/* Quick Actions */}
+        <QuickActions />
+
         {/* Financial Summary */}
         <SummaryCard summary={data?.summary || null} isLoading={isLoading} />
 
