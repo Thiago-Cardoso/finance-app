@@ -82,6 +82,9 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
+  # Force IPv4 to avoid Supabase IPv6 connection issues
+  variables:
+    hostaddr: <%= ENV['DB_HOST_ADDR'] if ENV['DB_HOST_ADDR'] %>
   # database: finance_api_production
   # username: finance_api
   # password: <%= ENV["FINANCE_API_DATABASE_PASSWORD"] %>
