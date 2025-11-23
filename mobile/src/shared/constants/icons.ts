@@ -241,4 +241,22 @@ export const ICON_CATEGORY_LABELS: Record<IconCategory, string> = {
   general: 'Geral',
 };
 
+/**
+ * Account type icons mapping
+ */
+export const ACCOUNT_TYPE_ICONS: Record<string, LucideIcon> = {
+  checking: Building2,
+  savings: PiggyBank,
+  credit_card: CreditCard,
+  cash: Wallet,
+  investment: TrendingUp,
+};
+
+/**
+ * Get account icon by type
+ */
+export function getAccountIcon(accountType: string): LucideIcon {
+  return ACCOUNT_TYPE_ICONS[accountType] || Wallet;
+}
+
 export default AVAILABLE_ICONS;
