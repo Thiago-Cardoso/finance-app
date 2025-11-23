@@ -5,14 +5,20 @@
  * These types are shared with the frontend project.
  */
 
-// Re-export analytics types
-export type {
-  FinancialSummary,
-  CategoryBreakdown,
-  BudgetDetail,
-  BudgetPerformance,
-  AnalyticsFilters,
+// Import and re-export analytics types
+import type {
+  FinancialSummary as FinancialSummaryType,
+  CategoryBreakdown as CategoryBreakdownType,
+  BudgetDetail as BudgetDetailType,
+  BudgetPerformance as BudgetPerformanceType,
+  AnalyticsFilters as AnalyticsFiltersType,
 } from '@/shared/types/analytics';
+
+export type FinancialSummary = FinancialSummaryType;
+export type CategoryBreakdown = CategoryBreakdownType;
+export type BudgetDetail = BudgetDetailType;
+export type BudgetPerformance = BudgetPerformanceType;
+export type AnalyticsFilters = AnalyticsFiltersType;
 
 // Re-export transaction types for recent transactions
 export type {
