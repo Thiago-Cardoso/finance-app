@@ -18,9 +18,12 @@ import { AppRoutes } from './app.routes';
 // import { OnboardingView } from '@/app/onboarding/Onboarding.view';
 // import { InitialSetupView } from '@/app/onboarding/InitialSetup.view';
 import { CategoryListView, CategoryFormView } from '@/app/categories';
+import { TransactionFormView } from '@/app/transactions';
 import { useCategoriesStore } from '@/shared/stores/categoriesStore';
+import { useTransactionsStore } from '@/shared/stores/transactionsStore';
 import type { RootStackParamList } from './types';
 import type { Category } from '@/shared/models/Category.model';
+import type { Transaction } from '@/shared/models/Transaction.model';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -164,10 +167,25 @@ export function Routes() {
                 const categoryId = route.params?.categoryId;
                 const { getCategoryById } = useCategoriesStore();
                 const category = categoryId ? getCategoryById(categoryId) : undefined;
-                
+
                 return (
                   <CategoryFormView
                     category={category}
+                    onSuccess={() => navigation.goBack()}
+                    onCancel={() => navigation.goBack()}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="TransactionForm">
+              {({ navigation, route }) => {
+                const transactionId = route.params?.transactionId;
+                const { getTransactionById } = useTransactionsStore();
+                const transaction = transactionId ? getTransactionById(transactionId) : undefined;
+
+                return (
+                  <TransactionFormView
+                    transaction={transaction}
                     onSuccess={() => navigation.goBack()}
                     onCancel={() => navigation.goBack()}
                   />

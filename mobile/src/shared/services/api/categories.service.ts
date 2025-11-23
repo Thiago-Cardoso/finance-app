@@ -21,7 +21,8 @@ const ENDPOINT = '/api/v1/categories';
  * Get all categories for the authenticated user
  */
 export async function getCategories(type?: 'income' | 'expense' | 'both'): Promise<Category[]> {
-  const params = type ? { category_type: type } : {};
+  const params: Record<string, string | number> = { per_page: 100 };
+  if (type) params.category_type = type;
   const response = await apiClient.get<CategoriesResponse>(ENDPOINT, { params });
   return response.data.data;
 }
