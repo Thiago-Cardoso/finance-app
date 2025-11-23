@@ -285,3 +285,36 @@ export interface ExportRequest {
   filters: AnalyticsFilters
   name?: string
 }
+
+// Balance evolution data point for line charts
+export interface BalanceDataPoint {
+  date: string
+  label: string
+  balance: number
+  income: number
+  expense: number
+}
+
+// Report filter options for UI
+export interface ReportFilterOptions {
+  periodType: AnalyticsFilters['period_type']
+  startDate?: Date
+  endDate?: Date
+  categoryIds?: number[]
+  transactionType?: 'income' | 'expense' | 'all'
+}
+
+// Period option for filter dropdown
+export interface PeriodOption {
+  value: AnalyticsFilters['period_type']
+  label: string
+  shortLabel: string
+}
+
+// Period presets
+export const PERIOD_OPTIONS: PeriodOption[] = [
+  { value: 'monthly', label: 'Este Mês', shortLabel: 'Mês' },
+  { value: 'quarterly', label: 'Este Trimestre', shortLabel: 'Trim.' },
+  { value: 'yearly', label: 'Este Ano', shortLabel: 'Ano' },
+  { value: 'custom_range', label: 'Personalizado', shortLabel: 'Custom' },
+]
