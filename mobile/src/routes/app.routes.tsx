@@ -13,6 +13,7 @@ import { ReportsView } from '@/app/reports/Reports.view';
 import { ProfileView } from '@/app/profile/Profile.view';
 import { useTheme } from '@/shared/hooks/useTheme';
 import type { AppTabsParamList } from './types';
+import type { Transaction } from '@/shared/models/Transaction.model';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
@@ -29,16 +30,22 @@ export function AppRoutes() {
           backgroundColor: colors.background,
           borderTopWidth: 1,
           borderTopColor: colors.border,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
+          paddingBottom: 24,
+          paddingTop: 12,
+          height: 85,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '500',
+          marginTop: 4,
         },
         tabBarIconStyle: {
-          marginTop: 4,
+          marginBottom: 2,
         },
       }}
     >
@@ -54,13 +61,22 @@ export function AppRoutes() {
 
       <Tab.Screen
         name="Transactions"
-        component={TransactionListView}
         options={{
           tabBarLabel: 'Transações',
           tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
           tabBarAccessibilityLabel: 'Ver Transações',
         }}
-      />
+      >
+        {({ navigation }) => (
+          <TransactionListView
+            onNavigateToForm={(transaction) => {
+              navigation.navigate('TransactionForm', {
+                transactionId: transaction?.id,
+              });
+            }}
+          />
+        )}
+      </Tab.Screen>
 
       <Tab.Screen
         name="Reports"
