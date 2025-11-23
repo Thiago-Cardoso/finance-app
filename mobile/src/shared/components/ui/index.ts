@@ -10,6 +10,7 @@ export { Button } from './Button';
 export { Input, MoneyInput } from './Input';
 export { Select } from './Select';
 export { DatePicker } from './DatePicker';
+export { DateRangePicker } from './DateRangePicker';
 
 // Componentes de layout
 export { Card } from './Card';
@@ -31,6 +32,7 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export type { InputProps, MoneyInputProps } from './Input';
 export type { SelectProps, SelectOption } from './Select';
 export type { DatePickerProps } from './DatePicker';
+export type { DateRangePickerProps } from './DateRangePicker';
 export type { CardProps } from './Card';
 export type { ScreenProps } from './Screen';
 export type { ModalProps } from './Modal';

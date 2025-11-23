@@ -86,13 +86,9 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Extract error message from response
-    const message =
-      (error.response?.data as any)?.message ||
-      error.message ||
-      'Unknown error';
-
-    return Promise.reject(new Error(message));
+    // Preserve original error with response info for proper error handling
+    // (e.g., checking for 404 status in services)
+    return Promise.reject(error);
   }
 );
 

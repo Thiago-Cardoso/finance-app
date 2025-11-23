@@ -60,13 +60,13 @@ function QuickActions() {
       icon: Wallet,
       label: 'Contas',
       color: '#3B82F6',
-      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
+      onPress: () => navigation.navigate('AccountList'),
     },
     {
       icon: Target,
       label: 'Orçamentos',
       color: '#10B981',
-      onPress: () => Alert.alert('Em breve', 'Funcionalidade em desenvolvimento'),
+      onPress: () => navigation.navigate('BudgetList'),
     },
   ];
 

@@ -19,11 +19,17 @@ import { AppRoutes } from './app.routes';
 // import { InitialSetupView } from '@/app/onboarding/InitialSetup.view';
 import { CategoryListView, CategoryFormView } from '@/app/categories';
 import { TransactionFormView } from '@/app/transactions';
+import { BudgetListView, BudgetFormView, BudgetDetailView } from '@/app/budgets';
+import { AccountListView, AccountFormView } from '@/app/accounts';
 import { useCategoriesStore } from '@/shared/stores/categoriesStore';
 import { useTransactionsStore } from '@/shared/stores/transactionsStore';
+import { useBudgetsStore } from '@/shared/stores/budgetsStore';
+import { useAccountsStore } from '@/shared/stores/accountsStore';
 import type { RootStackParamList } from './types';
 import type { Category } from '@/shared/models/Category.model';
 import type { Transaction } from '@/shared/models/Transaction.model';
+import type { Budget } from '@/shared/models/Budget.model';
+import type { Account } from '@/shared/models/Account.model';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -51,8 +57,11 @@ const linking = {
       },
       TransactionForm: 'transactions/new',
       TransactionDetails: 'transactions/:transactionId',
+      AccountList: 'accounts',
       AccountForm: 'accounts/new',
+      BudgetList: 'budgets',
       BudgetForm: 'budgets/new',
+      BudgetDetail: 'budgets/:budgetId',
       CategoryList: 'categories',
       CategoryForm: 'categories/edit',
     },
@@ -188,6 +197,92 @@ export function Routes() {
                     transaction={transaction}
                     onSuccess={() => navigation.goBack()}
                     onCancel={() => navigation.goBack()}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="AccountList">
+              {({ navigation }) => (
+                <AccountListView
+                  onNavigateToForm={(account?: Account) => {
+                    navigation.navigate('AccountForm', {
+                      accountId: account?.id,
+                    });
+                  }}
+                  onBack={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="AccountForm">
+              {({ navigation, route }) => {
+                const accountId = route.params?.accountId;
+                const { accounts } = useAccountsStore();
+                const account = accountId
+                  ? accounts.find((a) => a.id === accountId)
+                  : undefined;
+
+                return (
+                  <AccountFormView
+                    account={account}
+                    onSuccess={() => navigation.goBack()}
+                    onBack={() => navigation.goBack()}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="BudgetList">
+              {({ navigation }) => (
+                <BudgetListView
+                  onNavigateToForm={(budget?: Budget) => {
+                    navigation.navigate('BudgetForm', {
+                      budgetId: budget?.id,
+                    });
+                  }}
+                  onNavigateToDetail={(budget: Budget) => {
+                    navigation.navigate('BudgetDetail', {
+                      budgetId: budget.id,
+                    });
+                  }}
+                  onBack={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="BudgetForm">
+              {({ navigation, route }) => {
+                const budgetId = route.params?.budgetId;
+                const { getBudgetById } = useBudgetsStore();
+                const budget = budgetId ? getBudgetById(budgetId) : undefined;
+
+                return (
+                  <BudgetFormView
+                    budget={budget}
+                    onSuccess={() => navigation.goBack()}
+                    onBack={() => navigation.goBack()}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="BudgetDetail">
+              {({ navigation, route }) => {
+                const budgetId = route.params?.budgetId;
+                const { getBudgetById } = useBudgetsStore();
+                const budget = getBudgetById(budgetId);
+
+                if (!budget) {
+                  navigation.goBack();
+                  return null;
+                }
+
+                return (
+                  <BudgetDetailView
+                    budget={budget}
+                    onEdit={(b: Budget) => {
+                      navigation.navigate('BudgetForm', {
+                        budgetId: b.id,
+                      });
+                    }}
+                    onBack={() => navigation.goBack()}
+                    onDeleted={() => navigation.navigate('BudgetList')}
                   />
                 );
               }}
