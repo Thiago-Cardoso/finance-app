@@ -9,10 +9,39 @@ import { View, Text } from 'react-native';
 import { ArrowUpCircle, ArrowDownCircle, DollarSign } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatCurrency } from '@/shared/utils/formatters';
-import type { FinancialSummary } from '@/shared/models/Dashboard.model';
+/**
+ * Dashboard summary data structure from API
+ * Supports both old format (current_month) and new FinancialSummary format
+ */
+interface DashboardSummary {
+  // New FinancialSummary format
+  summary?: {
+    total_income: number;
+    total_expenses: number;
+    net_balance: number;
+    transaction_count: number;
+  };
+  // Old format for backwards compatibility
+  current_month?: {
+    income: number;
+    expenses: number;
+    balance: number;
+    transactions_count: number;
+  };
+  previous_month?: {
+    income: number;
+    expenses: number;
+    balance: number;
+  };
+  variation?: {
+    percentage: number;
+    trend: 'up' | 'down' | 'stable';
+    amount: number;
+  };
+}
 
 interface SummaryCardProps {
-  summary: FinancialSummary | null;
+  summary: DashboardSummary | null;
   isLoading?: boolean;
 }
 
@@ -77,7 +106,11 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
     return <SummaryCardSkeleton />;
   }
 
-  const isPositiveBalance = summary.net_savings >= 0;
+  // Extract values from API structure (supports both formats)
+  const income = summary.summary?.total_income ?? summary.current_month?.income ?? 0;
+  const expenses = summary.summary?.total_expenses ?? summary.current_month?.expenses ?? 0;
+  const balance = summary.summary?.net_balance ?? summary.current_month?.balance ?? 0;
+  const isPositiveBalance = balance >= 0;
 
   return (
     <View
@@ -103,7 +136,7 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
               : theme.colors.danger.DEFAULT,
           }}
         >
-          {formatCurrency(summary.net_savings)}
+          {formatCurrency(balance)}
         </Text>
       </View>
 
@@ -124,7 +157,7 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
             className="text-lg font-semibold"
             style={{ color: theme.colors.success.DEFAULT }}
           >
-            {formatCurrency(summary.total_income)}
+            {formatCurrency(income)}
           </Text>
         </View>
 
@@ -143,7 +176,7 @@ export function SummaryCard({ summary, isLoading }: SummaryCardProps) {
             className="text-lg font-semibold"
             style={{ color: theme.colors.danger.DEFAULT }}
           >
-            {formatCurrency(summary.total_expenses)}
+            {formatCurrency(expenses)}
           </Text>
         </View>
       </View>

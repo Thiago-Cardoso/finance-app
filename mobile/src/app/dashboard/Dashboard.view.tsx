@@ -150,7 +150,7 @@ export function DashboardView() {
 
         {/* Expense Chart */}
         <ExpenseChart
-          expenses={data?.expenses_by_category || []}
+          expenses={data?.categories_breakdown || []}
           isLoading={isLoading}
         />
 

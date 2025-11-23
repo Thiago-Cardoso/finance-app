@@ -11,11 +11,7 @@ export type {
   CategoryBreakdown,
   BudgetDetail,
   BudgetPerformance,
-  DashboardData,
-  TimeSeriesData,
-  TrendAnalysis,
   AnalyticsFilters,
-  AnalyticsResponse,
 } from '@/shared/types/analytics';
 
 // Re-export transaction types for recent transactions

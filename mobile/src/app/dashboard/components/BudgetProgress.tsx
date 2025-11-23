@@ -89,29 +89,37 @@ function BudgetItem({ budget }: { budget: BudgetDetail }) {
   // Define cor baseada no status
   const getStatusColor = () => {
     switch (budget.status) {
-      case 'safe':
+      case 'on_track':
+      case 'ahead_of_schedule':
         return theme.colors.success.DEFAULT;
       case 'warning':
+      case 'behind_schedule':
         return theme.colors.warning.DEFAULT;
-      case 'exceeded':
-        return theme.colors.danger.DEFAULT;
+      case 'over_budget':
+      case 'critical':
+        return theme.colors.error.DEFAULT;
       default:
         return theme.colors.primary.DEFAULT;
     }
   };
 
   const statusColor = getStatusColor();
-  const percentage = Math.min(budget.percentage_used, 100); // Cap at 100%
+  // Handle different field names from API
+  const usagePercentage = budget.usage_percentage ?? 0;
+  const percentage = Math.min(usagePercentage, 100); // Cap at 100%
+  const spentAmount = budget.spent ?? budget.spent_amount ?? 0;
+  const budgetAmount = budget.amount ?? budget.allocated_amount ?? 0;
+  const categoryName = budget.category_name ?? budget.budget_name ?? 'Orçamento';
 
   return (
     <View className="mb-4">
       {/* Header com categoria e valores */}
       <View className="flex-row justify-between mb-2">
         <Text className="text-sm font-medium" style={{ color: colors.text.primary }}>
-          {budget.category_name}
+          {categoryName}
         </Text>
         <Text className="text-sm" style={{ color: colors.text.secondary }}>
-          {formatCurrency(budget.spent_amount)} / {formatCurrency(budget.budget_amount)}
+          {formatCurrency(spentAmount)} / {formatCurrency(budgetAmount)}
         </Text>
       </View>
 
@@ -134,8 +142,8 @@ function BudgetItem({ budget }: { budget: BudgetDetail }) {
         className="text-xs mt-1"
         style={{ color: statusColor }}
       >
-        {formatPercent(budget.percentage_used)}
-        {budget.percentage_used > 100 && ' acima do limite'}
+        {formatPercent(usagePercentage)}
+        {usagePercentage > 100 && ' acima do limite'}
       </Text>
     </View>
   );
