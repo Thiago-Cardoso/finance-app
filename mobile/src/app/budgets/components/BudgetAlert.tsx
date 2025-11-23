@@ -5,7 +5,7 @@
  */
 
 import React, { memo } from 'react';
-import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { AlertTriangle, X, TrendingUp } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatPercent } from '@/shared/utils/formatters';
@@ -156,7 +156,6 @@ function AlertBannerComponent({ message, type, onDismiss }: AlertBannerProps) {
   const { theme } = useTheme();
 
   const isExceeded = type === 'exceeded';
-  const alertColor = isExceeded ? theme.colors.error.DEFAULT : theme.colors.warning.DEFAULT;
   const bgColor = isExceeded ? theme.colors.error.DEFAULT : theme.colors.warning.DEFAULT;
 
   return (

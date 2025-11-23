@@ -11,7 +11,6 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
 } from 'react-native';
 import { Plus, Target, ChevronRight } from 'lucide-react-native';
 import { Screen } from '@/shared/components/ui/Screen';
@@ -247,7 +246,7 @@ export function BudgetListView({
   onNavigateToDetail,
   onBack,
 }: BudgetListViewProps) {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
   const {
     currentBudgets,
     alerts,

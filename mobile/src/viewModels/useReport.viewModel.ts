@@ -10,7 +10,6 @@ import {
   getFinancialSummary,
   getBudgetPerformance,
   transformToBalanceEvolution,
-  getDateRangeForPeriod,
 } from '@/shared/services/api/analytics.service';
 import type {
   AnalyticsFilters,
@@ -262,7 +261,7 @@ export function useReportViewModel(): UseReportViewModel {
    */
   useEffect(() => {
     loadReports();
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loadReports]);
 
   return {
     // Data

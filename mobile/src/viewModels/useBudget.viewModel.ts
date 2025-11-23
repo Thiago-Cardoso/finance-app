@@ -46,7 +46,7 @@ export function useBudgetViewModel(): UseBudgetViewModel {
   // Get store state directly
   const budgets = useBudgetsStore((state) => state.budgets);
   const currentBudgets = useBudgetsStore((state) => state.currentBudgets);
-  const alerts = useBudgetsStore((state) => state.alerts);
+  // Removed unused alerts variable
   const selectedBudget = useBudgetsStore((state) => state.selectedBudget);
   const filters = useBudgetsStore((state) => state.filters);
   const isLoading = useBudgetsStore((state) => state.isLoading);
@@ -72,13 +72,12 @@ export function useBudgetViewModel(): UseBudgetViewModel {
   const isLoadingRef = useRef(false);
 
   // Computed values using selectors
-  const storeState = useBudgetsStore.getState();
-  const overBudgets = budgetSelectors.getOverBudgets(storeState);
-  const warningBudgets = budgetSelectors.getWarningBudgets(storeState);
-  const totalSpent = budgetSelectors.getTotalSpent(storeState);
-  const totalLimit = budgetSelectors.getTotalLimit(storeState);
-  const overallUsage = budgetSelectors.getOverallUsage(storeState);
-  const unreadAlerts = budgetSelectors.getUnreadAlerts(storeState);
+  const overBudgets = useBudgetsStore((state) => budgetSelectors.getOverBudgets(state));
+  const warningBudgets = useBudgetsStore((state) => budgetSelectors.getWarningBudgets(state));
+  const totalSpent = useBudgetsStore((state) => budgetSelectors.getTotalSpent(state));
+  const totalLimit = useBudgetsStore((state) => budgetSelectors.getTotalLimit(state));
+  const overallUsage = useBudgetsStore((state) => budgetSelectors.getOverallUsage(state));
+  const unreadAlerts = useBudgetsStore((state) => budgetSelectors.getUnreadAlerts(state));
 
   /**
    * Carrega orçamentos

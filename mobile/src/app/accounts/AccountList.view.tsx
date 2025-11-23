@@ -42,7 +42,7 @@ function AccountListSkeleton() {
 }
 
 export function AccountListView({ onNavigateToForm, onBack }: AccountListViewProps) {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
   const {
     activeAccounts,
     totalBalance,
