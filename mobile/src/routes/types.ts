@@ -38,8 +38,11 @@ export type RootStackParamList = {
   App: NavigatorScreenParams<AppTabsParamList>;
   TransactionForm: { transactionId?: string };
   TransactionDetails: { transactionId: string };
+  AccountList: undefined;
   AccountForm: { accountId?: string };
-  BudgetForm: { budgetId?: string };
+  BudgetList: undefined;
+  BudgetForm: { budgetId?: number };
+  BudgetDetail: { budgetId: number };
   CategoryList: undefined;
   CategoryForm: { categoryId?: string };
 };
