@@ -10,7 +10,7 @@ import { View, Text, TouchableOpacity, Modal, ScrollView } from 'react-native';
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
-import { Calendar, X, Check } from 'lucide-react-native';
+import { Calendar, X } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { Button } from '../Button';
 

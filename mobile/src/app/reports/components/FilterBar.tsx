@@ -6,7 +6,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { Filter, X, Check, ChevronDown } from 'lucide-react-native';
+import { Filter, X, Check } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { Button } from '@/shared/components/ui/Button';
 import { DateRangePicker } from '@/shared/components/ui/DateRangePicker';
@@ -66,14 +66,6 @@ export function FilterBar({
     if (filters.startDate || filters.endDate) count++;
     return count;
   }, [filters]);
-
-  /**
-   * Get current period label
-   */
-  const currentPeriodLabel = useMemo(() => {
-    const option = PERIOD_OPTIONS.find((o) => o.value === filters.periodType);
-    return option?.shortLabel || 'Mês';
-  }, [filters.periodType]);
 
   /**
    * Handle period change

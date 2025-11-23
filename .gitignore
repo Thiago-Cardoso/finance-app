@@ -11,7 +11,10 @@
 /tmp/
 
 # Used by dotenv library to load environment variables.
-# .env
+.env
+.env.local
+.env.production.local
+.env.development.local
 
 # Ignore Byebug command history file.
 .byebug_history
@@ -54,3 +57,29 @@ build-iPhoneSimulator/
 
 # Used by RuboCop. Remote config files pulled in from inherit_from directive.
 # .rubocop-https?--*
+
+# Vercel
+.vercel
+frontend/.vercel
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# Next.js
+frontend/.next/
+frontend/out/
+
+# Testing
+frontend/coverage/
+frontend/.nyc_output/
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore mobile docs
+mobile/docs/

@@ -4,7 +4,7 @@
  * Tela de detalhes de um orçamento específico.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,6 @@ import {
   TouchableOpacity,
   RefreshControl,
   Alert,
-  FlatList,
 } from 'react-native';
 import {
   Edit3,
@@ -27,7 +26,7 @@ import { Screen } from '@/shared/components/ui/Screen';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useBudgetViewModel } from '@/viewModels/useBudget.viewModel';
 import { BudgetProgressBar } from './components/BudgetProgressBar';
-import { formatCurrency, formatDate, formatPercent } from '@/shared/utils/formatters';
+import { formatCurrency, formatDate } from '@/shared/utils/formatters';
 import type { Budget } from '@/shared/models/Budget.model';
 
 interface BudgetDetailViewProps {
@@ -129,7 +128,7 @@ export function BudgetDetailView({
   onDeleted,
 }: BudgetDetailViewProps) {
   const { colors, theme } = useTheme();
-  const { loadBudgetById, deleteBudget, isLoading, isRefreshing } =
+  const { loadBudgetById, deleteBudget } =
     useBudgetViewModel();
 
   const [budget, setBudget] = useState<Budget>(initialBudget);

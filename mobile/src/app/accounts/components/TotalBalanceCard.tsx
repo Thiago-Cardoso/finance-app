@@ -23,10 +23,7 @@ export function TotalBalanceCard({
   income = 0,
   expense = 0,
 }: TotalBalanceCardProps) {
-  const { colors, theme } = useTheme();
-
-  const balanceColor =
-    totalBalance >= 0 ? theme.colors.success.DEFAULT : theme.colors.error.DEFAULT;
+  const { theme } = useTheme();
 
   return (
     <View

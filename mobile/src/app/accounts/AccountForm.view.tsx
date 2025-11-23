@@ -4,7 +4,7 @@
  * Formulário para criar/editar contas.
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ import { Button } from '@/shared/components/ui/Button';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useAccountViewModel } from '@/viewModels/useAccount.viewModel';
 import { accountSchema, getDefaultAccountValues } from '@/shared/schemas/account.schema';
-import { getAccountIcon, ACCOUNT_TYPE_ICONS } from '@/shared/constants/icons';
+import { getAccountIcon } from '@/shared/constants/icons';
 import { ACCOUNT_TYPE_LABELS } from '@/shared/models/Account.model';
 import type { Account, AccountFormData, AccountType } from '@/shared/models/Account.model';
 import type { AccountSchemaType } from '@/shared/schemas/account.schema';
@@ -60,7 +60,6 @@ export function AccountFormView({ account, onSuccess, onBack }: AccountFormViewP
   const {
     control,
     handleSubmit,
-    setValue,
     watch,
     formState: { errors },
   } = useForm<AccountSchemaType>({
@@ -75,8 +74,6 @@ export function AccountFormView({ account, onSuccess, onBack }: AccountFormViewP
         }
       : getDefaultAccountValues(),
   });
-
-  const selectedType = watch('account_type');
 
   const onSubmit: SubmitHandler<AccountSchemaType> = useCallback(
     async (data) => {

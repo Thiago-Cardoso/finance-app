@@ -6,7 +6,7 @@
  */
 
 import React, { memo } from 'react';
-import { View, Text, Animated } from 'react-native';
+import { View, Text } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { formatCurrency, formatPercent } from '@/shared/utils/formatters';
 import type { BudgetStatus } from '@/shared/models/Budget.model';
@@ -75,7 +75,6 @@ function BudgetProgressBarComponent({
 
   // Cor da barra de progresso
   const progressColor = categoryColor || getProgressColor(percentage, status);
-  const statusText = getStatusText(percentage, status);
 
   // Largura visual (cap em 100% para visual, mas mostra valor real)
   const visualWidth = Math.min(percentage, 100);

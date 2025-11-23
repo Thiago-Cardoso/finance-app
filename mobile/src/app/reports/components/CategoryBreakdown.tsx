@@ -8,7 +8,6 @@ import React, { memo } from 'react';
 import { View, Text } from 'react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { Card } from '@/shared/components/ui/Card';
-import { Skeleton } from '@/shared/components/ui/Skeleton';
 import { formatCurrency, formatPercent } from '@/shared/utils/formatters';
 import type { CategoryBreakdown as CategoryBreakdownType } from '@/shared/types/analytics';
 

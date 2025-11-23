@@ -61,11 +61,10 @@ export function useAccountViewModel(): UseAccountViewModel {
   const isLoadingRef = useRef(false);
 
   // Computed values using selectors
-  const storeState = useAccountsStore.getState();
-  const activeAccounts = accountSelectors.getActiveAccounts(storeState);
-  const totalBalance = accountSelectors.getTotalBalance(storeState);
-  const accountsCount = accountSelectors.getActiveAccountsCount(storeState);
-  const hasReachedLimit = accountSelectors.hasReachedAccountLimit(storeState);
+  const activeAccounts = useAccountsStore((state) => accountSelectors.getActiveAccounts(state));
+  const totalBalance = useAccountsStore((state) => accountSelectors.getTotalBalance(state));
+  const accountsCount = useAccountsStore((state) => accountSelectors.getActiveAccountsCount(state));
+  const hasReachedLimit = useAccountsStore((state) => accountSelectors.hasReachedAccountLimit(state));
 
   /**
    * Carrega contas
