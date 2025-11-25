@@ -84,27 +84,28 @@ export function useReportViewModel(): UseReportViewModel {
 
   /**
    * Build API filters from UI filters
+   * No dependencies needed - accepts filters as parameter
    */
-  const buildApiFilters = useCallback((): AnalyticsFilters => {
+  const buildApiFilters = useCallback((currentFilters: ReportFilterOptions): AnalyticsFilters => {
     const apiFilters: AnalyticsFilters = {
-      period_type: filters.periodType,
+      period_type: currentFilters.periodType,
     };
 
-    if (filters.periodType === 'custom_range' && filters.startDate && filters.endDate) {
-      apiFilters.start_date = filters.startDate.toISOString().split('T')[0];
-      apiFilters.end_date = filters.endDate.toISOString().split('T')[0];
+    if (currentFilters.periodType === 'custom_range' && currentFilters.startDate && currentFilters.endDate) {
+      apiFilters.start_date = currentFilters.startDate.toISOString().split('T')[0];
+      apiFilters.end_date = currentFilters.endDate.toISOString().split('T')[0];
     }
 
-    if (filters.categoryIds && filters.categoryIds.length > 0) {
-      apiFilters.category_ids = filters.categoryIds;
+    if (currentFilters.categoryIds && currentFilters.categoryIds.length > 0) {
+      apiFilters.category_ids = currentFilters.categoryIds;
     }
 
-    if (filters.transactionType && filters.transactionType !== 'all') {
-      apiFilters.transaction_type = filters.transactionType;
+    if (currentFilters.transactionType && currentFilters.transactionType !== 'all') {
+      apiFilters.transaction_type = currentFilters.transactionType;
     }
 
     return apiFilters;
-  }, [filters]);
+  }, []);
 
   /**
    * Check if cache is valid
@@ -122,36 +123,44 @@ export function useReportViewModel(): UseReportViewModel {
       setIsLoading(true);
       setError(null);
 
-      const apiFilters = buildApiFilters();
+      const apiFilters = buildApiFilters(filters);
 
-      // Check cache
-      if (isCacheValid(cache.financialSummary)) {
-        setFinancialSummary(cache.financialSummary!.data);
-      } else {
-        const summaryData = await getFinancialSummary(apiFilters);
-        setFinancialSummary(summaryData);
-        setCache((prev) => ({
-          ...prev,
-          financialSummary: { data: summaryData, timestamp: Date.now() },
-        }));
-      }
-
-      // Budget performance (separate call)
-      if (isCacheValid(cache.budgetPerformance)) {
-        setBudgetPerformance(cache.budgetPerformance!.data);
-      } else {
-        try {
-          const performanceData = await getBudgetPerformance(apiFilters);
-          setBudgetPerformance(performanceData);
-          setCache((prev) => ({
-            ...prev,
-            budgetPerformance: { data: performanceData, timestamp: Date.now() },
-          }));
-        } catch {
-          // Budget performance is optional, don't fail the whole load
-          console.warn('Budget performance not available');
+      // Check cache - use functional setState to access current cache
+      setCache((currentCache) => {
+        // Check financial summary cache
+        if (isCacheValid(currentCache.financialSummary)) {
+          setFinancialSummary(currentCache.financialSummary!.data);
+        } else {
+          // Load fresh data
+          getFinancialSummary(apiFilters).then((summaryData) => {
+            setFinancialSummary(summaryData);
+            setCache((prev) => ({
+              ...prev,
+              financialSummary: { data: summaryData, timestamp: Date.now() },
+            }));
+          });
         }
-      }
+
+        // Check budget performance cache
+        if (isCacheValid(currentCache.budgetPerformance)) {
+          setBudgetPerformance(currentCache.budgetPerformance!.data);
+        } else {
+          // Load fresh data
+          getBudgetPerformance(apiFilters)
+            .then((performanceData) => {
+              setBudgetPerformance(performanceData);
+              setCache((prev) => ({
+                ...prev,
+                budgetPerformance: { data: performanceData, timestamp: Date.now() },
+              }));
+            })
+            .catch(() => {
+              console.warn('Budget performance not available');
+            });
+        }
+
+        return currentCache;
+      });
     } catch (err: any) {
       const errorMessage = err?.message || 'Erro ao carregar relatórios';
       setError(errorMessage);
@@ -159,7 +168,7 @@ export function useReportViewModel(): UseReportViewModel {
     } finally {
       setIsLoading(false);
     }
-  }, [buildApiFilters, cache, isCacheValid]);
+  }, [buildApiFilters, filters, isCacheValid]);
 
   /**
    * Refresh reports (pull-to-refresh)
@@ -172,7 +181,7 @@ export function useReportViewModel(): UseReportViewModel {
       // Clear cache
       setCache({ financialSummary: null, budgetPerformance: null });
 
-      const apiFilters = buildApiFilters();
+      const apiFilters = buildApiFilters(filters);
 
       const summaryData = await getFinancialSummary(apiFilters);
       setFinancialSummary(summaryData);
@@ -198,7 +207,7 @@ export function useReportViewModel(): UseReportViewModel {
     } finally {
       setIsRefreshing(false);
     }
-  }, [buildApiFilters]);
+  }, [buildApiFilters, filters]);
 
   /**
    * Update filters
@@ -257,11 +266,13 @@ export function useReportViewModel(): UseReportViewModel {
   }, [financialSummary]);
 
   /**
-   * Load reports on mount and when filters change
+   * Load reports on mount only
+   * DO NOT add loadReports to deps - it would cause infinite loop
    */
   useEffect(() => {
     loadReports();
-  }, [loadReports]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return {
     // Data

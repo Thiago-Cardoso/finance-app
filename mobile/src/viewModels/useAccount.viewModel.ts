@@ -4,8 +4,8 @@
  * ViewModel para gerenciamento de contas financeiras.
  */
 
-import { useCallback, useRef } from 'react';
-import { useAccountsStore, accountSelectors } from '@/shared/stores/accountsStore';
+import { useCallback, useRef, useMemo } from 'react';
+import { useAccountsStore } from '@/shared/stores/accountsStore';
 import * as accountsService from '@/shared/services/api/accounts.service';
 import type { Account, AccountFormData, AccountFilters } from '@/shared/models/Account.model';
 
@@ -40,7 +40,6 @@ export function useAccountViewModel(): UseAccountViewModel {
   // Get store state directly (stable references)
   const accounts = useAccountsStore((state) => state.accounts);
   const selectedAccount = useAccountsStore((state) => state.selectedAccount);
-  const filters = useAccountsStore((state) => state.filters);
   const isLoading = useAccountsStore((state) => state.isLoading);
   const isRefreshing = useAccountsStore((state) => state.isRefreshing);
   const error = useAccountsStore((state) => state.error);
@@ -54,17 +53,31 @@ export function useAccountViewModel(): UseAccountViewModel {
   const setLoading = useAccountsStore((state) => state.setLoading);
   const setRefreshing = useAccountsStore((state) => state.setRefreshing);
   const setError = useAccountsStore((state) => state.setError);
-  const isCacheValid = useAccountsStore((state) => state.isCacheValid);
   const invalidateCache = useAccountsStore((state) => state.invalidateCache);
 
   // Refs to track loading state (prevent double calls)
   const isLoadingRef = useRef(false);
 
-  // Computed values using selectors
-  const activeAccounts = useAccountsStore((state) => accountSelectors.getActiveAccounts(state));
-  const totalBalance = useAccountsStore((state) => accountSelectors.getTotalBalance(state));
-  const accountsCount = useAccountsStore((state) => accountSelectors.getActiveAccountsCount(state));
-  const hasReachedLimit = useAccountsStore((state) => accountSelectors.hasReachedAccountLimit(state));
+  // Computed values using useMemo to prevent infinite loops
+  const activeAccounts = useMemo(
+    () => accounts.filter((account) => account.is_active),
+    [accounts]
+  );
+
+  const totalBalance = useMemo(
+    () => activeAccounts.reduce((total, account) => total + account.current_balance, 0),
+    [activeAccounts]
+  );
+
+  const accountsCount = useMemo(
+    () => activeAccounts.length,
+    [activeAccounts]
+  );
+
+  const hasReachedLimit = useMemo(
+    () => activeAccounts.length >= 20,
+    [activeAccounts]
+  );
 
   /**
    * Carrega contas
@@ -74,8 +87,13 @@ export function useAccountViewModel(): UseAccountViewModel {
       // Prevent concurrent calls
       if (isLoadingRef.current) return;
 
+      // Get current state
+      const currentAccounts = useAccountsStore.getState().accounts;
+      const currentFilters = useAccountsStore.getState().filters;
+      const currentIsCacheValid = useAccountsStore.getState().isCacheValid();
+
       // Verificar cache
-      if (!forceRefresh && isCacheValid() && accounts.length > 0) {
+      if (!forceRefresh && currentIsCacheValid && currentAccounts.length > 0) {
         return;
       }
 
@@ -84,7 +102,7 @@ export function useAccountViewModel(): UseAccountViewModel {
         setLoading(true);
         setError(null);
 
-        const result = await accountsService.getAccounts(newFilters || filters);
+        const result = await accountsService.getAccounts(newFilters || currentFilters);
         setAccounts(result);
       } catch (err: any) {
         // Se for 404, significa que a API ainda não existe - mostrar lista vazia
@@ -101,7 +119,7 @@ export function useAccountViewModel(): UseAccountViewModel {
         isLoadingRef.current = false;
       }
     },
-    [accounts.length, filters, isCacheValid, setAccounts, setError, setLoading]
+    [setAccounts, setError, setLoading]
   );
 
   /**
@@ -135,8 +153,13 @@ export function useAccountViewModel(): UseAccountViewModel {
    */
   const createAccount = useCallback(
     async (data: AccountFormData): Promise<{ success: boolean; account?: Account; error?: string }> => {
+      // Get current limit from state
+      const currentAccounts = useAccountsStore.getState().accounts;
+      const currentActiveCount = currentAccounts.filter(acc => acc.is_active).length;
+      const currentHasReachedLimit = currentActiveCount >= 20;
+
       // Verificar limite de contas
-      if (hasReachedLimit) {
+      if (currentHasReachedLimit) {
         return { success: false, error: 'Limite de 20 contas atingido' };
       }
 
@@ -158,7 +181,7 @@ export function useAccountViewModel(): UseAccountViewModel {
         setLoading(false);
       }
     },
-    [addAccount, hasReachedLimit, invalidateCache, setError, setLoading]
+    [addAccount, invalidateCache, setError, setLoading]
   );
 
   /**
@@ -273,7 +296,8 @@ export function useAccountViewModel(): UseAccountViewModel {
       setRefreshing(true);
       setError(null);
 
-      const result = await accountsService.getAccounts(filters);
+      const currentFilters = useAccountsStore.getState().filters;
+      const result = await accountsService.getAccounts(currentFilters);
       setAccounts(result);
     } catch (err: any) {
       // Se for 404, significa que a API ainda não existe
@@ -287,7 +311,7 @@ export function useAccountViewModel(): UseAccountViewModel {
     } finally {
       setRefreshing(false);
     }
-  }, [filters, setAccounts, setError, setRefreshing]);
+  }, [setAccounts, setError, setRefreshing]);
 
   /**
    * Limpa erros
