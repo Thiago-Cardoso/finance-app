@@ -5,7 +5,7 @@
  * Handles data fetching, filtering, and data transformation for charts.
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   getFinancialSummary,
   getBudgetPerformance,
@@ -82,6 +82,12 @@ export function useReportViewModel(): UseReportViewModel {
     budgetPerformance: null,
   });
 
+  // Ref to access current cache in async callbacks without dependency loop
+  const cacheRef = useRef(cache);
+  useEffect(() => {
+    cacheRef.current = cache;
+  }, [cache]);
+
   /**
    * Build API filters from UI filters
    * No dependencies needed - accepts filters as parameter
@@ -124,28 +130,31 @@ export function useReportViewModel(): UseReportViewModel {
       setError(null);
 
       const apiFilters = buildApiFilters(filters);
+      const currentCache = cacheRef.current;
+      const promises: Promise<void>[] = [];
 
-      // Check cache - use functional setState to access current cache
-      setCache((currentCache) => {
-        // Check financial summary cache
-        if (isCacheValid(currentCache.financialSummary)) {
-          setFinancialSummary(currentCache.financialSummary!.data);
-        } else {
-          // Load fresh data
+      // Check financial summary cache
+      if (isCacheValid(currentCache.financialSummary)) {
+        setFinancialSummary(currentCache.financialSummary!.data);
+      } else {
+        // Load fresh data
+        promises.push(
           getFinancialSummary(apiFilters).then((summaryData) => {
             setFinancialSummary(summaryData);
             setCache((prev) => ({
               ...prev,
               financialSummary: { data: summaryData, timestamp: Date.now() },
             }));
-          });
-        }
+          })
+        );
+      }
 
-        // Check budget performance cache
-        if (isCacheValid(currentCache.budgetPerformance)) {
-          setBudgetPerformance(currentCache.budgetPerformance!.data);
-        } else {
-          // Load fresh data
+      // Check budget performance cache
+      if (isCacheValid(currentCache.budgetPerformance)) {
+        setBudgetPerformance(currentCache.budgetPerformance!.data);
+      } else {
+        // Load fresh data
+        promises.push(
           getBudgetPerformance(apiFilters)
             .then((performanceData) => {
               setBudgetPerformance(performanceData);
@@ -156,11 +165,11 @@ export function useReportViewModel(): UseReportViewModel {
             })
             .catch(() => {
               console.warn('Budget performance not available');
-            });
-        }
+            })
+        );
+      }
 
-        return currentCache;
-      });
+      await Promise.all(promises);
     } catch (err: any) {
       const errorMessage = err?.message || 'Erro ao carregar relatórios';
       setError(errorMessage);

@@ -4,7 +4,7 @@
  * ViewModel to manage Dashboard state and logic.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getDashboardData } from '@/shared/services/api/dashboard.service';
 import type { DashboardApiResponse } from '@/shared/models/Dashboard.model';
 
@@ -157,6 +157,12 @@ export function useDashboardViewModel(): UseDashboardViewModel {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState('this_month');
 
+  // Ref to access current period in async callbacks without dependency loop
+  const periodRef = useRef(period);
+  useEffect(() => {
+    periodRef.current = period;
+  }, [period]);
+
   /**
    * Load dashboard data
    */
@@ -173,17 +179,17 @@ export function useDashboardViewModel(): UseDashboardViewModel {
       }
 
       // Read period from state ref to avoid dependency
-      setPeriod((currentPeriod) => {
-        getDashboardData(currentPeriod)
-          .then((dashboardData) => setData(dashboardData))
-          .catch((err: any) => {
-            const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
-            setError(errorMessage);
-            console.error('Error loading dashboard:', err);
-          })
-          .finally(() => setIsLoading(false));
-        return currentPeriod;
-      });
+      const currentPeriod = periodRef.current;
+      try {
+        const dashboardData = await getDashboardData(currentPeriod);
+        setData(dashboardData);
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
+        setError(errorMessage);
+        console.error('Error loading dashboard:', err);
+      } finally {
+        setIsLoading(false);
+      }
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
       setError(errorMessage);
@@ -208,17 +214,17 @@ export function useDashboardViewModel(): UseDashboardViewModel {
       }
 
       // Read period from state ref to avoid dependency
-      setPeriod((currentPeriod) => {
-        getDashboardData(currentPeriod)
-          .then((dashboardData) => setData(dashboardData))
-          .catch((err: any) => {
-            const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
-            setError(errorMessage);
-            console.error('Error refreshing dashboard:', err);
-          })
-          .finally(() => setIsRefreshing(false));
-        return currentPeriod;
-      });
+      const currentPeriod = periodRef.current;
+      try {
+        const dashboardData = await getDashboardData(currentPeriod);
+        setData(dashboardData);
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
+        setError(errorMessage);
+        console.error('Error refreshing dashboard:', err);
+      } finally {
+        setIsRefreshing(false);
+      }
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
       setError(errorMessage);

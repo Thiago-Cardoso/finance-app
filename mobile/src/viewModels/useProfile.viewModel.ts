@@ -139,27 +139,25 @@ export function useProfileViewModel(): UseProfileViewModelReturn {
    * Get user initials for avatar
    */
   const getUserInitials = useCallback((): string => {
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser) return '?';
+    if (!user) return '?';
 
-    const firstInitial = currentUser.first_name?.charAt(0)?.toUpperCase() || '';
-    const lastInitial = currentUser.last_name?.charAt(0)?.toUpperCase() || '';
+    const firstInitial = user.first_name?.charAt(0)?.toUpperCase() || '';
+    const lastInitial = user.last_name?.charAt(0)?.toUpperCase() || '';
 
-    return `${firstInitial}${lastInitial}` || currentUser.email?.charAt(0)?.toUpperCase() || '?';
-  }, []);
+    return `${firstInitial}${lastInitial}` || user.email?.charAt(0)?.toUpperCase() || '?';
+  }, [user]);
 
   /**
    * Get full name
    */
   const getFullName = useCallback((): string => {
-    const currentUser = useAuthStore.getState().user;
-    if (!currentUser) return '';
+    if (!user) return '';
 
-    const firstName = currentUser.first_name || '';
-    const lastName = currentUser.last_name || '';
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
 
-    return `${firstName} ${lastName}`.trim() || currentUser.email || '';
-  }, []);
+    return `${firstName} ${lastName}`.trim() || user.email || '';
+  }, [user]);
 
   /**
    * Clear error state

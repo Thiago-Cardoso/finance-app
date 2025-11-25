@@ -92,14 +92,6 @@ export const TransactionListView = React.memo(function TransactionListView({
     [loadTransactions]
   );
 
-  /**
-   * Handle clear all filters
-   */
-  const handleClearAllFilters = useCallback(async () => {
-    resetStoreFilters();
-    await loadTransactions({}, true);
-  }, [resetStoreFilters, loadTransactions]);
-
 
   /**
    * Handle delete transaction
