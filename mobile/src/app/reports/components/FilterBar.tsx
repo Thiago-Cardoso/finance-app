@@ -48,12 +48,12 @@ export function FilterBar({
 }: FilterBarProps) {
   const { colors, theme } = useTheme();
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const { categories, fetchCategories } = useCategoriesStore();
+  const categories = useCategoriesStore((state) => state.categories);
 
   // Fetch categories on mount
   React.useEffect(() => {
-    fetchCategories();
-  }, [fetchCategories]);
+    useCategoriesStore.getState().fetchCategories();
+  }, []);
 
   /**
    * Get active filters count
