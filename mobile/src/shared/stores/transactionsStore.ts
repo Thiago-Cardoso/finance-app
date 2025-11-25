@@ -214,19 +214,22 @@ export const useTransactionsStore = create<TransactionsState>((set, get) => ({
 
   // Selectors
   getTransactionById: (id: string) => {
-    const { transactions } = get();
-    return transactions.find((t) => t.id === id);
+    return get().transactions.find((t) => t.id === id);
   },
 
   getTransactionsByType: (type: 'income' | 'expense' | 'transfer') => {
-    const { transactions } = get();
-    return transactions.filter((t) => t.transaction_type === type);
+    return get().transactions.filter((t) => t.transaction_type === type);
   },
 
   hasMorePages: () => {
-    const { pagination } = get();
-    return !!pagination?.next_page;
+    return !!get().pagination?.next_page;
   },
 }));
+
+// Stable selector hooks to prevent infinite loops
+export const useTransactionsPagination = () => useTransactionsStore((state) => state.pagination);
+export const useTransactionsFilters = () => useTransactionsStore((state) => state.currentFilters);
+export const useTransactionsList = () => useTransactionsStore((state) => state.transactions);
+export const useTransactionsLoading = () => useTransactionsStore((state) => state.isLoading);
 
 export default useTransactionsStore;

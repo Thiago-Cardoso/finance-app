@@ -172,16 +172,25 @@ export function useDashboardViewModel(): UseDashboardViewModel {
         return;
       }
 
-      const dashboardData = await getDashboardData(period);
-      setData(dashboardData);
+      // Read period from state ref to avoid dependency
+      setPeriod((currentPeriod) => {
+        getDashboardData(currentPeriod)
+          .then((dashboardData) => setData(dashboardData))
+          .catch((err: any) => {
+            const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
+            setError(errorMessage);
+            console.error('Error loading dashboard:', err);
+          })
+          .finally(() => setIsLoading(false));
+        return currentPeriod;
+      });
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
       setError(errorMessage);
       console.error('Error loading dashboard:', err);
-    } finally {
       setIsLoading(false);
     }
-  }, [period]);
+  }, []);
 
   /**
    * Refresh dashboard (pull-to-refresh)
@@ -198,23 +207,34 @@ export function useDashboardViewModel(): UseDashboardViewModel {
         return;
       }
 
-      const dashboardData = await getDashboardData(period);
-      setData(dashboardData);
+      // Read period from state ref to avoid dependency
+      setPeriod((currentPeriod) => {
+        getDashboardData(currentPeriod)
+          .then((dashboardData) => setData(dashboardData))
+          .catch((err: any) => {
+            const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
+            setError(errorMessage);
+            console.error('Error refreshing dashboard:', err);
+          })
+          .finally(() => setIsRefreshing(false));
+        return currentPeriod;
+      });
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
       setError(errorMessage);
       console.error('Error refreshing dashboard:', err);
-    } finally {
       setIsRefreshing(false);
     }
-  }, [period]);
+  }, []);
 
   /**
-   * Load dashboard on mount or when period changes
+   * Load dashboard on mount only
+   * DO NOT add loadDashboard to deps - it would cause infinite loop
    */
   useEffect(() => {
     loadDashboard();
-  }, [loadDashboard]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return {
     data,

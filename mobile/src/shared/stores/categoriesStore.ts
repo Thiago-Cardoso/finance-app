@@ -33,6 +33,12 @@ interface CategoriesState {
 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+// Stable selector functions to prevent infinite loops
+const selectCategories = (state: CategoriesState) => state.categories;
+const selectStatistics = (state: CategoriesState) => state.statistics;
+const selectIsLoading = (state: CategoriesState) => state.isLoading;
+const selectError = (state: CategoriesState) => state.error;
+
 export const useCategoriesStore = create<CategoriesState>((set, get) => ({
   categories: [],
   statistics: [],
@@ -143,5 +149,11 @@ export const useCategoriesStore = create<CategoriesState>((set, get) => ({
     );
   },
 }));
+
+// Stable selector hooks to prevent infinite loops
+export const useCategoriesList = () => useCategoriesStore(selectCategories);
+export const useCategoriesStatistics = () => useCategoriesStore(selectStatistics);
+export const useCategoriesLoading = () => useCategoriesStore(selectIsLoading);
+export const useCategoriesError = () => useCategoriesStore(selectError);
 
 export default useCategoriesStore;

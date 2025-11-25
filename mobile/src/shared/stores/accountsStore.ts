@@ -6,6 +6,7 @@
 
 import { create } from 'zustand';
 import type { Account, AccountFilters } from '@/shared/models/Account.model';
+import * as accountsService from '@/shared/services/api/accounts.service';
 
 interface AccountsState {
   // Data
@@ -23,6 +24,7 @@ interface AccountsState {
   cacheTimeout: number; // em ms
 
   // Actions
+  fetchAccounts: (filters?: AccountFilters) => Promise<void>;
   setAccounts: (accounts: Account[]) => void;
   addAccount: (account: Account) => void;
   updateAccount: (id: string, account: Partial<Account>) => void;
@@ -52,6 +54,36 @@ const initialState = {
 
 export const useAccountsStore = create<AccountsState>((set, get) => ({
   ...initialState,
+
+  fetchAccounts: async (filters?: AccountFilters) => {
+    const { lastFetch, cacheTimeout, accounts } = get();
+
+    // Check cache
+    if (lastFetch && Date.now() - lastFetch < cacheTimeout && accounts.length > 0 && !filters) {
+      return;
+    }
+
+    set({ isLoading: true, error: null });
+
+    try {
+      const result = await accountsService.getAccounts(filters);
+      set({
+        accounts: result,
+        lastFetch: Date.now(),
+        isLoading: false,
+      });
+    } catch (err: any) {
+      // Se for 404, significa que a API ainda não existe
+      if (err?.response?.status === 404) {
+        set({ accounts: [], isLoading: false });
+      } else {
+        set({
+          error: err?.response?.data?.error || 'Erro ao carregar contas',
+          isLoading: false,
+        });
+      }
+    }
+  },
 
   setAccounts: (accounts) =>
     set({
