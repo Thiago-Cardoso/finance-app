@@ -1,7 +1,10 @@
 /**
  * View: TransactionList
  *
- * Lista de transações com paginação, filtros e pull-to-refresh.
+ * Lista de transações com paginação, filtros avançados, busca e pull-to-refresh.
+ *
+ * IMPORTANT: This component does NOT use useFilters hook to prevent infinite loops.
+ * All filter state is managed through the transactions store only.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -14,14 +17,14 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import { Plus, Filter, Search, Wallet } from 'lucide-react-native';
+import { Plus, Wallet } from 'lucide-react-native';
 import { Screen } from '@/shared/components/ui/Screen';
 import { EmptyState } from '@/shared/components/ui/EmptyState';
 import { FAB } from '@/shared/components/ui/FAB';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useTransactionViewModel } from '@/viewModels/useTransaction.viewModel';
+import { useTransactionsStore } from '@/shared/stores/transactionsStore';
 import { TransactionItem } from './components/TransactionItem';
-import { FilterBar } from './components/FilterBar';
 import type { Transaction, TransactionType } from '@/shared/models/Transaction.model';
 
 interface TransactionListViewProps {
@@ -29,7 +32,7 @@ interface TransactionListViewProps {
   onBack?: () => void;
 }
 
-export function TransactionListView({
+export const TransactionListView = React.memo(function TransactionListView({
   onNavigateToForm,
   onBack,
 }: TransactionListViewProps) {
@@ -44,45 +47,63 @@ export function TransactionListView({
     loadTransactions,
     loadMore,
     deleteTransaction,
-    filterByType,
-    resetFilters,
+    resetFilters: resetStoreFilters,
     hasMorePages,
     clearErrors,
   } = useTransactionViewModel();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<TransactionType | null>(null);
 
-  // Load transactions on mount
+  // Load transactions on mount ONLY
   useEffect(() => {
     loadTransactions();
-  }, [loadTransactions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
+
+  /**
+   * Handle pull-to-refresh
+   */
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadTransactions(undefined, true);
+    const currentStoreFilters = useTransactionsStore.getState().currentFilters;
+    await loadTransactions(currentStoreFilters, true);
     setRefreshing(false);
   }, [loadTransactions]);
 
+  /**
+   * Handle load more (pagination)
+   */
   const handleLoadMore = useCallback(() => {
-    if (!isLoadingMore && hasMorePages()) {
+    if (!isLoadingMore && hasMorePages) {
       loadMore();
     }
   }, [isLoadingMore, hasMorePages, loadMore]);
 
-  const handleFilterChange = useCallback(
+  /**
+   * Handle filter type change from tabs
+   */
+  const handleFilterTypeChange = useCallback(
     async (type: TransactionType | null) => {
-      setActiveFilter(type);
-      if (type) {
-        await filterByType(type);
-      } else {
-        await resetFilters();
-      }
+      const currentStoreFilters = useTransactionsStore.getState().currentFilters;
+      const newFilters = { ...currentStoreFilters, transaction_type: type || undefined };
+      await loadTransactions(newFilters, true);
     },
-    [filterByType, resetFilters]
+    [loadTransactions]
   );
 
+  /**
+   * Handle clear all filters
+   */
+  const handleClearAllFilters = useCallback(async () => {
+    resetStoreFilters();
+    await loadTransactions({}, true);
+  }, [resetStoreFilters, loadTransactions]);
+
+
+  /**
+   * Handle delete transaction
+   */
   const handleDeleteTransaction = useCallback(
     async (transaction: Transaction) => {
       Alert.alert(
@@ -106,6 +127,9 @@ export function TransactionListView({
     [deleteTransaction]
   );
 
+  /**
+   * Render transaction item
+   */
   const renderTransaction = useCallback(
     ({ item }: { item: Transaction }) => (
       <TransactionItem
@@ -117,6 +141,9 @@ export function TransactionListView({
     [onNavigateToForm, handleDeleteTransaction]
   );
 
+  /**
+   * Render footer (loading more)
+   */
   const renderFooter = useCallback(() => {
     if (!isLoadingMore) return null;
 
@@ -127,32 +154,37 @@ export function TransactionListView({
     );
   }, [isLoadingMore, theme.colors.primary.DEFAULT]);
 
+  /**
+   * Render empty state
+   */
   const renderEmpty = useCallback(() => {
     if (isLoading) return null;
 
+    // Empty state for no transactions
     return (
       <EmptyState
         icon={Wallet}
         title="Nenhuma transação"
-        description={
-          activeFilter
-            ? `Você não tem transações de ${activeFilter === 'income' ? 'receita' : activeFilter === 'expense' ? 'despesa' : 'transferência'}.`
-            : 'Comece adicionando sua primeira transação.'
-        }
+        description="Comece adicionando sua primeira transação."
         action={{
           label: 'Adicionar Transação',
           onPress: () => onNavigateToForm(),
         }}
       />
     );
-  }, [isLoading, activeFilter, onNavigateToForm]);
+  }, [isLoading, onNavigateToForm]);
 
+  /**
+   * Render header
+   */
   const renderHeader = useCallback(() => {
+    const activeType = currentFilters?.transaction_type;
+
     return (
       <View className="mb-4">
         {/* Filter Tabs */}
         <View
-          className="flex-row mb-4"
+          className="flex-row mb-3"
           style={{
             borderBottomWidth: 1,
             borderBottomColor: colors.border,
@@ -160,28 +192,28 @@ export function TransactionListView({
         >
           <FilterTab
             label="Todas"
-            isActive={activeFilter === null}
-            onPress={() => handleFilterChange(null)}
+            isActive={activeType === undefined}
+            onPress={() => handleFilterTypeChange(null)}
             color={theme.colors.primary.DEFAULT}
           />
           <FilterTab
             label="Despesas"
-            isActive={activeFilter === 'expense'}
-            onPress={() => handleFilterChange('expense')}
+            isActive={activeType === 'expense'}
+            onPress={() => handleFilterTypeChange('expense')}
             color={theme.colors.error.DEFAULT}
           />
           <FilterTab
             label="Receitas"
-            isActive={activeFilter === 'income'}
-            onPress={() => handleFilterChange('income')}
+            isActive={activeType === 'income'}
+            onPress={() => handleFilterTypeChange('income')}
             color={theme.colors.success.DEFAULT}
           />
         </View>
 
-        {/* Summary */}
+        {/* Results Summary */}
         {pagination && (
           <Text
-            className="text-sm mb-2"
+            className="text-sm"
             style={{ color: colors.text.secondary }}
           >
             {pagination.total_count} transações encontradas
@@ -190,8 +222,8 @@ export function TransactionListView({
       </View>
     );
   }, [
-    activeFilter,
-    handleFilterChange,
+    currentFilters,
+    handleFilterTypeChange,
     pagination,
     colors,
     theme.colors,
@@ -204,21 +236,6 @@ export function TransactionListView({
       scrollable={false}
       showBackButton={!!onBack}
       onBack={onBack}
-      headerRight={
-        <TouchableOpacity
-          onPress={() => setShowFilters(!showFilters)}
-          hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
-        >
-          <Filter
-            size={24}
-            color={
-              showFilters
-                ? theme.colors.primary.DEFAULT
-                : colors.text.secondary
-            }
-          />
-        </TouchableOpacity>
-      }
     >
       {/* Error State */}
       {error && (
@@ -272,8 +289,11 @@ export function TransactionListView({
       />
     </Screen>
   );
-}
+});
 
+/**
+ * Filter Tab Component
+ */
 interface FilterTabProps {
   label: string;
   isActive: boolean;
