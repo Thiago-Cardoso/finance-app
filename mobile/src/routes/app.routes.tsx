@@ -17,6 +17,21 @@ import type { Transaction } from '@/shared/models/Transaction.model';
 
 const Tab = createBottomTabNavigator<AppTabsParamList>();
 
+/**
+ * Transactions Tab Component
+ * Wrapper to prevent inline function recreation causing infinite loops
+ */
+const TransactionsTab = React.memo(({ navigation }: any) => {
+  const handleNavigateToForm = React.useCallback((transaction?: Transaction) => {
+    navigation.navigate('TransactionForm', {
+      transactionId: transaction?.id,
+    });
+  }, [navigation]);
+
+  return <TransactionListView onNavigateToForm={handleNavigateToForm} />;
+});
+TransactionsTab.displayName = 'TransactionsTab';
+
 export function AppRoutes() {
   const { theme, colors } = useTheme();
 
@@ -66,17 +81,8 @@ export function AppRoutes() {
           tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
           tabBarAccessibilityLabel: 'Ver Transações',
         }}
-      >
-        {({ navigation }) => (
-          <TransactionListView
-            onNavigateToForm={(transaction) => {
-              navigation.navigate('TransactionForm', {
-                transactionId: transaction?.id,
-              });
-            }}
-          />
-        )}
-      </Tab.Screen>
+        component={TransactionsTab}
+      />
 
       <Tab.Screen
         name="Reports"
@@ -90,13 +96,22 @@ export function AppRoutes() {
 
       <Tab.Screen
         name="Profile"
-        component={ProfileView}
         options={{
           tabBarLabel: 'Perfil',
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
           tabBarAccessibilityLabel: 'Ver Perfil',
         }}
-      />
+      >
+        {({ navigation }) => (
+          <ProfileView
+            onNavigateToEditProfile={() => navigation.navigate('EditProfile')}
+            onNavigateToSettings={() => navigation.navigate('Settings')}
+            onNavigateToChangePassword={() => navigation.navigate('ChangePassword')}
+            onNavigateToAbout={() => navigation.navigate('About')}
+            onNavigateToCategories={() => navigation.navigate('CategoryList')}
+          />
+        )}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 }

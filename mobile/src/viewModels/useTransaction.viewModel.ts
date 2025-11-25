@@ -4,8 +4,14 @@
  * Lógica de apresentação para transações.
  */
 
-import { useState, useCallback } from 'react';
-import { useTransactionsStore } from '@/shared/stores/transactionsStore';
+import { useState, useCallback, useMemo } from 'react';
+import {
+  useTransactionsStore,
+  useTransactionsList,
+  useTransactionsLoading,
+  useTransactionsPagination,
+  useTransactionsFilters,
+} from '@/shared/stores/transactionsStore';
 import transactionsService from '@/shared/services/api/transactions.service';
 import type {
   Transaction,
@@ -16,30 +22,30 @@ import type {
 } from '@/shared/models/Transaction.model';
 
 export function useTransactionViewModel() {
-  const {
-    transactions,
-    summary,
-    filterOptions,
-    pagination,
-    currentFilters,
-    isLoading: storeLoading,
-    isLoadingMore,
-    isSummaryLoading,
-    error: storeError,
-    fetchTransactions,
-    fetchNextPage,
-    fetchSummary,
-    fetchFilterOptions,
-    addTransaction,
-    updateTransaction: updateTransactionInStore,
-    removeTransaction,
-    setFilters,
-    clearFilters,
-    clearError,
-    getTransactionById,
-    getTransactionsByType,
-    hasMorePages,
-  } = useTransactionsStore();
+  // Use stable selector hooks to prevent infinite loops
+  const transactions = useTransactionsList();
+  const storeLoading = useTransactionsLoading();
+  const pagination = useTransactionsPagination();
+  const currentFilters = useTransactionsFilters();
+
+  // Get remaining state from store using selectors
+  const summary = useTransactionsStore((state) => state.summary);
+  const filterOptions = useTransactionsStore((state) => state.filterOptions);
+  const isLoadingMore = useTransactionsStore((state) => state.isLoadingMore);
+  const isSummaryLoading = useTransactionsStore((state) => state.isSummaryLoading);
+  const storeError = useTransactionsStore((state) => state.error);
+
+  // Get stable action references using selectors
+  const fetchTransactions = useTransactionsStore((state) => state.fetchTransactions);
+  const fetchNextPage = useTransactionsStore((state) => state.fetchNextPage);
+  const fetchSummary = useTransactionsStore((state) => state.fetchSummary);
+  const fetchFilterOptions = useTransactionsStore((state) => state.fetchFilterOptions);
+  const addTransaction = useTransactionsStore((state) => state.addTransaction);
+  const updateTransactionInStore = useTransactionsStore((state) => state.updateTransaction);
+  const removeTransaction = useTransactionsStore((state) => state.removeTransaction);
+  const setFilters = useTransactionsStore((state) => state.setFilters);
+  const clearFilters = useTransactionsStore((state) => state.clearFilters);
+  const clearError = useTransactionsStore((state) => state.clearError);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -158,10 +164,14 @@ export function useTransactionViewModel() {
    */
   const applyFilters = useCallback(
     async (filters: TransactionFilters) => {
+      // Calculate new filters first to avoid race conditions with store updates
+      const currentFilters = useTransactionsStore.getState().filters;
+      const newFilters = { ...currentFilters, ...filters, page: 1 };
+      
       setFilters(filters);
-      await fetchTransactions({ ...currentFilters, ...filters, page: 1 });
+      await fetchTransactions(newFilters);
     },
-    [setFilters, fetchTransactions, currentFilters]
+    [setFilters, fetchTransactions]
   );
 
   /**
@@ -240,6 +250,30 @@ export function useTransactionViewModel() {
         return '#6B7280'; // gray
     }
   }, []);
+
+  /**
+   * Memoized selector: Get transaction by ID
+   */
+  const getTransactionById = useCallback(
+    (id: string) => transactions.find((t) => t.id === id),
+    [transactions]
+  );
+
+  /**
+   * Memoized selector: Get transactions by type
+   */
+  const getTransactionsByType = useCallback(
+    (type: TransactionType) => transactions.filter((t) => t.transaction_type === type),
+    [transactions]
+  );
+
+  /**
+   * Memoized selector: Check if there are more pages
+   */
+  const hasMorePages = useMemo(
+    () => !!pagination?.next_page,
+    [pagination]
+  );
 
   return {
     // State

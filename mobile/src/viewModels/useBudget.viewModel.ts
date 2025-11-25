@@ -4,17 +4,17 @@
  * ViewModel para gerenciamento de orçamentos.
  */
 
-import { useCallback, useRef } from 'react';
-import { useBudgetsStore, budgetSelectors } from '@/shared/stores/budgetsStore';
+import { useCallback, useRef, useMemo } from 'react';
+import { useBudgetsStore } from '@/shared/stores/budgetsStore';
 import * as budgetsService from '@/shared/services/api/budgets.service';
-import type { Budget, BudgetFormData, BudgetFilters } from '@/shared/models/Budget.model';
+import type { Budget, BudgetFormData, BudgetFilters, BudgetAlert } from '@/shared/models/Budget.model';
 
 interface UseBudgetViewModel {
   // Data
   budgets: Budget[];
   currentBudgets: Budget[];
   selectedBudget: Budget | null;
-  alerts: ReturnType<typeof budgetSelectors.getUnreadAlerts>;
+  alerts: BudgetAlert[];
 
   // Computed
   overBudgets: Budget[];
@@ -46,9 +46,8 @@ export function useBudgetViewModel(): UseBudgetViewModel {
   // Get store state directly
   const budgets = useBudgetsStore((state) => state.budgets);
   const currentBudgets = useBudgetsStore((state) => state.currentBudgets);
-  // Removed unused alerts variable
+  const alerts = useBudgetsStore((state) => state.alerts);
   const selectedBudget = useBudgetsStore((state) => state.selectedBudget);
-  const filters = useBudgetsStore((state) => state.filters);
   const isLoading = useBudgetsStore((state) => state.isLoading);
   const isRefreshing = useBudgetsStore((state) => state.isRefreshing);
   const error = useBudgetsStore((state) => state.error);
@@ -65,19 +64,42 @@ export function useBudgetViewModel(): UseBudgetViewModel {
   const setRefreshing = useBudgetsStore((state) => state.setRefreshing);
   const setError = useBudgetsStore((state) => state.setError);
   const markAlertAsRead = useBudgetsStore((state) => state.markAlertAsRead);
-  const isCacheValid = useBudgetsStore((state) => state.isCacheValid);
   const invalidateCache = useBudgetsStore((state) => state.invalidateCache);
 
   // Refs to track loading state (prevent double calls)
   const isLoadingRef = useRef(false);
 
-  // Computed values using selectors
-  const overBudgets = useBudgetsStore((state) => budgetSelectors.getOverBudgets(state));
-  const warningBudgets = useBudgetsStore((state) => budgetSelectors.getWarningBudgets(state));
-  const totalSpent = useBudgetsStore((state) => budgetSelectors.getTotalSpent(state));
-  const totalLimit = useBudgetsStore((state) => budgetSelectors.getTotalLimit(state));
-  const overallUsage = useBudgetsStore((state) => budgetSelectors.getOverallUsage(state));
-  const unreadAlerts = useBudgetsStore((state) => budgetSelectors.getUnreadAlerts(state));
+  // Computed values using useMemo to prevent infinite loops
+  const overBudgets = useMemo(
+    () => budgets.filter((b) => b.status === 'over_budget'),
+    [budgets]
+  );
+
+  const warningBudgets = useMemo(
+    () => budgets.filter((b) => b.status === 'warning' || b.status === 'critical'),
+    [budgets]
+  );
+
+  const totalSpent = useMemo(
+    () => currentBudgets.reduce((sum, b) => sum + b.spent_amount, 0),
+    [currentBudgets]
+  );
+
+  const totalLimit = useMemo(
+    () => currentBudgets.reduce((sum, b) => sum + b.limit_amount, 0),
+    [currentBudgets]
+  );
+
+  const overallUsage = useMemo(() => {
+    const total = currentBudgets.reduce((sum, b) => sum + b.limit_amount, 0);
+    const spent = currentBudgets.reduce((sum, b) => sum + b.spent_amount, 0);
+    return total > 0 ? (spent / total) * 100 : 0;
+  }, [currentBudgets]);
+
+  const unreadAlerts = useMemo(
+    () => alerts.filter((a) => !a.is_read),
+    [alerts]
+  );
 
   /**
    * Carrega orçamentos
@@ -87,8 +109,13 @@ export function useBudgetViewModel(): UseBudgetViewModel {
       // Prevent concurrent calls
       if (isLoadingRef.current) return;
 
+      // Get current state using getState()
+      const currentBudgets = useBudgetsStore.getState().budgets;
+      const currentFilters = useBudgetsStore.getState().filters;
+      const currentIsCacheValid = useBudgetsStore.getState().isCacheValid();
+
       // Verificar cache
-      if (!forceRefresh && isCacheValid() && budgets.length > 0) {
+      if (!forceRefresh && currentIsCacheValid && currentBudgets.length > 0) {
         return;
       }
 
@@ -97,7 +124,7 @@ export function useBudgetViewModel(): UseBudgetViewModel {
         setLoading(true);
         setError(null);
 
-        const result = await budgetsService.getBudgets(newFilters || filters);
+        const result = await budgetsService.getBudgets(newFilters || currentFilters);
         setBudgets(result);
       } catch (err: any) {
         // Se for 404, significa que a API ainda não existe - mostrar lista vazia
@@ -114,7 +141,7 @@ export function useBudgetViewModel(): UseBudgetViewModel {
         isLoadingRef.current = false;
       }
     },
-    [budgets.length, filters, isCacheValid, setBudgets, setError, setLoading]
+    [setBudgets, setError, setLoading]
   );
 
   /**
@@ -257,8 +284,11 @@ export function useBudgetViewModel(): UseBudgetViewModel {
       setRefreshing(true);
       setError(null);
 
+      // Get current filters from state
+      const currentFilters = useBudgetsStore.getState().filters;
+
       const [budgetsResult, currentResult] = await Promise.allSettled([
-        budgetsService.getBudgets(filters),
+        budgetsService.getBudgets(currentFilters),
         budgetsService.getCurrentBudgets(),
       ]);
 
@@ -287,7 +317,7 @@ export function useBudgetViewModel(): UseBudgetViewModel {
     } finally {
       setRefreshing(false);
     }
-  }, [filters, setBudgets, setCurrentBudgets, setError, setRefreshing]);
+  }, [setBudgets, setCurrentBudgets, setError, setRefreshing]);
 
   /**
    * Carrega alertas

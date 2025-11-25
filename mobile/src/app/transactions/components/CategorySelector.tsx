@@ -4,7 +4,7 @@
  * Seletor de categoria para transações.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Tag } from 'lucide-react-native';
 import * as Icons from 'lucide-react-native';
@@ -28,22 +28,25 @@ export function CategorySelector({
   disabled = false,
 }: CategorySelectorProps) {
   const { colors, theme } = useTheme();
-  const {
-    categories,
-    isLoading,
-    fetchCategories,
-    getExpenseCategories,
-    getIncomeCategories,
-  } = useCategoriesStore();
+  const categories = useCategoriesStore((state) => state.categories);
+  const isLoading = useCategoriesStore((state) => state.isLoading);
 
   useEffect(() => {
     if (categories.length === 0) {
-      fetchCategories();
+      useCategoriesStore.getState().fetchCategories();
     }
-  }, [categories.length, fetchCategories]);
+  }, [categories.length]);
 
-  const filteredCategories =
-    categoryType === 'expense' ? getExpenseCategories() : getIncomeCategories();
+  const filteredCategories = useMemo(() => {
+    if (categoryType === 'expense') {
+      return categories.filter(
+        (cat) => cat.category_type === 'expense' || cat.category_type === 'both'
+      );
+    }
+    return categories.filter(
+      (cat) => cat.category_type === 'income' || cat.category_type === 'both'
+    );
+  }, [categories, categoryType]);
 
   const getIconComponent = (iconName: string): React.ElementType => {
     const IconComponent = (Icons as unknown as Record<string, React.ElementType>)[iconName];

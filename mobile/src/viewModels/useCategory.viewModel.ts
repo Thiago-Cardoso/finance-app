@@ -4,8 +4,14 @@
  * Lógica de apresentação para categorias.
  */
 
-import { useState, useCallback } from 'react';
-import { useCategoriesStore } from '@/shared/stores/categoriesStore';
+import { useState, useCallback, useMemo } from 'react';
+import {
+  useCategoriesStore,
+  useCategoriesList,
+  useCategoriesStatistics,
+  useCategoriesLoading,
+  useCategoriesError,
+} from '@/shared/stores/categoriesStore';
 import categoriesService from '@/shared/services/api/categories.service';
 import type {
   Category,
@@ -15,22 +21,19 @@ import type {
 } from '@/shared/models/Category.model';
 
 export function useCategoryViewModel() {
-  const {
-    categories,
-    statistics,
-    isLoading: storeLoading,
-    error: storeError,
-    fetchCategories,
-    fetchStatistics,
-    addCategory,
-    updateCategory: updateCategoryInStore,
-    removeCategory,
-    getCategoriesByType,
-    getCategoryById,
-    getExpenseCategories,
-    getIncomeCategories,
-    clearError,
-  } = useCategoriesStore();
+  // Use stable selector hooks to prevent infinite loops
+  const categories = useCategoriesList();
+  const statistics = useCategoriesStatistics();
+  const storeLoading = useCategoriesLoading();
+  const storeError = useCategoriesError();
+
+  // Get stable action references using selectors
+  const fetchCategories = useCategoriesStore((state) => state.fetchCategories);
+  const fetchStatistics = useCategoriesStore((state) => state.fetchStatistics);
+  const addCategory = useCategoriesStore((state) => state.addCategory);
+  const updateCategoryInStore = useCategoriesStore((state) => state.updateCategory);
+  const removeCategory = useCategoriesStore((state) => state.removeCategory);
+  const clearError = useCategoriesStore((state) => state.clearError);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -134,16 +137,54 @@ export function useCategoryViewModel() {
   );
 
   /**
+   * Memoized selectors to prevent infinite loops
+   */
+  const getCategoriesByType = useCallback(
+    (type: CategoryType) => {
+      if (type === 'both') {
+        return categories;
+      }
+      return categories.filter(
+        (cat) => cat.category_type === type || cat.category_type === 'both'
+      );
+    },
+    [categories]
+  );
+
+  const getCategoryById = useCallback(
+    (id: string) => {
+      return categories.find((cat) => cat.id === id);
+    },
+    [categories]
+  );
+
+  const getExpenseCategories = useMemo(
+    () =>
+      categories.filter(
+        (cat) => cat.category_type === 'expense' || cat.category_type === 'both'
+      ),
+    [categories]
+  );
+
+  const getIncomeCategories = useMemo(
+    () =>
+      categories.filter(
+        (cat) => cat.category_type === 'income' || cat.category_type === 'both'
+      ),
+    [categories]
+  );
+
+  /**
    * Check if a category can be deleted
    */
   const canDeleteCategory = useCallback(
     (id: string): boolean => {
-      const category = getCategoryById(id);
+      const category = categories.find((cat) => cat.id === id);
       if (!category) return false;
       // Cannot delete if it's a default category or has transactions
       return !category.is_default && (category.usage_stats?.transactions_count ?? 0) === 0;
     },
-    [getCategoryById]
+    [categories]
   );
 
   /**

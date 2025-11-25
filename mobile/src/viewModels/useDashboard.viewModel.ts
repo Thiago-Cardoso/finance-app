@@ -4,7 +4,7 @@
  * ViewModel to manage Dashboard state and logic.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getDashboardData } from '@/shared/services/api/dashboard.service';
 import type { DashboardApiResponse } from '@/shared/models/Dashboard.model';
 
@@ -157,6 +157,12 @@ export function useDashboardViewModel(): UseDashboardViewModel {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState('this_month');
 
+  // Ref to access current period in async callbacks without dependency loop
+  const periodRef = useRef(period);
+  useEffect(() => {
+    periodRef.current = period;
+  }, [period]);
+
   /**
    * Load dashboard data
    */
@@ -172,16 +178,25 @@ export function useDashboardViewModel(): UseDashboardViewModel {
         return;
       }
 
-      const dashboardData = await getDashboardData(period);
-      setData(dashboardData);
+      // Read period from state ref to avoid dependency
+      const currentPeriod = periodRef.current;
+      try {
+        const dashboardData = await getDashboardData(currentPeriod);
+        setData(dashboardData);
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
+        setError(errorMessage);
+        console.error('Error loading dashboard:', err);
+      } finally {
+        setIsLoading(false);
+      }
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error loading dashboard';
       setError(errorMessage);
       console.error('Error loading dashboard:', err);
-    } finally {
       setIsLoading(false);
     }
-  }, [period]);
+  }, []);
 
   /**
    * Refresh dashboard (pull-to-refresh)
@@ -198,23 +213,34 @@ export function useDashboardViewModel(): UseDashboardViewModel {
         return;
       }
 
-      const dashboardData = await getDashboardData(period);
-      setData(dashboardData);
+      // Read period from state ref to avoid dependency
+      const currentPeriod = periodRef.current;
+      try {
+        const dashboardData = await getDashboardData(currentPeriod);
+        setData(dashboardData);
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
+        setError(errorMessage);
+        console.error('Error refreshing dashboard:', err);
+      } finally {
+        setIsRefreshing(false);
+      }
     } catch (err: any) {
       const errorMessage = err?.response?.data?.error || 'Error refreshing dashboard';
       setError(errorMessage);
       console.error('Error refreshing dashboard:', err);
-    } finally {
       setIsRefreshing(false);
     }
-  }, [period]);
+  }, []);
 
   /**
-   * Load dashboard on mount or when period changes
+   * Load dashboard on mount only
+   * DO NOT add loadDashboard to deps - it would cause infinite loop
    */
   useEffect(() => {
     loadDashboard();
-  }, [loadDashboard]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   return {
     data,
