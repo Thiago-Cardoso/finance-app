@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, Linking, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Screen } from '@/shared/components/ui/Screen';
 import { useTheme } from '@/shared/hooks/useTheme';
 import Constants from 'expo-constants';

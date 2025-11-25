@@ -30,6 +30,7 @@ const TransactionsTab = React.memo(({ navigation }: any) => {
 
   return <TransactionListView onNavigateToForm={handleNavigateToForm} />;
 });
+TransactionsTab.displayName = 'TransactionsTab';
 
 export function AppRoutes() {
   const { theme, colors } = useTheme();

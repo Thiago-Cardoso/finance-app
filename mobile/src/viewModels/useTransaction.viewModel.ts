@@ -164,10 +164,12 @@ export function useTransactionViewModel() {
    */
   const applyFilters = useCallback(
     async (filters: TransactionFilters) => {
+      // Calculate new filters first to avoid race conditions with store updates
+      const currentFilters = useTransactionsStore.getState().filters;
+      const newFilters = { ...currentFilters, ...filters, page: 1 };
+      
       setFilters(filters);
-      // Get current filters from state
-      const stateFilters = useTransactionsStore.getState().filters;
-      await fetchTransactions({ ...stateFilters, ...filters, page: 1 });
+      await fetchTransactions(newFilters);
     },
     [setFilters, fetchTransactions]
   );

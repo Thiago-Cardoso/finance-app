@@ -53,7 +53,7 @@ export function ActiveFilters({
   showClearAll = true,
   className = '',
 }: ActiveFiltersProps) {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
 
   if (filters.length === 0) {
     return null;
@@ -109,7 +109,7 @@ interface FilterChipItemProps {
 }
 
 function FilterChipItem({ filter, onRemove }: FilterChipItemProps) {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
   const chipColor = filter.color || theme.colors.primary.DEFAULT;
 
   return (
@@ -166,7 +166,7 @@ export function ActiveFiltersCompact({
   onPress,
   className = '',
 }: ActiveFiltersCompactProps) {
-  const { colors, theme } = useTheme();
+  const { theme } = useTheme();
 
   if (count === 0) {
     return null;
