@@ -21,6 +21,10 @@ import { CategoryListView, CategoryFormView } from '@/app/categories';
 import { TransactionFormView } from '@/app/transactions';
 import { BudgetListView, BudgetFormView, BudgetDetailView } from '@/app/budgets';
 import { AccountListView, AccountFormView } from '@/app/accounts';
+import { EditProfileView } from '@/app/profile/EditProfile.view';
+import { ChangePasswordView } from '@/app/profile/ChangePassword.view';
+import { SettingsView } from '@/app/profile/Settings.view';
+import { AboutView } from '@/app/profile/About.view';
 import { useCategoriesStore } from '@/shared/stores/categoriesStore';
 import { useTransactionsStore } from '@/shared/stores/transactionsStore';
 import { useBudgetsStore } from '@/shared/stores/budgetsStore';
@@ -64,6 +68,10 @@ const linking = {
       BudgetDetail: 'budgets/:budgetId',
       CategoryList: 'categories',
       CategoryForm: 'categories/edit',
+      EditProfile: 'profile/edit',
+      ChangePassword: 'profile/change-password',
+      Settings: 'settings',
+      About: 'about',
     },
   },
 };
@@ -83,11 +91,13 @@ export function Routes() {
   } = usePreferencesStore();
   const { colors } = useTheme();
 
-  // Load user and preferences on mount
+  // Load user and preferences on mount only
+  // DO NOT add loadUser/loadPreferences to deps - would cause infinite loop
   useEffect(() => {
     loadUser();
     loadPreferences();
-  }, [loadUser, loadPreferences]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty deps - only run once on mount
 
   // Loading screen while checking auth and preferences
   if (authLoading || prefsLoading) {
@@ -174,8 +184,9 @@ export function Routes() {
             <Stack.Screen name="CategoryForm">
               {({ navigation, route }) => {
                 const categoryId = route.params?.categoryId;
-                const { getCategoryById } = useCategoriesStore();
-                const category = categoryId ? getCategoryById(categoryId) : undefined;
+                const category = categoryId
+                  ? useCategoriesStore.getState().getCategoryById(categoryId)
+                  : undefined;
 
                 return (
                   <CategoryFormView
@@ -189,8 +200,9 @@ export function Routes() {
             <Stack.Screen name="TransactionForm">
               {({ navigation, route }) => {
                 const transactionId = route.params?.transactionId;
-                const { getTransactionById } = useTransactionsStore();
-                const transaction = transactionId ? getTransactionById(transactionId) : undefined;
+                const transaction = transactionId
+                  ? useTransactionsStore.getState().getTransactionById(transactionId)
+                  : undefined;
 
                 return (
                   <TransactionFormView
@@ -216,7 +228,7 @@ export function Routes() {
             <Stack.Screen name="AccountForm">
               {({ navigation, route }) => {
                 const accountId = route.params?.accountId;
-                const { accounts } = useAccountsStore();
+                const accounts = useAccountsStore((state) => state.accounts);
                 const account = accountId
                   ? accounts.find((a) => a.id === accountId)
                   : undefined;
@@ -250,8 +262,10 @@ export function Routes() {
             <Stack.Screen name="BudgetForm">
               {({ navigation, route }) => {
                 const budgetId = route.params?.budgetId;
-                const { getBudgetById } = useBudgetsStore();
-                const budget = budgetId ? getBudgetById(budgetId) : undefined;
+                const budgets = useBudgetsStore((state) => state.budgets);
+                const budget = budgetId
+                  ? budgets.find((b) => b.id === budgetId)
+                  : undefined;
 
                 return (
                   <BudgetFormView
@@ -265,8 +279,8 @@ export function Routes() {
             <Stack.Screen name="BudgetDetail">
               {({ navigation, route }) => {
                 const budgetId = route.params?.budgetId;
-                const { getBudgetById } = useBudgetsStore();
-                const budget = getBudgetById(budgetId);
+                const budgets = useBudgetsStore((state) => state.budgets);
+                const budget = budgets.find((b) => b.id === budgetId);
 
                 if (!budget) {
                   navigation.goBack();
@@ -286,6 +300,26 @@ export function Routes() {
                   />
                 );
               }}
+            </Stack.Screen>
+            <Stack.Screen name="EditProfile">
+              {({ navigation }) => (
+                <EditProfileView onGoBack={() => navigation.goBack()} />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="ChangePassword">
+              {({ navigation }) => (
+                <ChangePasswordView onGoBack={() => navigation.goBack()} />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="Settings">
+              {({ navigation }) => (
+                <SettingsView onGoBack={() => navigation.goBack()} />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="About">
+              {({ navigation }) => (
+                <AboutView onGoBack={() => navigation.goBack()} />
+              )}
             </Stack.Screen>
           </>
         )}
