@@ -2,9 +2,14 @@
  * Component: SearchBar
  *
  * Search input with debounce, clear button, and visual feedback.
+ *
+ * LOOP PREVENTION:
+ * - Uses useRef for onSearch callback to prevent infinite re-renders
+ * - Debounce delay of 500ms to reduce API calls
+ * - Only debouncedValue in useEffect dependencies (NOT the callback)
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   TextInput,
@@ -37,7 +42,7 @@ export interface SearchBarProps {
   onChangeText?: (text: string) => void;
 
   /**
-   * Debounce delay in ms (default: 300)
+   * Debounce delay in ms (default: 500)
    */
   debounceDelay?: number;
 
@@ -77,7 +82,7 @@ export function SearchBar({
   value: controlledValue,
   onSearch,
   onChangeText,
-  debounceDelay = 300,
+  debounceDelay = 500,
   isLoading = false,
   autoFocus = false,
   disabled = false,
@@ -89,18 +94,25 @@ export function SearchBar({
   const [localValue, setLocalValue] = useState(controlledValue || '');
   const [isFocused, setIsFocused] = useState(false);
 
+  // ✅ CRITICAL: Use ref for onSearch to prevent infinite loops
+  const onSearchRef = useRef(onSearch);
+
+  useEffect(() => {
+    onSearchRef.current = onSearch;
+  }, [onSearch]);
+
   // Use controlled value if provided
   const inputValue = controlledValue !== undefined ? controlledValue : localValue;
 
   // Debounce the search value
   const debouncedValue = useDebounce(inputValue, debounceDelay);
 
-  // Notify parent when debounced value changes
+  // Notify parent when debounced value changes (SAFE - no onSearch in deps)
   useEffect(() => {
-    if (onSearch && debouncedValue !== undefined) {
-      onSearch(debouncedValue);
+    if (onSearchRef.current && debouncedValue !== undefined) {
+      onSearchRef.current(debouncedValue);
     }
-  }, [debouncedValue, onSearch]);
+  }, [debouncedValue]); // ✅ ONLY debouncedValue in deps
 
   const handleChange = useCallback((text: string) => {
     if (controlledValue === undefined) {
