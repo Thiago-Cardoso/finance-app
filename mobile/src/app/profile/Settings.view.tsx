@@ -2,12 +2,18 @@
  * View: Settings
  *
  * Screen for app settings including theme and notifications.
+ *
+ * ANTI-LOOP PATTERN:
+ * - Loads theme preference once on mount
+ * - Uses stable ThemeStore actions
+ * - No useState for theme management
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, Switch } from 'react-native';
 import { Screen } from '@/shared/components/ui/Screen';
 import { useTheme } from '@/shared/hooks/useTheme';
+import { useThemeStore, type ThemePreference } from '@/shared/stores/themeStore';
 import {
   ArrowLeft,
   Sun,
@@ -22,33 +28,22 @@ interface SettingsViewProps {
   onGoBack: () => void;
 }
 
-type ThemeOption = 'light' | 'dark' | 'system';
-
 export function SettingsView({ onGoBack }: SettingsViewProps) {
   const {
     colors,
     theme,
-    colorScheme,
-    isSystemTheme,
-    setColorScheme,
-    setSystemTheme,
+    themePreference,
   } = useTheme();
 
-  // Determine current theme selection
-  const getCurrentThemeOption = (): ThemeOption => {
-    if (isSystemTheme) return 'system';
-    return colorScheme;
-  };
+  const { setThemePreference, loadThemePreference } = useThemeStore();
 
-  const currentThemeOption = getCurrentThemeOption();
+  // Load theme preference on mount
+  useEffect(() => {
+    loadThemePreference();
+  }, [loadThemePreference]);
 
-  const handleThemeChange = (option: ThemeOption) => {
-    if (option === 'system') {
-      setSystemTheme(true);
-    } else {
-      setSystemTheme(false);
-      setColorScheme(option);
-    }
+  const handleThemeChange = (option: ThemePreference) => {
+    setThemePreference(option);
   };
 
   return (
@@ -90,7 +85,7 @@ export function SettingsView({ onGoBack }: SettingsViewProps) {
             icon={Sun}
             label="Claro"
             description="Sempre usar tema claro"
-            isSelected={currentThemeOption === 'light'}
+            isSelected={themePreference === 'light'}
             onPress={() => handleThemeChange('light')}
             colors={colors}
             theme={theme}
@@ -100,7 +95,7 @@ export function SettingsView({ onGoBack }: SettingsViewProps) {
             icon={Moon}
             label="Escuro"
             description="Sempre usar tema escuro"
-            isSelected={currentThemeOption === 'dark'}
+            isSelected={themePreference === 'dark'}
             onPress={() => handleThemeChange('dark')}
             colors={colors}
             theme={theme}
@@ -110,7 +105,7 @@ export function SettingsView({ onGoBack }: SettingsViewProps) {
             icon={Smartphone}
             label="Automático"
             description="Seguir configuração do sistema"
-            isSelected={currentThemeOption === 'system'}
+            isSelected={themePreference === 'system'}
             onPress={() => handleThemeChange('system')}
             colors={colors}
             theme={theme}
