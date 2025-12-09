@@ -7,7 +7,7 @@
 
 import React, { useMemo } from 'react';
 import { View, Text, RefreshControl, ScrollView, TouchableOpacity } from 'react-native';
-import { AlertCircle, RefreshCw } from 'lucide-react-native';
+import { Download, AlertCircle, RefreshCw } from 'lucide-react-native';
 import { Screen } from '@/shared/components/ui/Screen';
 import { Card } from '@/shared/components/ui/Card';
 import { Button } from '@/shared/components/ui/Button';
@@ -145,6 +145,53 @@ function SummaryHeader({
   );
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Export Feature Placeholder
+ */
+function ExportPlaceholder() {
+  const { colors, theme } = useTheme();
+
+  return (
+    <Card className="mx-4 p-4 mb-4">
+      <View className="flex-row items-center">
+        <View
+          className="w-10 h-10 rounded-full items-center justify-center mr-3"
+          style={{ backgroundColor: colors.surface }}
+        >
+          <Download size={20} color={colors.text.disabled} />
+        </View>
+        <View className="flex-1">
+          <Text
+            className="text-sm font-medium"
+            style={{ color: colors.text.primary }}
+          >
+            Exportar Relatório
+          </Text>
+          <Text
+            className="text-xs"
+            style={{ color: colors.text.secondary }}
+          >
+            Em breve: PDF, Excel, CSV
+          </Text>
+        </View>
+        <View
+          className="px-3 py-1 rounded-full"
+          style={{ backgroundColor: theme.colors.primary[100] }}
+        >
+          <Text
+            className="text-xs font-medium"
+            style={{ color: theme.colors.primary.DEFAULT }}
+          >
+            Em breve
+          </Text>
+        </View>
+      </View>
+    </Card>
+  );
+}
+>>>>>>> origin/master
 
 /**
  * Error State Component
@@ -255,6 +302,7 @@ export function ReportsView() {
     return { current, previous };
   }, [monthlyChartData]);
 
+<<<<<<< HEAD
   /**
    * Prepare export data
    */
@@ -287,6 +335,8 @@ export function ReportsView() {
     };
   }, [financialSummary, summaryData, monthlyChartData, categoryBreakdownData, filters]);
 
+=======
+>>>>>>> origin/master
   // Show error state
   if (error && !isLoading && !financialSummary) {
     return (
@@ -375,6 +425,7 @@ export function ReportsView() {
             title="Despesas por Categoria"
             maxItems={8}
           />
+<<<<<<< HEAD
         </View>
 
         {/* Export Button */}
@@ -382,6 +433,12 @@ export function ReportsView() {
           reportData={exportReportData}
           period={exportReportData?.period}
         />
+=======
+
+          {/* Export Placeholder */}
+          <ExportPlaceholder />
+        </View>
+>>>>>>> origin/master
 
         {/* Bottom Spacing */}
         <View className="h-8" />

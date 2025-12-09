@@ -309,6 +309,7 @@ export function Routes() {
                 );
               }}
             </Stack.Screen>
+<<<<<<< HEAD
             <Stack.Screen name="GoalsList">
               {({ navigation }) => (
                 <GoalsListView
@@ -358,7 +359,7 @@ export function Routes() {
                     onBack={() => navigation.goBack()}
                   />
                 );
-              }}
+              )}
             </Stack.Screen>
             <Stack.Screen name="EditProfile">
               {({ navigation }) => (
