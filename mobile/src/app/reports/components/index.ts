@@ -15,3 +15,5 @@ export type { CategoryBreakdownProps } from './CategoryBreakdown';
 
 export { BalanceEvolution } from './BalanceEvolution';
 export type { BalanceEvolutionProps } from './BalanceEvolution';
+
+export { ExportButton } from './ExportButton';

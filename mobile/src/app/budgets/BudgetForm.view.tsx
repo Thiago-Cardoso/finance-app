@@ -18,6 +18,7 @@ import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Screen } from '@/shared/components/ui/Screen';
 import { Button } from '@/shared/components/ui/Button';
+import { CurrencyInput } from '@/shared/components/ui/CurrencyInput';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useBudgetViewModel } from '@/viewModels/useBudget.viewModel';
 import { useCategoryViewModel } from '@/viewModels/useCategory.viewModel';
@@ -230,34 +231,18 @@ export function BudgetFormView({ budget, onSuccess, onBack }: BudgetFormViewProp
             control={control}
             name="limit_amount"
             render={({ field: { onChange, value } }) => (
-              <View
-                className="p-4 rounded-xl flex-row items-center"
+              <CurrencyInput
+                value={value || 0}
+                onChangeValue={onChange}
+                className="p-4 rounded-xl text-lg"
                 style={{
                   backgroundColor: colors.card,
+                  color: colors.text.primary,
                   borderWidth: errors.limit_amount ? 1 : 0,
                   borderColor: theme.colors.error.DEFAULT,
                 }}
-              >
-                <Text
-                  className="text-lg mr-2"
-                  style={{ color: colors.text.secondary }}
-                >
-                  R$
-                </Text>
-                <TextInput
-                  className="flex-1 text-lg"
-                  style={{ color: colors.text.primary }}
-                  placeholder="0,00"
-                  placeholderTextColor={colors.text.secondary}
-                  keyboardType="numeric"
-                  value={value ? value.toString().replace('.', ',') : ''}
-                  onChangeText={(text) => {
-                    const cleaned = text.replace(/[^0-9,]/g, '').replace(',', '.');
-                    const numValue = parseFloat(cleaned) || 0;
-                    onChange(numValue);
-                  }}
-                />
-              </View>
+                placeholderTextColor={colors.text.secondary}
+              />
             )}
           />
           {errors.limit_amount && (

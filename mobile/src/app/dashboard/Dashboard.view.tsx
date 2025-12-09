@@ -8,7 +8,7 @@ import React from 'react';
 import { View, Text, RefreshControl, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Tag, Wallet, Target } from 'lucide-react-native';
+import { Tag, Wallet, Target, Trophy } from 'lucide-react-native';
 import { useTheme } from '@/shared/hooks/useTheme';
 import { useDashboardViewModel } from '@/viewModels/useDashboard.viewModel';
 import { SummaryCard } from './components/SummaryCard';
@@ -68,6 +68,12 @@ function QuickActions() {
       color: '#10B981',
       onPress: () => navigation.navigate('BudgetList'),
     },
+    {
+      icon: Trophy,
+      label: 'Metas',
+      color: '#F59E0B',
+      onPress: () => navigation.navigate('GoalsList'),
+    },
   ];
 
   return (
@@ -75,13 +81,16 @@ function QuickActions() {
       <Text className="text-base font-semibold mb-3" style={{ color: colors.text.primary }}>
         Atalhos
       </Text>
-      <View className="flex-row justify-between">
+      <View className="flex-row flex-wrap gap-2">
         {actions.map((action, index) => (
           <TouchableOpacity
             key={index}
             onPress={action.onPress}
-            className="flex-1 items-center p-4 rounded-xl mx-1"
-            style={{ backgroundColor: colors.background.secondary }}
+            className="items-center p-4 rounded-xl"
+            style={{
+              backgroundColor: colors.background.secondary,
+              width: '48%',
+            }}
           >
             <View
               className="w-12 h-12 rounded-full items-center justify-center mb-2"

@@ -20,6 +20,7 @@ import {
   MonthlyChart,
   CategoryBreakdown,
   BalanceEvolution,
+  ExportButton,
 } from './components';
 
 /**
@@ -145,51 +146,6 @@ function SummaryHeader({
 }
 
 /**
- * Export Feature Placeholder
- */
-function ExportPlaceholder() {
-  const { colors, theme } = useTheme();
-
-  return (
-    <Card className="mx-4 p-4 mb-4">
-      <View className="flex-row items-center">
-        <View
-          className="w-10 h-10 rounded-full items-center justify-center mr-3"
-          style={{ backgroundColor: colors.surface }}
-        >
-          <Download size={20} color={colors.text.disabled} />
-        </View>
-        <View className="flex-1">
-          <Text
-            className="text-sm font-medium"
-            style={{ color: colors.text.primary }}
-          >
-            Exportar Relatório
-          </Text>
-          <Text
-            className="text-xs"
-            style={{ color: colors.text.secondary }}
-          >
-            Em breve: PDF, Excel, CSV
-          </Text>
-        </View>
-        <View
-          className="px-3 py-1 rounded-full"
-          style={{ backgroundColor: theme.colors.primary[100] }}
-        >
-          <Text
-            className="text-xs font-medium"
-            style={{ color: theme.colors.primary.DEFAULT }}
-          >
-            Em breve
-          </Text>
-        </View>
-      </View>
-    </Card>
-  );
-}
-
-/**
  * Error State Component
  */
 function ErrorState({
@@ -298,6 +254,38 @@ export function ReportsView() {
     return { current, previous };
   }, [monthlyChartData]);
 
+  /**
+   * Prepare export data
+   */
+  const exportReportData = useMemo(() => {
+    if (!financialSummary) return undefined;
+
+    // Format period based on filters
+    const periodText = filters.startDate && filters.endDate
+      ? `${new Date(filters.startDate).toLocaleDateString('pt-BR')} - ${new Date(filters.endDate).toLocaleDateString('pt-BR')}`
+      : 'Período Atual';
+
+    return {
+      period: periodText,
+      summary: {
+        totalIncome: summaryData.totalIncome,
+        totalExpenses: summaryData.totalExpenses,
+        netBalance: summaryData.netBalance,
+        transactionCount: summaryData.transactionCount,
+      },
+      monthlyData: monthlyChartData.map(item => ({
+        month: item.month,
+        income: item.income,
+        expense: item.expense,
+      })),
+      categoryBreakdown: categoryBreakdownData.map(item => ({
+        category: item.name,
+        amount: item.value,
+        percentage: item.percentage,
+      })),
+    };
+  }, [financialSummary, summaryData, monthlyChartData, categoryBreakdownData, filters]);
+
   // Show error state
   if (error && !isLoading && !financialSummary) {
     return (
@@ -386,10 +374,13 @@ export function ReportsView() {
             title="Despesas por Categoria"
             maxItems={8}
           />
-
-          {/* Export Placeholder */}
-          <ExportPlaceholder />
         </View>
+
+        {/* Export Button */}
+        <ExportButton
+          reportData={exportReportData}
+          period={exportReportData?.period}
+        />
 
         {/* Bottom Spacing */}
         <View className="h-8" />
