@@ -21,6 +21,9 @@ import { CategoryListView, CategoryFormView } from '@/app/categories';
 import { TransactionFormView } from '@/app/transactions';
 import { BudgetListView, BudgetFormView, BudgetDetailView } from '@/app/budgets';
 import { AccountListView, AccountFormView } from '@/app/accounts';
+import { GoalsListView } from '@/app/goals/GoalsList.view';
+import { GoalFormView } from '@/app/goals/GoalForm.view';
+import { GoalDetailView } from '@/app/goals/GoalDetail.view';
 import { EditProfileView } from '@/app/profile/EditProfile.view';
 import { ChangePasswordView } from '@/app/profile/ChangePassword.view';
 import { SettingsView } from '@/app/profile/Settings.view';
@@ -29,11 +32,13 @@ import { useCategoriesStore } from '@/shared/stores/categoriesStore';
 import { useTransactionsStore } from '@/shared/stores/transactionsStore';
 import { useBudgetsStore } from '@/shared/stores/budgetsStore';
 import { useAccountsStore } from '@/shared/stores/accountsStore';
+import { useGoalsStore } from '@/shared/stores/goalsStore';
 import type { RootStackParamList } from './types';
 import type { Category } from '@/shared/models/Category.model';
 import type { Transaction } from '@/shared/models/Transaction.model';
 import type { Budget } from '@/shared/models/Budget.model';
 import type { Account } from '@/shared/models/Account.model';
+import type { Goal } from '@/shared/models/Goal.model';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -66,6 +71,9 @@ const linking = {
       BudgetList: 'budgets',
       BudgetForm: 'budgets/new',
       BudgetDetail: 'budgets/:budgetId',
+      GoalsList: 'goals',
+      GoalForm: 'goals/new',
+      GoalDetail: 'goals/:goalId',
       CategoryList: 'categories',
       CategoryForm: 'categories/edit',
       EditProfile: 'profile/edit',
@@ -297,6 +305,57 @@ export function Routes() {
                     }}
                     onBack={() => navigation.goBack()}
                     onDeleted={() => navigation.navigate('BudgetList')}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="GoalsList">
+              {({ navigation }) => (
+                <GoalsListView
+                  onNavigateToForm={(goal?: Goal) => {
+                    navigation.navigate('GoalForm', {
+                      goalId: goal?.id,
+                    });
+                  }}
+                  onNavigateToDetail={(goal: Goal) => {
+                    navigation.navigate('GoalDetail', {
+                      goalId: goal.id,
+                    });
+                  }}
+                  onBack={() => navigation.goBack()}
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="GoalForm">
+              {({ navigation, route }) => {
+                const goalId = route.params?.goalId;
+                const goals = useGoalsStore((state) => state.goals);
+                const goal = goalId
+                  ? goals.find((g) => g.id === goalId)
+                  : undefined;
+
+                return (
+                  <GoalFormView
+                    goal={goal}
+                    onSuccess={() => navigation.goBack()}
+                    onBack={() => navigation.goBack()}
+                  />
+                );
+              }}
+            </Stack.Screen>
+            <Stack.Screen name="GoalDetail">
+              {({ navigation, route }) => {
+                const goalId = route.params?.goalId;
+
+                return (
+                  <GoalDetailView
+                    goalId={goalId}
+                    onEdit={(goal: Goal) => {
+                      navigation.navigate('GoalForm', {
+                        goalId: goal.id,
+                      });
+                    }}
+                    onBack={() => navigation.goBack()}
                   />
                 );
               }}

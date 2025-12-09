@@ -45,6 +45,10 @@ export type RootStackParamList = {
   BudgetDetail: { budgetId: number };
   CategoryList: undefined;
   CategoryForm: { categoryId?: string };
+  // Goals routes
+  GoalsList: undefined;
+  GoalForm: { goalId?: number };
+  GoalDetail: { goalId: number };
   // Profile routes
   EditProfile: undefined;
   ChangePassword: undefined;
