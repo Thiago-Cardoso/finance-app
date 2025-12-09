@@ -231,7 +231,6 @@ export function BudgetFormView({ budget, onSuccess, onBack }: BudgetFormViewProp
             control={control}
             name="limit_amount"
             render={({ field: { onChange, value } }) => (
-<<<<<<< HEAD
               <CurrencyInput
                 value={value || 0}
                 onChangeValue={onChange}
@@ -244,36 +243,6 @@ export function BudgetFormView({ budget, onSuccess, onBack }: BudgetFormViewProp
                 }}
                 placeholderTextColor={colors.text.secondary}
               />
-=======
-              <View
-                className="p-4 rounded-xl flex-row items-center"
-                style={{
-                  backgroundColor: colors.card,
-                  borderWidth: errors.limit_amount ? 1 : 0,
-                  borderColor: theme.colors.error.DEFAULT,
-                }}
-              >
-                <Text
-                  className="text-lg mr-2"
-                  style={{ color: colors.text.secondary }}
-                >
-                  R$
-                </Text>
-                <TextInput
-                  className="flex-1 text-lg"
-                  style={{ color: colors.text.primary }}
-                  placeholder="0,00"
-                  placeholderTextColor={colors.text.secondary}
-                  keyboardType="numeric"
-                  value={value ? value.toString().replace('.', ',') : ''}
-                  onChangeText={(text) => {
-                    const cleaned = text.replace(/[^0-9,]/g, '').replace(',', '.');
-                    const numValue = parseFloat(cleaned) || 0;
-                    onChange(numValue);
-                  }}
-                />
-              </View>
->>>>>>> origin/master
             )}
           />
           {errors.limit_amount && (

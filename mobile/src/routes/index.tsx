@@ -309,7 +309,6 @@ export function Routes() {
                 );
               }}
             </Stack.Screen>
-<<<<<<< HEAD
             <Stack.Screen name="GoalsList">
               {({ navigation }) => (
                 <GoalsListView
@@ -345,20 +344,16 @@ export function Routes() {
               }}
             </Stack.Screen>
             <Stack.Screen name="GoalDetail">
-              {({ navigation, route }) => {
-                const goalId = route.params?.goalId;
-
-                return (
-                  <GoalDetailView
-                    goalId={goalId}
-                    onEdit={(goal: Goal) => {
-                      navigation.navigate('GoalForm', {
-                        goalId: goal.id,
-                      });
-                    }}
-                    onBack={() => navigation.goBack()}
-                  />
-                );
+              {({ navigation, route }) => (
+                <GoalDetailView
+                  goalId={route.params?.goalId}
+                  onEdit={(goal: Goal) => {
+                    navigation.navigate('GoalForm', {
+                      goalId: goal.id,
+                    });
+                  }}
+                  onBack={() => navigation.goBack()}
+                />
               )}
             </Stack.Screen>
             <Stack.Screen name="EditProfile">
