@@ -25,6 +25,8 @@ module Reports
         income_breakdown: calculate_income_breakdown(transactions),
         expense_breakdown: calculate_expense_breakdown(transactions),
         category_analysis: calculate_category_analysis(transactions),
+        monthly_breakdown: calculate_monthly_breakdown(transactions),
+        category_breakdown: calculate_category_breakdown(transactions),
         account_balances: calculate_account_balances(data[:accounts]),
         daily_trend: calculate_daily_trend(transactions),
         comparisons: calculate_comparisons(transactions)
@@ -43,6 +45,8 @@ module Reports
         income: processed_data[:income_breakdown],
         expenses: processed_data[:expense_breakdown],
         categories: processed_data[:category_analysis],
+        monthly_breakdown: processed_data[:monthly_breakdown],
+        category_breakdown: processed_data[:category_breakdown],
         accounts: processed_data[:account_balances],
         trends: processed_data[:daily_trend],
         comparisons: processed_data[:comparisons],
@@ -274,6 +278,69 @@ module Reports
           net_change_formatted: format_currency((current_income - current_expenses) - (previous_income - previous_expenses))
         }
       }
+    end
+
+    def calculate_monthly_breakdown(transactions)
+      # Group transactions by month
+      income_by_month = transactions.where(transaction_type: 'income')
+        .group("DATE_TRUNC('month', date)")
+        .sum(:amount)
+
+      expenses_by_month = transactions.where(transaction_type: 'expense')
+        .group("DATE_TRUNC('month', date)")
+        .sum(:amount)
+
+      # Get all months in the period
+      months = []
+      current = start_date.beginning_of_month
+      while current <= end_date
+        income = income_by_month[current] || 0
+        expense = expenses_by_month[current] || 0
+
+        months << {
+          month: current.strftime('%Y-%m'),
+          month_name: format_month_name(current),
+          income: income,
+          expense: expense,
+          net: income - expense
+        }
+
+        current = current.next_month
+      end
+
+      months
+    end
+
+    def format_month_name(date)
+      month_names = {
+        1 => 'Jan', 2 => 'Fev', 3 => 'Mar', 4 => 'Abr',
+        5 => 'Mai', 6 => 'Jun', 7 => 'Jul', 8 => 'Ago',
+        9 => 'Set', 10 => 'Out', 11 => 'Nov', 12 => 'Dez'
+      }
+      "#{month_names[date.month]} #{date.year}"
+    end
+
+    def calculate_category_breakdown(transactions)
+      expense_transactions = transactions.where(transaction_type: 'expense')
+      total_expenses = expense_transactions.sum(:amount)
+
+      breakdown_data = expense_transactions
+        .group(:category_id)
+        .sum(:amount)
+
+      breakdown_data.map do |category_id, amount|
+        category = Category.find_by(id: category_id)
+        transaction_count = expense_transactions.where(category_id: category_id).count
+
+        {
+          category_id: category_id,
+          category_name: category&.name || 'Sem Categoria',
+          category_color: category&.color,
+          amount: amount,
+          percentage: calculate_percentage(amount, total_expenses),
+          transaction_count: transaction_count
+        }
+      end.sort_by { |item| -item[:amount] }
     end
   end
 end

@@ -18,7 +18,7 @@ class User < ApplicationRecord
   validates :first_name, presence: true, length: { maximum: 100 }
   validates :last_name, presence: true, length: { maximum: 100 }
   validates :email, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :jti, presence: true, uniqueness: true, on: :update
+  validates :jti, presence: true
 
   # Callbacks
   before_validation :generate_jti, on: :create

@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       post 'auth/refresh_token', to: 'auth#refresh_token'
       post 'auth/reset_password', to: 'auth#reset_password'
       put 'auth/update_password', to: 'auth#update_password'
+      patch 'auth/change_password', to: 'auth#change_password'
       post 'auth/confirm_email', to: 'auth#confirm_email'
 
       # Dashboard endpoint

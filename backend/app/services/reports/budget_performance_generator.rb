@@ -77,7 +77,7 @@ module Reports
           budget_name: budget.name,
           category_id: budget.category_id,
           category_name: budget.category&.name,
-          period_type: budget.period_type,
+          period_type: budget.period,
           amount: budget.amount,
           amount_formatted: format_currency(budget.amount),
           spent: spent,

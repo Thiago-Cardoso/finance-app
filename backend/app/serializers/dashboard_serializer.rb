@@ -11,9 +11,8 @@ class DashboardSerializer
       summary: @data[:summary],
       current_balance: format_currency(@data[:current_balance]),
       recent_transactions: @data[:recent_transactions],
-      top_categories: format_categories(@data[:top_categories]),
-      monthly_evolution: format_evolution(@data[:monthly_evolution]),
-      budget_status: format_budgets(@data[:budget_status]),
+      categories_breakdown: format_categories(@data[:top_categories]),
+      budget_progress: format_budgets(@data[:budget_status]),
       goals_progress: @data[:goals_progress],
       last_updated: Time.current.iso8601
     }

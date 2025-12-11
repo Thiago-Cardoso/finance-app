@@ -133,8 +133,26 @@ module Reports
 
     # Scoped transactions for the user within date range
     def scoped_transactions
-      user.transactions
-          .where(date: start_date..end_date)
+      scope = user.transactions.where(date: start_date..end_date)
+
+      # Filter by transaction type if specified
+      if filters[:transaction_type].present? && filters[:transaction_type] != 'all'
+        scope = scope.where(transaction_type: filters[:transaction_type])
+      end
+
+      # Filter by categories if specified
+      if filters[:category_ids].present? && filters[:category_ids].is_a?(Array)
+        scope = scope.where(category_id: filters[:category_ids])
+      elsif filters[:category_id].present?
+        scope = scope.where(category_id: filters[:category_id])
+      end
+
+      # Filter by account if specified
+      if filters[:account_id].present?
+        scope = scope.where(account_id: filters[:account_id])
+      end
+
+      scope
     end
 
     # Scoped categories for the user

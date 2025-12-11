@@ -5,7 +5,8 @@ module Api
   module V1
     class AuthController < BaseController
       skip_before_action :authenticate_user!,
-                         only: %i[sign_up sign_in refresh_token reset_password update_password confirm_email]
+                         only: %i[sign_up sign_in sign_out refresh_token reset_password update_password confirm_email]
+      before_action :authenticate_user!, only: [:change_password]
 
       # POST /api/v1/auth/sign_up
       def sign_up
@@ -119,6 +120,26 @@ module Api
         end
       end
 
+      # PATCH /api/v1/auth/change_password
+      def change_password
+        unless current_user.valid_password?(change_password_params[:current_password])
+          return render_error(
+            'Current password is incorrect',
+            [{ field: 'current_password', message: 'Current password is incorrect' }],
+            :unprocessable_entity
+          )
+        end
+
+        if current_user.update(
+          password: change_password_params[:password],
+          password_confirmation: change_password_params[:password_confirmation]
+        )
+          render_success({}, 'Password changed successfully')
+        else
+          render_validation_errors(ActiveRecord::RecordInvalid.new(current_user))
+        end
+      end
+
       private
 
       # Strong parameters for sign up
@@ -139,6 +160,11 @@ module Api
       # Strong parameters for update password
       def update_password_params
         params.require(:user).permit(:reset_password_token, :password, :password_confirmation)
+      end
+
+      # Strong parameters for change password (when logged in)
+      def change_password_params
+        params.require(:user).permit(:current_password, :password, :password_confirmation)
       end
 
       # Format user data for API response

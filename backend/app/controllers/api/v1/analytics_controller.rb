@@ -135,13 +135,22 @@ module Api
       private
 
       def filter_params
-        params.permit(
+        permitted = params.permit(
           :period_type,
           :start_date,
           :end_date,
           :category_id,
-          :account_id
+          :account_id,
+          :transaction_type,
+          :category_ids
         ).to_h.symbolize_keys
+
+        # Convert category_ids from comma-separated string to array of integers
+        if permitted[:category_ids].present?
+          permitted[:category_ids] = permitted[:category_ids].split(',').map(&:to_i)
+        end
+
+        permitted
       end
 
       def report_json(report)
