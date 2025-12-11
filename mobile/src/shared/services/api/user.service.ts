@@ -41,7 +41,7 @@ export async function updateUser(data: UpdateUserData): Promise<User> {
  * Update user password
  */
 export async function updatePassword(data: UpdatePasswordData): Promise<{ message: string }> {
-  const response = await apiClient.patch<{ message: string }>('/api/v1/users/password', {
+  const response = await apiClient.patch<{ message: string }>('/api/v1/auth/change_password', {
     user: data,
   });
 

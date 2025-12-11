@@ -10,11 +10,11 @@
  */
 export const MOCK_CONFIG = {
   // Global flag to enable/disable all mocks
-  USE_MOCK_DATA: true, // Set to true to enable mocks
+  USE_MOCK_DATA: false, // Set to true to enable mocks
 
   // Individual feature flags
   GOALS: {
-    enabled: true, // Set to true to mock goals API
+    enabled: false, // Set to true to mock goals API
     delay: 500, // Simulated API delay in ms
   },
 

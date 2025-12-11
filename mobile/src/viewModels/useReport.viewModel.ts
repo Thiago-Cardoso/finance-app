@@ -275,13 +275,23 @@ export function useReportViewModel(): UseReportViewModel {
   }, [financialSummary]);
 
   /**
-   * Load reports on mount only
-   * DO NOT add loadReports to deps - it would cause infinite loop
+   * Load reports on mount
    */
   useEffect(() => {
     loadReports();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty deps - only run once on mount
+
+  /**
+   * Reload reports when filters change
+   */
+  useEffect(() => {
+    // Skip first render (already loaded on mount)
+    if (financialSummary) {
+      loadReports();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]); // Reload when filters change
 
   return {
     // Data
