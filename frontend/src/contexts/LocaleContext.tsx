@@ -48,9 +48,12 @@ let translations = { ...defaultTranslations }
 
 const LocaleContext = createContext<LocaleContextType | undefined>(undefined)
 
+// Translation loading state
+let translationsPromise: Promise<void> | null = null
+
 // Load translations on the client side only
-if (typeof window !== 'undefined') {
-  Promise.all([
+if (typeof window !== 'undefined' && !translationsPromise) {
+  translationsPromise = Promise.all([
     import('@/locales/pt-BR.json'),
     import('@/locales/en-US.json')
   ]).then(([ptBR, enUS]) => {
@@ -72,6 +75,7 @@ if (typeof window !== 'undefined') {
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('pt-BR')
   const [mounted, setMounted] = useState(false)
+  const [translationsLoaded, setTranslationsLoaded] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -80,6 +84,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
         const savedLocale = localStorage.getItem('locale') as Locale | null
         if (savedLocale && ['pt-BR', 'en-US'].includes(savedLocale)) {
           setLocaleState(savedLocale)
+        }
+        // Wait for translations to load before marking as loaded
+        if (translationsPromise) {
+          translationsPromise.then(() => {
+            setTranslationsLoaded(true)
+          })
+        } else {
+          setTranslationsLoaded(true)
         }
       } catch (error) {
         console.error('Error accessing localStorage:', error)
@@ -100,6 +112,11 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const t = useCallback((key: string, params?: Record<string, string | number>): string => {
+    // On server or before translations loaded, always return the key to match server rendering
+    if (!translationsLoaded) {
+      return key
+    }
+
     const keys = key.split('.')
     let value: TranslationValue | undefined = translations[locale]
 
@@ -122,7 +139,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
 
     return value
-  }, [locale])
+  }, [locale, translationsLoaded])
 
   const formatCurrency = useCallback((amount: number): string => {
     const currencyConfig = translations[locale].currency

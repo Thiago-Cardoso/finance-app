@@ -27,12 +27,16 @@ class ApiClient {
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token')
+        // Only redirect if not already on an auth page
         if (!window.location.pathname.startsWith('/auth/')) {
           toast.error('Sua sessão expirou. Por favor, faça login novamente.')
           setTimeout(() => {
             window.location.href = '/auth/login'
           }, 1000)
+          throw new Error('Token expirado ou inválido')
         }
+        // If on auth page, silently reject to avoid loop
+        return Promise.reject({ status: 401, silent: true })
       }
       throw new Error('Token expirado ou inválido')
     }
@@ -101,12 +105,16 @@ class ApiClient {
     if (response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token')
+        // Only redirect if not already on an auth page
         if (!window.location.pathname.startsWith('/auth/')) {
           toast.error('Sua sessão expirou. Por favor, faça login novamente.')
           setTimeout(() => {
             window.location.href = '/auth/login'
           }, 1000)
+          throw new Error('Token expirado ou inválido')
         }
+        // If on auth page, silently reject to avoid loop
+        return Promise.reject({ status: 401, silent: true })
       }
       throw new Error('Token expirado ou inválido')
     }
